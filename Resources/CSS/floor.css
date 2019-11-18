@@ -1,0 +1,143 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+}
+
+.controls {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
+input[type=range] {
+    position: absolute;
+    height: 40px;
+}
+
+input[type=range][orient=vertical] {
+    top: 80px;
+    left: -40px;
+    transform: rotate(90deg);
+    height: 40px;
+}
+
+input[type=range][orient=horizontal] {
+    position: absolute;
+    left: 40px;
+    top: 0;
+}
+
+.controls span {
+    margin-top: 10px;
+    display: inline-block;
+}
+
+.controls span.range-x {
+    margin-left: 200px;
+    padding-right: 10px;
+}
+
+.controls span.range-y {
+    padding-left: 10px;
+}
+
+.gridContainer {
+    position: absolute;
+    border: 1px solid black;
+    font-size: 0;
+    margin: 50px;
+    box-sizing: border-box;
+}
+
+.gridContainer>div {
+    display: inline-block;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.1);
+    border: 1px solid black;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.gridContainer>div>div {
+    height: 100%;
+    width: 100%;
+}
+
+.gridContainer>div.isSelected {
+    border: 0;
+}
+
+.parts {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-top: 1px solid black;
+    font-size: 0;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.part {
+    height: 100px;
+    display: inline-block;
+    width: 100px;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.part.isSelected {
+    border: 5px solid #000;
+}
+
+.parts .start {
+    background: grey;
+}
+
+.parts .end {
+    background: grey;
+}
+
+.parts .water {
+    background: blue;
+}
+
+.parts .dirt {
+    background: brown;
+}
+
+.parts .snow {
+    background: rgb(255, 240, 255);
+}
+
+.parts .sand {
+    background: #e87d56;
+}
+
+.parts div:after {
+    content: attr(data-type);
+    position: absolute;
+    padding: 10px;
+    font-size: 20px;
+    text-transform: capitalize;
+}
+
+#gameCanvas {
+    position: absolute;
+    top: 50px;
+    left: 50px;
+}
+
+textarea {
+    position: absolute;
+    bottom: 110px;
+    width: 90%;
+    height: 80px;
+}

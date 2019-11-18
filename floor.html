@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>IDK Floor</title>
+    <link rel="stylesheet" type="text/css" href="Resources/CSS/floor.css" />
+</head>
+
+<body>
+    <div class="controls">
+        <input class="range-x" max="120" type="range" orient="vertical" value="10" />
+        <input class="range-y" max="120" type="range" orient="horizontal" value="10" />
+        <span class="range-x">4</span>X<span class="range-y">4</span>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+    <div class="parts">
+        <div class="part start" data-type="start" data-color="rgb(200, 200, 200)"></div>
+        <div class="part end" data-type="end" data-color="rgb(200, 200, 200)"></div>
+
+        <div class="part water" data-type="water" data-color="rgb(0, 0, 255)" data-collision="1"></div>
+        <div class="part dirt" data-type="dirt" data-color="rgb(165, 42, 42)"></div>
+        <div class="part snow" data-type="snow" data-color="rgb(255, 240, 255)"></div>
+        <div class="part sand" data-type="sand" data-color="rgb(232, 125, 86)"></div>
+    </div>
+    <textarea></textarea>
+</body>
+<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+<script src="https://unpkg.com/selectable.js@latest/selectable.min.js"></script>
+<script src="Resources/JavaScript/floor.js"></script>
+
+</html>

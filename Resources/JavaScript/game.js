@@ -184,7 +184,13 @@ function Floor(ctx, floor) {
                     down >= el[i].y - this.stageY &&
                     up <= el[i].y - this.stageY + this.partH
                 ) {
-                    return true;
+                    collision = {
+                        right: right == el[i].x - this.stageX,
+                        left: left == el[i].x - this.stageX + this.partW,
+                        down: down == el[i].y - this.stageY,
+                        up: up == el[i].y - this.stageY + this.partH
+                    }
+                    return collision;
                 }
             }
         }
@@ -192,56 +198,67 @@ function Floor(ctx, floor) {
     }
     this.stageMoveCollision = function(collision) {
         var step = this.steps;
+        var stuck = false;
+
+
+        var blockUp = this.stageY + (this.floorSettings.start.y * this.partH) + this.playerOffsetY;
+        var blockDown = this.stageY + (this.floorSettings.start.y * this.partH) - this.stageHeight + this.playerOffsetY + game.player.h;
+        var blockLeft = this.stageX + (this.floorSettings.start.x * this.partW) + this.playerOffsetX;
+        var blockRight = this.stageX + (this.floorSettings.start.x * this.partW) - this.stageWidth + this.playerOffsetX + game.player.w;
 
         // up / down
-        if (keyPressed.up && !keyPressed.down && this.stageOffsetY < this.stageY + (this.floorSettings.start.y * this.partH) + this.playerOffsetY) {
-            if (collision == false || blockMovement.down) {
+        if (keyPressed.up && !keyPressed.down) {
+            stuck = false;
+            if (this.stageOffsetY == blockUp || collision.up) {
+                this.y = 0;
+                this.stageOffsetY += 0;
+                stuck = true;
+            }
+            if (!stuck && this.stageOffsetY < blockUp && !collision.up) {
                 this.y = step;
                 this.stageOffsetY += step;
-                blockMovement.down = false;
-            } else {
-                this.y = 0;
-                this.stageOffsetY += 0;
-                blockMovement.up = true;
             }
-        } else if (keyPressed.down && !keyPressed.up && this.stageOffsetY > this.stageY - this.stageHeight + (this.floorSettings.start.y * this.partH) + this.playerOffsetY + game.player.h) {
-            if (collision == false || blockMovement.up) {
-                this.stageOffsetY -= step;
-                this.y = -step;
-                blockMovement.up = false;
-            } else {
+        } else if (keyPressed.down && !keyPressed.up) {
+            stuck = false;
+            if (this.stageOffsetY == blockDown || collision.down) {
                 this.y = 0;
-                this.stageOffsetY += 0;
-                blockMovement.down = true;
+                this.stageOffsetY -= 0;
+                stuck = true;
+            }
+            if (!stuck && this.stageOffsetY > blockDown && !collision.down) {
+                this.y = -step;
+                this.stageOffsetY -= step;
             }
         } else {
             this.y = 0;
+            this.stageOffsetY += 0;
         }
-
         // left / right
-        if (keyPressed.left && !keyPressed.right && this.stageOffsetX < this.stageX + (this.floorSettings.start.x * this.partW) + this.playerOffsetX) {
-            if (collision == false || blockMovement.right) {
+        if (keyPressed.left && !keyPressed.right) {
+            stuck = false;
+            if (this.stageOffsetX == blockLeft || collision.left) {
+                this.x = 0;
+                this.stageOffsetX += 0;
+                stuck = true;
+            }
+            if (!stuck && this.stageOffsetX < blockLeft && !collision.left) {
                 this.x = step;
                 this.stageOffsetX += step;
-                blockMovement.right = false;
-            } else {
+            }
+        } else if (keyPressed.right && !keyPressed.left) {
+            stuck = false;
+            if (this.stageOffsetX == blockRight || collision.right) {
                 this.x = 0;
                 this.stageOffsetX += 0;
-                blockMovement.left = true;
+                stuck = true;
             }
-        } else if (keyPressed.right && !keyPressed.left && this.stageOffsetX > this.stageX + (this.floorSettings.start.x * this.partW) - this.stageWidth + this.playerOffsetX + game.player.w) {
-            if (collision == false || blockMovement.left) {
+            if (!stuck && this.stageOffsetX > blockRight && !collision.right) {
                 this.x = -step;
                 this.stageOffsetX -= step;
-                blockMovement.left = false;
-            } else {
-                this.x = 0;
-                this.stageOffsetX += 0;
-                blockMovement.right = true;
             }
         } else {
             this.x = 0;
-
+            this.stageOffsetX += 0;
         }
     }
 }

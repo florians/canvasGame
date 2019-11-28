@@ -67,7 +67,11 @@ function Floor(ctx, floor) {
                         h: this.partH,
                         collision: parseInt(this.floorSettings.parts[element].collision) == 1 ? true : false,
                         type: this.floorSettings.parts[element].type || "empty",
-                        color: this.setFloorColor(this.floorSettings.parts[element].color || "")
+                        color: this.setFloorColor(this.floorSettings.parts[element].color || ""),
+                        offsetTop: this.floorSettings.parts[element].offsetTop || 0,
+                        offsetBottom: this.floorSettings.parts[element].offsetBottom || 0,
+                        offsetLeft: this.floorSettings.parts[element].offsetLeft || 0,
+                        offsetRight: this.floorSettings.parts[element].offsetRight || 0,
                     }
                     if (this.floorElements[element].type == "empty") {
                         this.floorElements[element].collision = true;
@@ -124,27 +128,29 @@ function Floor(ctx, floor) {
 
             var right = -this.stageOffsetX + game.player.x + game.player.w;
             var left = -this.stageOffsetX + game.player.x;
-            var down = -this.stageOffsetY + game.player.y + game.player.h;
-            var up = -this.stageOffsetY + game.player.y;
-
+            var top = -this.stageOffsetY + game.player.y + game.player.h;
+            var bottom = -this.stageOffsetY + game.player.y;
+            // e = element
             if (el[i] && el[i].collision == true) {
-                if (
-                    right >= el[i].x - this.stageX &&
-                    left <= el[i].x - this.stageX + this.partW &&
-                    down >= el[i].y - this.stageY &&
-                    up <= el[i].y - this.stageY + this.partH
-                ) {
-                    if (keyPressed.right && right == el[i].x - this.stageX) {
+                eRight = el[i].x - this.stageX + el[i].offsetRight;
+                eLeft = el[i].x - this.stageX + this.partW - el[i].offsetLeft;
+                eTop = el[i].y - this.stageY + el[i].offsetTop;
+                eBottom = el[i].y - this.stageY + this.partH - el[i].offsetBottom;
+                if (right >= eRight && left <= eLeft && top >= eTop && bottom <= eBottom) {
+                    cOffsetLeftRight = bottom + 0.1 <= eBottom && top - 0.1 >= eTop;
+                    cOffsetBottomTop = right - 0.1 >= eRight && left + 0.1 <= eLeft;
+
+                    if (keyPressed.right && right == eRight && cOffsetLeftRight) {
                         collision.right = true;
                     }
-                    if (keyPressed.left && left == el[i].x - this.stageX + this.partW) {
+                    if (keyPressed.left && left == eLeft && cOffsetLeftRight) {
                         collision.left = true;
                     }
-                    if (keyPressed.down && down == el[i].y - this.stageY) {
-                        collision.down = true;
+                    if (keyPressed.down && top == eTop && cOffsetBottomTop) {
+                        collision.top = true;
                     }
-                    if (keyPressed.up && up == el[i].y - this.stageY + this.partH) {
-                        collision.up = true;
+                    if (keyPressed.up && bottom == eBottom && cOffsetBottomTop) {
+                        collision.bottom = true;
                     }
                 }
             }
@@ -159,31 +165,31 @@ function Floor(ctx, floor) {
         var step = this.steps;
         var stuck = false;
 
-        var blockUp = this.stageY + (this.floorSettings.start.y * this.partH) + this.playerOffsetY;
-        var blockDown = this.stageY + (this.floorSettings.start.y * this.partH) - this.stageHeight + this.playerOffsetY + game.player.h;
-        var blockLeft = this.stageX + (this.floorSettings.start.x * this.partW) + this.playerOffsetX;
-        var blockRight = this.stageX + (this.floorSettings.start.x * this.partW) - this.stageWidth + this.playerOffsetX + game.player.w;
+        var stageEndRight = this.stageX + (this.floorSettings.start.x * this.partW) - this.stageWidth + this.playerOffsetX + game.player.w;
+        var stageEndLeft = this.stageX + (this.floorSettings.start.x * this.partW) + this.playerOffsetX;
+        var stageEndTop = this.stageY + (this.floorSettings.start.y * this.partH) - this.stageHeight + this.playerOffsetY + game.player.h;
+        var stageEndBottom = this.stageY + (this.floorSettings.start.y * this.partH) + this.playerOffsetY;
 
         // up / down
         if (keyPressed.up && !keyPressed.down) {
             stuck = false;
-            if (this.stageOffsetY == blockUp || collision.up) {
+            if (this.stageOffsetY == stageEndBottom || collision.bottom) {
                 this.y = 0;
                 this.stageOffsetY += 0;
                 stuck = true;
             }
-            if (!stuck && this.stageOffsetY < blockUp && !collision.up) {
+            if (!stuck && this.stageOffsetY < stageEndBottom && !collision.bottom) {
                 this.y = step;
                 this.stageOffsetY += step;
             }
         } else if (keyPressed.down && !keyPressed.up) {
             stuck = false;
-            if (this.stageOffsetY == blockDown || collision.down) {
+            if (this.stageOffsetY == stageEndTop || collision.top) {
                 this.y = 0;
                 this.stageOffsetY -= 0;
                 stuck = true;
             }
-            if (!stuck && this.stageOffsetY > blockDown && !collision.down) {
+            if (!stuck && this.stageOffsetY > stageEndTop && !collision.top) {
                 this.y = -step;
                 this.stageOffsetY -= step;
             }
@@ -194,23 +200,23 @@ function Floor(ctx, floor) {
         // left / right
         if (keyPressed.left && !keyPressed.right) {
             stuck = false;
-            if (this.stageOffsetX == blockLeft || collision.left) {
+            if (this.stageOffsetX == stageEndLeft || collision.left) {
                 this.x = 0;
                 this.stageOffsetX += 0;
                 stuck = true;
             }
-            if (!stuck && this.stageOffsetX < blockLeft && !collision.left) {
+            if (!stuck && this.stageOffsetX < stageEndLeft && !collision.left) {
                 this.x = step;
                 this.stageOffsetX += step;
             }
         } else if (keyPressed.right && !keyPressed.left) {
             stuck = false;
-            if (this.stageOffsetX == blockRight || collision.right) {
+            if (this.stageOffsetX == stageEndRight || collision.right) {
                 this.x = 0;
                 this.stageOffsetX += 0;
                 stuck = true;
             }
-            if (!stuck && this.stageOffsetX > blockRight && !collision.right) {
+            if (!stuck && this.stageOffsetX > stageEndRight && !collision.right) {
                 this.x = -step;
                 this.stageOffsetX -= step;
             }

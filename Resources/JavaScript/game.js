@@ -12,25 +12,14 @@ var assets = [
         src: "Floor/floor.jpg"
     }
 ];
-
+// load that in preloader via ajax > DB
 var floorSettings = testFloor;
-var blockMovement = {
-    up: false,
-    down: false,
-    left: false,
-    right: false
-}
 
 var keyPressed = {
     up: false,
     down: false,
     left: false,
     right: false
-}
-
-var player = {
-    w: 50,
-    h: 50
 }
 
 function Floor(ctx, floor) {
@@ -54,10 +43,10 @@ function Floor(ctx, floor) {
     this.floorElements = [];
 
     this.resize = function() {
-        this.playerOffsetX = Math.floor(this.partW / 2 - player.w / 2);
-        this.playerOffsetY = Math.floor(this.partH / 2 - player.h / 2);
-        this.stageX = Math.floor(ctx.canvas.width / 2 - (this.floorSettings.start.x * this.partW) - player.w / 2 - this.playerOffsetX);
-        this.stageY = Math.floor(ctx.canvas.height / 2 - (this.floorSettings.start.y * this.partH) - this.partH + player.h / 2 + this.playerOffsetY);
+        this.playerOffsetX = Math.floor(this.partW / 2 - game.player.w / 2);
+        this.playerOffsetY = Math.floor(this.partH / 2 - game.player.h / 2);
+        this.stageX = Math.floor(ctx.canvas.width / 2 - (this.floorSettings.start.x * this.partW) - game.player.w / 2 - this.playerOffsetX);
+        this.stageY = Math.floor(ctx.canvas.height / 2 - (this.floorSettings.start.y * this.partH) - this.partH + game.player.h / 2 + this.playerOffsetY);
         this.stageOffsetX = this.stageX;
         this.stageOffsetY = this.stageY;
         this.doFloorResize = 1;
@@ -81,7 +70,7 @@ function Floor(ctx, floor) {
                         color: this.setFloorColor(this.floorSettings.parts[element].color || "")
                     }
                     if (this.floorElements[element].type == "empty") {
-                        //this.floorElements[element].collision = true;
+                        this.floorElements[element].collision = true;
                     }
                     ctx.fillStyle = this.floorElements[element].color;
                     ctx.fillRect(
@@ -130,76 +119,45 @@ function Floor(ctx, floor) {
         }
     }
     this.collision = function(el) {
+        collision = {};
         for (i = 0; i < el.length; i++) {
 
             var right = -this.stageOffsetX + game.player.x + game.player.w;
-            //-this.stageOffsetX + (this.floorSettings.start.x * this.partW) + this.stageX + game.player.w / 2;
-            //-this.stageOffsetX + (this.floorSettings.start.x * this.partW) + this.stageX + game.player.w / 2;
-
             var left = -this.stageOffsetX + game.player.x;
-            //-this.stageOffsetX + (this.floorSettings.start.x * this.partW) + this.stageX - this.partW * 2 - game.player.w / 2;
-            //-this.stageOffsetX + (this.floorSettings.start.x * this.partW) + this.stageX - game.player.w / 2;
-
             var down = -this.stageOffsetY + game.player.y + game.player.h;
-            //-this.stageOffsetY + this.stageY - this.playerOffsetY + this.partW * 2 + (this.floorSettings.start.x * this.partW) + game.player.h / 2;
-            //-this.stageOffsetY + (this.floorSettings.start.y * this.partH) + this.stageY + this.playerOffsetY * 2 - game.player.h / 2;
-
             var up = -this.stageOffsetY + game.player.y;
-            //-this.stageOffsetY + this.stageY - this.playerOffsetY + (this.floorSettings.start.x * this.partW) - game.player.h / 2;
-            //-this.stageOffsetY + (this.floorSettings.start.y * this.partH) + this.stageY + this.playerOffsetY + game.player.h / 2;
 
             if (el[i] && el[i].collision == true) {
-
-                // if (keyPressed.right) {
-                //     console.log("r " + right, el[i].x - this.stageX);
-                // }
-                // if (keyPressed.left) {
-                //     console.log("l " + left, el[i].x - this.stageX + this.partW);
-                // }
-                // if (keyPressed.down) {
-                //     console.log("d " + down, el[i].y - this.stageY);
-                // }
-                // if (keyPressed.up) {
-                //     console.log("u " + up, el[i].y - this.stageY + this.partH);
-                // }
-                // if (
-                //     right >= el[i].x - this.stageX &&
-                //     left <= el[i].x - this.stageX + this.partW
-                // ) {
-                //     //console.log(el[i]);
-                // }
-                // if (
-                //     down >= el[i].y - this.stageY &&
-                //     up <= el[i].y - this.stageY + this.partH
-                // ) {
-                //     //console.log(el[i]);
-                // }
-
-
-
-
                 if (
                     right >= el[i].x - this.stageX &&
                     left <= el[i].x - this.stageX + this.partW &&
                     down >= el[i].y - this.stageY &&
                     up <= el[i].y - this.stageY + this.partH
                 ) {
-                    collision = {
-                        right: right == el[i].x - this.stageX,
-                        left: left == el[i].x - this.stageX + this.partW,
-                        down: down == el[i].y - this.stageY,
-                        up: up == el[i].y - this.stageY + this.partH
+                    if (keyPressed.right && right == el[i].x - this.stageX) {
+                        collision.right = true;
                     }
-                    return collision;
+                    if (keyPressed.left && left == el[i].x - this.stageX + this.partW) {
+                        collision.left = true;
+                    }
+                    if (keyPressed.down && down == el[i].y - this.stageY) {
+                        collision.down = true;
+                    }
+                    if (keyPressed.up && up == el[i].y - this.stageY + this.partH) {
+                        collision.up = true;
+                    }
                 }
             }
         }
-        return false;
+        if (collision) {
+            return collision;
+        } else {
+            return false;
+        }
     }
     this.stageMoveCollision = function(collision) {
         var step = this.steps;
         var stuck = false;
-
 
         var blockUp = this.stageY + (this.floorSettings.start.y * this.partH) + this.playerOffsetY;
         var blockDown = this.stageY + (this.floorSettings.start.y * this.partH) - this.stageHeight + this.playerOffsetY + game.player.h;
@@ -265,8 +223,8 @@ function Floor(ctx, floor) {
 
 function Player(ctx) {
     this.ctx = ctx;
-    this.w = player.w;
-    this.h = player.h;
+    this.w = 50;
+    this.h = 50
 
     this.x = 0;
     this.y = 0;
@@ -285,8 +243,6 @@ function Player(ctx) {
 function Game(ctx, ctx2) {
     this.ctx = ctx;
     this.ctx2 = ctx2;
-    //this.ctx.canvas.width = $('body').width();
-    //this.ctx.canvas.height = $('body').height();
     this.allowedKeys = [38, 87, 40, 83, 37, 65, 39, 68, 13, 70];
     var lastTimestamp = 0;
     this.delta = 0;
@@ -315,8 +271,8 @@ function Game(ctx, ctx2) {
     }
     this.run = function(assets) {
         this.assets = assets;
-        this.floor = new Floor(this.ctx, this.assets.floor);
         this.player = new Player(this.ctx2);
+        this.floor = new Floor(this.ctx, this.assets.floor);
         this.resize();
         this.animate();
     }

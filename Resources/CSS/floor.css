@@ -91,6 +91,12 @@ input[type=range][orient=horizontal] {
     width: 100px;
     box-sizing: border-box;
     cursor: pointer;
+    position: relative;
+}
+
+.part>img {
+    position: absolute;
+    width: 100%;
 }
 
 .part.isSelected {

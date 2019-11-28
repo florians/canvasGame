@@ -109,13 +109,22 @@ function repaint() {
 
 function genBlock(part) {
     if (part.color != "") {
-        ctx.fillStyle = part.color;
-        ctx.fillRect(
+        var image = new Image();
+        image.src = 'Resources/Images/Floor/' + part.type + '.jpg';
+        ctx.drawImage(
+            image,
             part.x,
             part.y,
             part.size,
             part.size
         );
+        // ctx.fillStyle = part.color;
+        // ctx.fillRect(
+        //     part.x,
+        //     part.y,
+        //     part.size,
+        //     part.size
+        // );
     } else {
         ctx.fillStyle = "rgb(255,255,255)";
         ctx.beginPath();

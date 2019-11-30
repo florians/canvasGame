@@ -12,13 +12,17 @@ body {
     bottom: 0;
     height: 100vh;
     width: 100vw;
-    background-color:#000;
+    background-color: #000;
 }
 
 canvas {
     position: absolute;
     width: 100%;
     height: 100%;
+    image-rendering: crisp-edges;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    -ms-interpolation-mode: nearest-neighbor;
 }
 
 .spinner {
@@ -32,13 +36,26 @@ canvas {
     height: 20vh;
     text-align: center;
     font-size: 10px;
+    z-index: 10;
 }
-.loading-done .spinner{
+
+.spinner:after {
+    content: "";
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    background: #000;
+    left: 0;
+    right: 0;
+    z-index: -1;
+}
+
+.loading-done .spinner {
     display: none;
 }
 
 .spinner>div {
-    background-color: #333;
+    background-color: #797979;
     height: 100%;
     width: 20px;
     display: inline-block;
@@ -92,4 +109,69 @@ canvas {
         transform: scaleY(1.0);
         -webkit-transform: scaleY(1.0);
     }
+}
+
+html.isTouch .mobileControls,
+html.isTouch .mobileControls div {
+    display: inline-block;
+}
+
+.mobileControls {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    z-index: 1;
+    font-size: 0;
+    margin-bottom: 10vh;
+    margin-left: 10vh;
+}
+
+.mobileControls div {
+    display: none;
+    height: 10vh;
+    width: 10vh;
+    background: green;
+    background-repeat: no-repeat;
+    background-size: 50%;
+    background-position: center;
+    cursor: pointer;
+}
+
+.mobileControls div.up {
+    margin-left: 10vh;
+    background-image: url(../Images/Icons/up.svg);
+}
+
+.mobileControls div.down {
+    margin-left: 10vh;
+    background-image: url(../Images/Icons/down.svg);
+}
+
+.mobileControls div.left {
+    background-image: url(../Images/Icons/left.svg);
+}
+
+.mobileControls div.right {
+    margin-left: 10vh;
+    background-image: url(../Images/Icons/right.svg);
+}
+
+.fullscreen {
+    display: inline-block;
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    height: 10vh;
+    width: 10vh;
+    cursor: pointer;
+    background: green;
+    background-repeat: no-repeat;
+    background-size: 50%;
+    background-position: center;
+    background-image: url(../Images/Icons/fullscreen.svg);
+    z-index: 1;
+}
+
+body.isFullscreen .fullscreen {
+    background-image: url(../Images/Icons/fullscreen_off.svg);
 }

@@ -11,10 +11,7 @@ body {
 }
 
 .controls {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+    position: relative;
 }
 
 input[type=range] {
@@ -75,17 +72,12 @@ input[type=range][orient=horizontal] {
     border: 0;
 }
 
-.parts {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-top: 1px solid black;
+.tiles {
     font-size: 0;
     background: rgba(0, 0, 0, 0.1);
 }
 
-.part {
+.tile {
     height: 100px;
     display: inline-block;
     width: 100px;
@@ -94,40 +86,40 @@ input[type=range][orient=horizontal] {
     position: relative;
 }
 
-.part>img {
+.tile>img {
     position: absolute;
     width: 100%;
 }
 
-.part.isSelected {
+.tile.isSelected {
     border: 5px solid #000;
 }
 
-.parts .start {
+.tiles .start {
     background: grey;
 }
 
-.parts .end {
+.tiles .end {
     background: grey;
 }
 
-.parts .water {
+.tiles .water {
     background: blue;
 }
 
-.parts .dirt {
+.tiles .dirt {
     background: brown;
 }
 
-.parts .snow {
+.tiles .snow {
     background: rgb(255, 240, 255);
 }
 
-.parts .sand {
+.tiles .sand {
     background: #e87d56;
 }
 
-.parts div:after {
+.tiles div:after {
     content: attr(data-type);
     position: absolute;
     padding: 10px;
@@ -136,14 +128,17 @@ input[type=range][orient=horizontal] {
 }
 
 #gameCanvas {
-    position: absolute;
-    top: 50px;
-    left: 50px;
+    margin-top: 20px;
+    margin-left: 50px;
 }
-
-textarea {
-    position: absolute;
-    bottom: 110px;
-    width: 90%;
-    height: 80px;
+.dbError{
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 30px;
+    line-height: 30px;
+    background: red;
+    text-align: center;
 }

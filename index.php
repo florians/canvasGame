@@ -14,10 +14,17 @@
 		<div class="rect4"></div>
 		<div class="rect5"></div>
 	</div>
+	<div class="mobileControls">
+		<div class="up"></div><br />
+		<div class="left"></div>
+		<div class="right"></div><br />
+		<div class="down"></div>
+	</div>
+	<div class="fullscreen"></div>
 	<canvas id="gameCanvas"></canvas>
 	<canvas id="gameCanvas2"></canvas>
 </body>
 <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
-<script src="Resources/JavaScript/TestFloor.js"></script>
+<script src="Resources/JavaScript/util.js"></script>
 <script src="Resources/JavaScript/game.js"></script>
 </html>

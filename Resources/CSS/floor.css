@@ -141,6 +141,7 @@ body.open .tilesButton {
     box-sizing: border-box;
     cursor: pointer;
     position: relative;
+    margin-right: 5px;
 }
 .tileGroup{
     margin-bottom: 30px;
@@ -152,7 +153,7 @@ body.open .tilesButton {
 }
 
 .tile.isSelected {
-    border: 5px solid #000;
+    border: 5px solid #FFF;
 }
 
 /* .tiles div:after {

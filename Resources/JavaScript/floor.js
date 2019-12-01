@@ -164,7 +164,7 @@ function fillTilesHtml(allTiles) {
 }
 
 function addTile(offsetX, offsetY) {
-    if ($(".tiles > div.isSelected").length > 0) {
+    if ($(".tiles .tile.isSelected").length > 0) {
         for (i = 0; i < floorSettings.tiles.length; i++) {
             if (
                 event.offsetX >= floorSettings.tiles[i].x &&
@@ -228,7 +228,7 @@ function getAllTiles() {
             for (i = 0; i < data.length; i++) {
 
                 var image = new Image();
-                image.src = 'Resources/Images/Floor/' + data[i].source;
+                image.src = 'Resources/Images/Floor/' + data[i].type + "/" + data[i].source;
                 image.onload = function() {
                     tileAmount--;
                     if (!tileAmount) {
@@ -307,7 +307,7 @@ $("#gameCanvas").mouseup(function() {
 // start painting
 $("#gameCanvas").mousemove(function(event) {
     if (mouseDown == true) {
-        addTile(i, event.offsetX, event.offsetY);
+        addTile(event.offsetX, event.offsetY);
     }
 });
 

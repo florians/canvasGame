@@ -4,7 +4,7 @@ include_once "Medoo.php";
 
 $host = "localhost";
 $username = "game";
-$password = "#####";
+$password = "iwas1234";
 $db = "Game";
 
 // Using Medoo namespace

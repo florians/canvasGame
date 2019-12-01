@@ -5,7 +5,7 @@ var ctx = c.getContext("2d");
 var c2 = document.getElementById("gameCanvas2");
 var ctx2 = c2.getContext("2d");
 
-var gameBaseUrl = "Resources/Images/";
+var gameBaseUrl = "Resources/Images/Floor/";
 var ajaxUrl = "Resources/PHP/ajax.php";
 
 var allTiles = [];
@@ -45,7 +45,7 @@ function getAllTiles() {
             for (i = 0; i < data.length; i++) {
 
                 var image = new Image(100, 100);
-                image.src = 'Resources/Images/Floor/' + data[i].source;
+                image.src = gameBaseUrl + data[i].type + "/" + data[i].source;
                 image.onload = function() {
                     tileAmount--;
                     if (!tileAmount) {
@@ -236,50 +236,52 @@ function Floor(ctx, allTiles, floorSettings) {
     }
     this.collision = function(el) {
         var collision = {};
-        var right = 0;
-        var left = 0;
-        var top = 0;
-        var bottom = 0;
+        var pRight = 0;
+        var pLeft = 0;
+        var pTop = 0;
+        var pBottom = 0;
         var eRight = 0;
         var eLeft = 0;
         var eTop = 0;
         var eBottom = 0;
         for (i = 0; i < el.length; i++) {
-            if (el[i] && el[i].collision == true || el[i].type == "end") {
-                top = -this.stageOffsetY + game.player.y + game.player.h;
-                eTop = el[i].y - this.stageY; //+ (el[i].offsetTop || 0);
+            // e = element
+            if (el[i] && el[i].collision == true) {
+                pRight = -this.stageOffsetX + game.player.x + game.player.w;
+                eLeft = el[i].x - this.stageX + el[i].offsetLeft;
 
-                if (top + this.collisionBoundary >= eTop) {
-                    bottom = -this.stageOffsetY + game.player.y;
-                    eBottom = el[i].y - this.stageY + this.partH; //- (el[i].offsetBottom || 0);
+                if (pRight + this.collisionBoundary >= eLeft) {
+                    pLeft = -this.stageOffsetX + game.player.x;
+                    eRight = el[i].x - this.stageX + this.partW - el[i].offsetRight;
 
-                    if (bottom - this.collisionBoundary <= eBottom) {
-                        right = -this.stageOffsetX + game.player.x + game.player.w;
-                        eRight = el[i].x - this.stageX; //+ (el[i].offsetRight || 0);
+                    if (pLeft - this.collisionBoundary <= eRight) {
+                        pBottom = -this.stageOffsetY + game.player.y + game.player.h;
+                        eTop = el[i].y - this.stageY + el[i].offsetTop;
 
-                        if (right + this.collisionBoundary >= eRight) {
-                            left = -this.stageOffsetX + game.player.x;
-                            eLeft = el[i].x - this.stageX + this.partW; //- (el[i].offsetLeft || 0);
+                        if (pBottom + this.collisionBoundary >= eTop) {
+                            pTop = -this.stageOffsetY + game.player.y;
+                            eBottom = el[i].y - this.stageY + this.partH - el[i].offsetBottom;
+                            if (pTop - this.collisionBoundary <= eBottom) {
+                                if (pRight >= eLeft && pLeft <= eRight && pBottom >= eTop && pTop <= eBottom) {
+                                    cOffsetLeftRight = pTop + 0.1 <= eBottom && pBottom - 0.1 >= eTop;
+                                    cOffsetBottomTop = pRight - 0.1 >= eLeft && pLeft + 0.1 <= eRight;
 
-                            if (left - this.collisionBoundary <= eLeft) {
-                                cOffsetLeftRight = bottom + 0.1 <= eBottom && top - 0.1 >= eTop;
-                                cOffsetBottomTop = right - 0.1 >= eRight && left + 0.1 <= eLeft;
+                                    if (el[i].type == "end") {
+                                        game.newFloor(floorSettings.endLink);
+                                    } else {
 
-                                if (el[i].type == "end") {
-                                    game.newFloor(floorSettings.endLink);
-                                } else {
-
-                                    if (keyPressed.right && right == eRight && cOffsetLeftRight) {
-                                        collision.right = true;
-                                    }
-                                    if (keyPressed.left && left == eLeft && cOffsetLeftRight) {
-                                        collision.left = true;
-                                    }
-                                    if (keyPressed.down && top == eTop && cOffsetBottomTop) {
-                                        collision.top = true;
-                                    }
-                                    if (keyPressed.up && bottom == eBottom && cOffsetBottomTop) {
-                                        collision.bottom = true;
+                                        if (keyPressed.right && pRight == eLeft && cOffsetLeftRight) {
+                                            collision.right = true;
+                                        }
+                                        if (keyPressed.left && pLeft == eRight && cOffsetLeftRight) {
+                                            collision.left = true;
+                                        }
+                                        if (keyPressed.down && pBottom == eTop && cOffsetBottomTop) {
+                                            collision.top = true;
+                                        }
+                                        if (keyPressed.up && pTop == eBottom && cOffsetBottomTop) {
+                                            collision.bottom = true;
+                                        }
                                     }
                                 }
                             }

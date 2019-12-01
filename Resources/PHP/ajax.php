@@ -25,7 +25,7 @@ function getFloor($db,$level){
     echo json_encode($db->select('Game_Floor','*',['level' => $level]));
 }
 function getAllFloorLevels($db){
-    echo json_encode($db->select('Game_Floor','level'));
+    echo json_encode($db->select('Game_Floor','level',['ORDER' => 'level']));
 }
 
 function saveFloor($db,$json){
@@ -85,5 +85,5 @@ function saveFloor($db,$json){
 }
 
 function getAllTiles($db){
-    echo json_encode($db->select('Game_Tiles','*'));
+    echo json_encode($db->select('Game_Tiles','*',['ORDER' => 'type']));
 }

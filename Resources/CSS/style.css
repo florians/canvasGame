@@ -1,3 +1,6 @@
+/***********************************
+*************** reset **************
+***********************************/
 * {
     margin: 0;
     padding: 0;
@@ -15,7 +18,10 @@ body {
     background-color: #000;
 }
 
-canvas {
+/***********************************
+************** canvas **************
+***********************************/
+.game canvas {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -25,7 +31,10 @@ canvas {
     -ms-interpolation-mode: nearest-neighbor;
 }
 
-.spinner {
+/***********************************
+************** loader **************
+***********************************/
+.loader {
     position: absolute;
     top: 0;
     bottom: 0;
@@ -39,7 +48,7 @@ canvas {
     z-index: 10;
 }
 
-.spinner:after {
+.loader:after {
     content: "";
     position: fixed;
     top: 0;
@@ -50,11 +59,11 @@ canvas {
     z-index: -1;
 }
 
-.loading-done .spinner {
+.loading-done .loader {
     display: none;
 }
 
-.spinner>div {
+.loader>div {
     background-color: #797979;
     height: 100%;
     width: 20px;
@@ -63,22 +72,22 @@ canvas {
     animation: sk-stretchdelay 1.2s infinite ease-in-out;
 }
 
-.spinner .rect2 {
+.loader .rect2 {
     -webkit-animation-delay: -1.1s;
     animation-delay: -1.1s;
 }
 
-.spinner .rect3 {
+.loader .rect3 {
     -webkit-animation-delay: -1.0s;
     animation-delay: -1.0s;
 }
 
-.spinner .rect4 {
+.loader .rect4 {
     -webkit-animation-delay: -0.9s;
     animation-delay: -0.9s;
 }
 
-.spinner .rect5 {
+.loader .rect5 {
     -webkit-animation-delay: -0.8s;
     animation-delay: -0.8s;
 }
@@ -111,51 +120,21 @@ canvas {
     }
 }
 
-html.isTouch .mobileControls,
-html.isTouch .mobileControls div {
-    display: inline-block;
-}
-
-.mobileControls {
-    display: none;
-    position: fixed;
+/***********************************
+********* mobileControls ***********
+***********************************/
+#mobileControls {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
     bottom: 0;
     z-index: 1;
-    font-size: 0;
-    margin-bottom: 10vh;
-    margin-left: 10vh;
 }
 
-.mobileControls div {
-    display: none;
-    height: 10vh;
-    width: 10vh;
-    background: green;
-    background-repeat: no-repeat;
-    background-size: 50%;
-    background-position: center;
-    cursor: pointer;
-}
-
-.mobileControls div.up {
-    margin-left: 10vh;
-    background-image: url(../Images/Icons/up.svg);
-}
-
-.mobileControls div.down {
-    margin-left: 10vh;
-    background-image: url(../Images/Icons/down.svg);
-}
-
-.mobileControls div.left {
-    background-image: url(../Images/Icons/left.svg);
-}
-
-.mobileControls div.right {
-    margin-left: 10vh;
-    background-image: url(../Images/Icons/right.svg);
-}
-
+/***********************************
+*********** fullscreen *************
+***********************************/
 .fullscreen {
     display: inline-block;
     position: fixed;

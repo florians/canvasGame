@@ -72,7 +72,7 @@ function collisionDebug(el) {
             el.x,
             el.y + el.offsetTop,
             el.w - el.offsetRight,
-            el.h - el.offsetTop - el.offsetTop
+            el.h - el.offsetTop
         );
     }
     // rb

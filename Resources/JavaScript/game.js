@@ -1,3 +1,4 @@
+var showHitBox = false;
 // get game container and start game
 var c = document.getElementById("gameCanvas");
 var ctx = c.getContext("2d");
@@ -204,25 +205,19 @@ function Floor(ctx, allTiles, floorSettings) {
             return true;
         }
     }
-    this.createBlocks = function(counter, draw) {
+    this.createBlocks = function(counter) {
         if (allTiles[this.floorElements[counter].type]) {
             ctx.drawImage(
                 this.getTileInfo(this.floorElements[counter].type, this.floorElements[counter].name, "image"),
                 this.floorElements[counter].x,
                 this.floorElements[counter].y,
-                this.floorElements[counter].h,
-                this.floorElements[counter].w
+                this.floorElements[counter].w,
+                this.floorElements[counter].h
             );
         }
-        // else if (!allTiles[this.floorElements[counter].type] && draw == true) {
-        //     ctx.fillStyle = "rgb(255,0,0)";
-        //     ctx.fillRect(
-        //         this.floorElements[counter].x,
-        //         this.floorElements[counter].y,
-        //         this.floorElements[counter].h,
-        //         this.floorElements[counter].w
-        //     );
-        // }
+        if (showHitBox) {
+            collisionDebug(this.floorElements[counter]);
+        }
     }
     this.draw = function() {
         // move canvas content
@@ -390,7 +385,7 @@ function Player(ctx) {
         if (keyPressed.down && keyPressed.left) {
             this.ctx.rotate(225 * Math.PI / 180);
         }
-        this.ctx.fillRect(-this.h / 2, -this.w / 2, this.h, this.w);
+        this.ctx.fillRect(-this.h / 2, -this.w / 2, this.w, this.h);
     }
     this.resize = function() {
         this.x = Math.floor(this.ctx.canvas.width / 2 - this.w / 2);

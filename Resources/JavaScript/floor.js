@@ -85,7 +85,7 @@ function generateGridCanvas(allTiles) {
 }
 
 function repaint() {
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.width);
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     for (i = 0; i < floorSettings.tiles.length; i++) {
         genBlock(floorSettings.tiles[i], allTiles);
     }

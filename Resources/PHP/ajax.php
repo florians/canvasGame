@@ -22,40 +22,36 @@ switch ($_POST['type']) {
         break;
 }
 function getFloor($db,$level){
-    echo json_encode($db->select('Game_Floor','*',['level' => $level]));
+    echo json_encode($db->select('floor','*',['level' => $level]));
 }
 function getAllFloorLevels($db){
-    echo json_encode($db->select('Game_Floor','level',['ORDER' => 'level']));
+    echo json_encode($db->select('floor','level',['ORDER' => 'level']));
 }
 
 function saveFloor($db,$json){
     $jsonObj = json_decode($json);
-
     $isLoaded = $_POST['isLoaded'];
-
     $level = $jsonObj->{'level'};
     $endLink = $jsonObj->{'endLink'} ?? "";
     $startX  = $jsonObj->{'startX'};
     $startY  = $jsonObj->{'startY'};
-    $endX  = $jsonObj->{'endX'};
-    $endY  = $jsonObj->{'endY'};
     $height = $jsonObj->{'height'};
     $width = $jsonObj->{'width'};
     $tile_json = json_encode($jsonObj->{'tiles'});
+    $enemy_json = "";//json_encode($jsonObj->{'enemies'}) ?? "";
 
-    $freeLevelCheck = $db->select('Game_Floor','uid',['level' => $level]);
+    $freeLevelCheck = $db->select('floor','uid',['level' => $level]);
     // update
     if(count($freeLevelCheck) > 0 && $isLoaded == 1){
-        $db->update("Game_Floor", [
+        $db->update("floor", [
             'level' => $level,
             'startX' => $startX,
             'startY' => $startY,
-            'endX' => $endX,
-            'endY' => $endY,
             'height' => $height,
             'width' => $width,
             'endLink' => $endLink,
-            'tile_json' => $tile_json
+            'tile_json' => $tile_json,
+            'enemy_json' => $enemy_json
         ], [
         	"uid" => $freeLevelCheck
         ]);
@@ -64,17 +60,16 @@ function saveFloor($db,$json){
         echo "floorUsed";
     } else if($isLoaded == 0){
         // insert
-        if(isset($level) && isset($startX) && isset($startY) && isset($endX) && isset($endY) && isset($height) && isset($width) && isset($tile_json)){
-            $db->insert("Game_Floor", [
+        if(isset($level) && isset($startX) && isset($startY) && isset($height) && isset($width) && isset($tile_json)){
+            $db->insert("floor", [
                 'level' => $level,
                 'startX' => $startX,
                 'startY' => $startY,
-                'endX' => $endX,
-                'endY' => $endY,
                 'height' => $height,
                 'width' => $width,
                 'endLink' => $endLink,
-                'tile_json' => $tile_json
+                'tile_json' => $tile_json,
+                'enemy_json' => $enemy_json
             ]);
             echo $db->id()." is a new entry!";
         }else{
@@ -85,5 +80,5 @@ function saveFloor($db,$json){
 }
 
 function getAllTiles($db){
-    echo json_encode($db->select('Game_Tiles','*',['ORDER' => 'type']));
+    echo json_encode($db->select('tile','*',['ORDER' => 'type']));
 }

@@ -58,15 +58,13 @@ function getAllTiles() {
                 }
                 allTiles[data[i].type][data[i].name] = {
                     image: image,
-                    type: data[i].type,
                     name: data[i].name,
-                    color: data[i].color,
+                    type: data[i].type,
+                    subType: data[i].subType,
+                    parts: parseInt(data[i].parts),
                     source: data[i].source,
-                    collision: parseInt(data[i].collision) ? true : false,
-                    offsetTop: parseInt(data[i].offsetTop),
-                    offsetRight: parseInt(data[i].offsetRight),
-                    offsetLeft: parseInt(data[i].offsetLeft),
-                    offsetBottom: parseInt(data[i].offsetBottom)
+                    collision: data[i].collision,
+                    direction: data[i].direction
                 };
             }
         },
@@ -87,16 +85,14 @@ function getFloor(floorLevel) {
         success: function(data) {
             data = JSON.parse(data)[0];
             floorSettings = {
+                level: data.level,
                 startX: data.startX,
                 startY: data.startY,
-                endX: data.endX,
-                endY: data.endY,
+                endLink: data.endLink,
                 height: data.height,
                 width: data.width,
-                level: data.level,
-                startLink: data.startLink,
-                endLink: data.endLink,
-                tiles: JSON.parse(data.tile_json)
+                tiles: JSON.parse(data.tile_json),
+                //enemies: JSON.parse(data.enemy_json)
             }
             if (game == null) {
                 game = new Game(ctx, ctx2);
@@ -144,8 +140,10 @@ function Floor(ctx, allTiles, floorSettings) {
     }
     this.generateFloor = function() {
         var element = 0;
+        var allElements = 0;
         var a = 0;
         var b = 0;
+
         // first render and after resize
         if (this.floorElements.length == 0 || this.doFloorResize == 1) {
             for (r = 0; r < this.floorSettings.height; r++) {
@@ -153,35 +151,38 @@ function Floor(ctx, allTiles, floorSettings) {
                 for (c = 0; c < this.floorSettings.width; c++) {
                     a = Math.floor(this.stageX + (this.partW * c));
                     if (this.floorSettings.tiles[element] && this.floorSettings.tiles[element].type) {
-                        this.floorElements[element] = {
+                        this.floorElements[allElements] = {
                             x: a,
                             y: b,
                             w: this.partW,
                             h: this.partH,
-                            collision: this.getTileInfo(this.floorSettings.tiles[element].type, this.floorSettings.tiles[element].name, "collision"),
-                            type: this.getTileInfo(this.floorSettings.tiles[element].type, this.floorSettings.tiles[element].name, "type"),
                             name: this.getTileInfo(this.floorSettings.tiles[element].type, this.floorSettings.tiles[element].name, "name"),
-                            offsetTop: this.getTileInfo(this.floorSettings.tiles[element].type, this.floorSettings.tiles[element].name, "offsetTop"),
-                            offsetBottom: this.getTileInfo(this.floorSettings.tiles[element].type, this.floorSettings.tiles[element].name, "offsetBottom"),
-                            offsetLeft: this.getTileInfo(this.floorSettings.tiles[element].type, this.floorSettings.tiles[element].name, "offsetLeft"),
-                            offsetRight: this.getTileInfo(this.floorSettings.tiles[element].type, this.floorSettings.tiles[element].name, "offsetRight")
+                            type: this.getTileInfo(this.floorSettings.tiles[element].type, this.floorSettings.tiles[element].name, "type"),
+                            subType: this.getTileInfo(this.floorSettings.tiles[element].type, this.floorSettings.tiles[element].name, "subType"),
+                            parts: this.getTileInfo(this.floorSettings.tiles[element].type, this.floorSettings.tiles[element].name, "parts"),
+                            collision: this.getTileInfo(this.floorSettings.tiles[element].type, this.floorSettings.tiles[element].name, "collision"),
+                            direction: this.getTileInfo(this.floorSettings.tiles[element].type, this.floorSettings.tiles[element].name, "direction"),
+                            render: true
+                        }
+                        if (this.floorElements[allElements].parts > 1) {
+                            allElements = this.subType(allElements);
+                        } else {
+                            this.floorElements[allElements].collision = parseInt(this.floorElements[allElements].collision);
                         }
                     } else {
-                        this.floorElements[element] = {
+                        this.floorElements[allElements] = {
                             x: a,
                             y: b,
                             w: this.partW,
                             h: this.partH,
                             collision: true,
-                            offsetTop: 0,
-                            offsetBottom: 0,
-                            offsetLeft: 0,
-                            offsetRight: 0
+                            render: false
                         }
                     }
                     if (this.isInView(a, b)) {
-                        this.createBlocks(element);
+                        this.createBlocks(allElements);
                     }
+                    allElements++;
                     element++;
                 }
             }
@@ -195,6 +196,59 @@ function Floor(ctx, allTiles, floorSettings) {
             }
         }
     }
+    this.subType = function(counter) {
+        parts = this.floorElements[counter].parts;
+        subType = this.floorElements[counter].subType;
+        direction = this.floorElements[counter].direction;
+        collision = this.floorElements[counter].collision.split(",");
+        el = this.floorElements[counter];
+        this.floorElements[counter].collision = false;
+        if (subType == "divided" && direction == "vertical") {
+            for (i = 0; i < parts; i++) {
+                counter++;
+                this.floorElements[counter] = {
+                    x: el.x + ((this.partW / parts) * i),
+                    y: el.y,
+                    w: this.partW / parts,
+                    h: this.partH,
+                    collision: parseInt(collision[i]) > 0 ? 1 : 0,
+                    render: false
+                }
+            }
+        }
+        if (subType == "divided" && direction == "horizontal") {
+            for (i = 0; i < parts; i++) {
+                counter++;
+                this.floorElements[counter] = {
+                    x: el.x,
+                    y: el.y + ((this.partW / parts) * i),
+                    w: this.partW,
+                    h: this.partH / parts,
+                    collision: parseInt(collision[i]) > 0 ? 1 : 0,
+                    render: false
+                }
+            }
+        }
+        if (subType == "edge" && direction == "cube") {
+            partCount = 0;
+            cubeParts = parts / 2;
+            for (er = 0; er < cubeParts; er++) {
+                for (ec = 0; ec < cubeParts; ec++) {
+                    counter++;
+                    this.floorElements[counter] = {
+                        x: el.x + ((this.partW / cubeParts) * ec),
+                        y: el.y + ((this.partH / cubeParts) * er),
+                        w: this.partW / cubeParts,
+                        h: this.partH / cubeParts,
+                        collision: parseInt(collision[partCount]) > 0 ? true : false,
+                        render: false
+                    }
+                    partCount++;
+                }
+            }
+        }
+        return counter;
+    }
     this.isInView = function(x, y) {
         if (
             -this.stageOffsetX + this.stageX - this.partW < x &&
@@ -206,7 +260,7 @@ function Floor(ctx, allTiles, floorSettings) {
         }
     }
     this.createBlocks = function(counter) {
-        if (allTiles[this.floorElements[counter].type]) {
+        if (this.floorElements[counter].render) {
             ctx.drawImage(
                 this.getTileInfo(this.floorElements[counter].type, this.floorElements[counter].name, "image"),
                 this.floorElements[counter].x,
@@ -243,19 +297,19 @@ function Floor(ctx, allTiles, floorSettings) {
             // e = element
             if (el[i] && el[i].collision == true) {
                 pRight = -this.stageOffsetX + game.player.x + game.player.w;
-                eLeft = el[i].x - this.stageX + el[i].offsetLeft;
+                eLeft = el[i].x - this.stageX;
 
                 if (pRight + this.collisionBoundary >= eLeft) {
                     pLeft = -this.stageOffsetX + game.player.x;
-                    eRight = el[i].x - this.stageX + this.partW - el[i].offsetRight;
+                    eRight = el[i].x - this.stageX + el[i].w;
 
                     if (pLeft - this.collisionBoundary <= eRight) {
                         pBottom = -this.stageOffsetY + game.player.y + game.player.h;
-                        eTop = el[i].y - this.stageY + el[i].offsetTop;
+                        eTop = el[i].y - this.stageY;
 
                         if (pBottom + this.collisionBoundary >= eTop) {
                             pTop = -this.stageOffsetY + game.player.y;
-                            eBottom = el[i].y - this.stageY + this.partH - el[i].offsetBottom;
+                            eBottom = el[i].y - this.stageY + el[i].h;
                             if (pTop - this.collisionBoundary <= eBottom) {
                                 if (pRight >= eLeft && pLeft <= eRight && pBottom >= eTop && pTop <= eBottom) {
                                     cOffsetLeftRight = pTop + 0.1 <= eBottom && pBottom - 0.1 >= eTop;

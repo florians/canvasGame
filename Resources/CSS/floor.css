@@ -142,6 +142,7 @@ body.open .tilesButton {
     cursor: pointer;
     position: relative;
     margin-right: 5px;
+    margin-bottom: 5px;
 }
 .tileGroup{
     margin-bottom: 30px;

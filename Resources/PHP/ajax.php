@@ -3,6 +3,9 @@
 include_once "db.php";
 
 
+// "[>]joinTable" => ["selectCol.col" => "col"] | LEFT JOIN joinTable ON selectCol.col = joinTable.col
+// "table.name(name2)" | table.name AS name2
+
 
 switch ($_POST['type']) {
     case 'getFloor':
@@ -80,5 +83,26 @@ function saveFloor($db,$json){
 }
 
 function getAllTiles($db){
-    echo json_encode($db->select('tile','*',['ORDER' => 'type']));
+    $allTiles = $db->select('tile',
+        [
+            "[>]tile_type" => ["tile.type" => "uid"]
+        ],
+        [
+            "tile.sorting",
+            "tile.name",
+            "tile.parts",
+            "tile.subType",
+            "tile.source",
+            "tile.collision",
+            "tile.direction",
+            "tile_type.name(type)"
+        ],
+        ['ORDER' => [
+            'tile.sorting',
+            'tile_type.name'
+            ]
+        ]
+    );
+    echo json_encode($allTiles);
+
 }

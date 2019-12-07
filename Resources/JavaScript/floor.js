@@ -1,18 +1,17 @@
 // get game container and start game
-var c = document.getElementById("gameCanvas");
-var ctx = c.getContext("2d");
-var scaleWidth = ($(document).width() < $(document).height() ? $(document).width() : $(document).height()) - 150;
+var c = document.getElementById('gameCanvas');
+var ctx = c.getContext('2d');
+// var scaleWidth = ($('main').width() < $('main').height() ? $('main').width() : $('main').height());
 
 var mouseDown = false;
 
-
-
 var allTiles = [];
 
-var selectedEl = "";
+var selectedEl = '';
 
-ctx.canvas.width = scaleWidth;
-ctx.canvas.height = scaleWidth;
+// ctx.canvas.width = scaleWidth;
+// ctx.canvas.height = scaleWidth;
+setCanvasSize();
 
 var floorSettings = {
     startX: 0,
@@ -24,27 +23,27 @@ var floorSettings = {
     tiles: [],
 };
 
-$('span.range-x').html($('input.range-x').val());
-$('span.range-y').html($('input.range-y').val());
+floorSettings.height = $('input.dimension-h').val();
+floorSettings.width = $('input.dimension-w').val();
 
-floorSettings.height = $('input.range-y').val();
-floorSettings.width = $('input.range-x').val();
+function setCanvasSize() {
+    ctx.canvas.width = $('main').width();
+    ctx.canvas.height = $('main').width();
+}
 
 function setRange() {
-    $('input.range-x').val(floorSettings.width);
-    $('input.range-y').val(floorSettings.height);
-    $('span.range-x').html($('input.range-x').val());
-    $('span.range-y').html($('input.range-y').val());
+    $('input.dimension-w').val(floorSettings.width);
+    $('input.dimension-h').val(floorSettings.height);
 }
 
 function generateGridCanvas(allTiles) {
-    var rangeX = $('input.range-x').val();
-    var rangeY = $('input.range-y').val();
+    var rangeX = $('input.dimension-w').val();
+    var rangeY = $('input.dimension-h').val();
     var y = 0;
     var x = 0;
-    var size = Math.floor(scaleWidth / rangeX);
+    var size = Math.floor(ctx.canvas.width / rangeX);
 
-    var tile = "";
+    var tile = '';
     var elements = 0;
     // fill in old
     var oldFloorSettings = floorSettings.tiles;
@@ -52,8 +51,8 @@ function generateGridCanvas(allTiles) {
 
     // clear it
     floorSettings.tiles = [];
-    floorSettings.height = $('input.range-y').val();
-    floorSettings.width = $('input.range-x').val();
+    floorSettings.height = $('input.dimension-h').val();
+    floorSettings.width = $('input.dimension-w').val();
 
     ctx.canvas.width = size * rangeX;
     ctx.canvas.height = size * rangeY;
@@ -66,8 +65,8 @@ function generateGridCanvas(allTiles) {
                 x: this.a,
                 y: this.b,
                 size: size,
-                type: "",
-                name: "",
+                type: '',
+                name: '',
                 posX: c,
                 posY: r
             }
@@ -101,7 +100,7 @@ function genBlock(tile, allTiles) {
             tile.size
         );
     } else {
-        ctx.fillStyle = "rgb(255,255,255)";
+        ctx.fillStyle = 'rgb(255,255,255)';
         ctx.beginPath();
         ctx.rect(
             tile.x,
@@ -116,10 +115,10 @@ function genBlock(tile, allTiles) {
 
 function setStartEnd(exportFloorSettings) {
     for (i = 0; i < exportFloorSettings.tiles.length; i++) {
-        if (exportFloorSettings.tiles[i].type == "start") {
+        if (exportFloorSettings.tiles[i].type == 'start') {
             exportFloorSettings.startX = exportFloorSettings.tiles[i].posX;
             exportFloorSettings.startY = exportFloorSettings.tiles[i].posY;
-        } else if (exportFloorSettings.tiles[i].type == "end") {
+        } else if (exportFloorSettings.tiles[i].type == 'end') {
             exportFloorSettings.endX = exportFloorSettings.tiles[i].posX;
             exportFloorSettings.endY = exportFloorSettings.tiles[i].posY;
         }
@@ -130,15 +129,15 @@ function setStartEnd(exportFloorSettings) {
 function cleanUpSettings(exportFloorSettings) {
     setStartEnd(exportFloorSettings);
     for (i = 0; i < exportFloorSettings.tiles.length; i++) {
-        if (exportFloorSettings.tiles[i].type == "") {
+        if (exportFloorSettings.tiles[i].type == '') {
             delete exportFloorSettings.tiles[i].type;
         }
-        if (exportFloorSettings.tiles[i].name == "") {
+        if (exportFloorSettings.tiles[i].name == '') {
             delete exportFloorSettings.tiles[i].name;
         }
         if (
-            exportFloorSettings.tiles[i].type != "start" ||
-            exportFloorSettings.tiles[i].type != "end"
+            exportFloorSettings.tiles[i].type != 'start' ||
+            exportFloorSettings.tiles[i].type != 'end'
         ) {
             delete exportFloorSettings.tiles[i].posX;
             delete exportFloorSettings.tiles[i].posY;
@@ -153,18 +152,18 @@ function cleanUpSettings(exportFloorSettings) {
 function fillTilesHtml(allTiles) {
     $.each(Object.keys(allTiles), function(index, type) {
         var array = [];
-        array.push('<div class="tileGroup">');
+        array.push('<div class="tileGroup accordion padding-lr-m padding-tb-m block flex-m">');
         array.push('<div class="title">' + type + '</div>');
         $.each(Object.keys(allTiles[type]), function(index, name) {
             array.push('<div class="tile" data-name="' + name + '" data-type="' + type + '"><img src="' + allTiles[type][name].src + '" /></div>');
         });
-        array.push('</div">');
-        $('.tiles').append(array.join(''));
+        array.push('</div>');
+        $('aside').append(array.join(''));
     });
 }
 
 function addTile(offsetX, offsetY) {
-    if ($(".tiles .tile.isSelected").length > 0) {
+    if ($('aside .tile.isSelected').length > 0) {
         for (i = 0; i < floorSettings.tiles.length; i++) {
             if (
                 event.offsetX >= floorSettings.tiles[i].x &&
@@ -180,6 +179,18 @@ function addTile(offsetX, offsetY) {
     }
 }
 
+function resetForm() {
+    showMsgReset();
+    $('select.floorSelect').val([]);
+    $('select.floorSelect option').prop('selected', false);
+    $('select.endLink').val([]);
+    $('select.endLink option').prop('selected', false);
+    $('input.level').val('').prop('disabled', false);
+    $('input.isLoded').val('0');
+    floorSettings.tiles = [];
+    generateGridCanvas(allTiles);
+}
+
 function preloader() {
     getAllTiles().then(loadFloorSelects);
 }
@@ -189,10 +200,10 @@ function preloader() {
  ***********************************/
 function loadFloorSelects() {
     return $.ajax({
-        method: "POST",
-        url: "Resources/PHP/ajax.php",
+        method: 'POST',
+        url: 'Resources/PHP/ajax.php',
         data: {
-            type: "getAllFloorLevels"
+            type: 'getAllFloorLevels'
         },
         success: function(data) {
             data = JSON.parse(data);
@@ -204,7 +215,7 @@ function loadFloorSelects() {
             for (i = 0; i < data.length; i++) {
                 $('.endLink').append('<option value="' + data[i] + '">Level ' + data[i] + '</option>');
             }
-            $("select.endLink").val(floorSettings.endLink);
+            $('select.endLink').val(floorSettings.endLink);
             $('select.floorSelect').val(floorSettings.level);
             $('input.level').val(floorSettings.level);
         },
@@ -217,10 +228,10 @@ function loadFloorSelects() {
 function getAllTiles() {
     var arrLength = 0;
     return $.ajax({
-        method: "POST",
-        url: "Resources/PHP/ajax.php",
+        method: 'POST',
+        url: 'Resources/PHP/ajax.php',
         data: {
-            type: "getAllTiles"
+            type: 'getAllTiles'
         },
         success: function(data) {
             data = JSON.parse(data);
@@ -228,7 +239,7 @@ function getAllTiles() {
             for (i = 0; i < data.length; i++) {
 
                 var image = new Image();
-                image.src = 'Resources/Images/Floor/' + data[i].type + "/" + data[i].source;
+                image.src = 'Resources/Images/Floor/' + data[i].type + '/' + data[i].source;
                 image.onload = function() {
                     tileAmount--;
                     if (!tileAmount) {
@@ -251,61 +262,78 @@ function getAllTiles() {
  ********* change events ************
  ***********************************/
 /* range slider */
-$('input.range').change(function() {
-    $('span.' + $(this).attr('class')).html($(this).val());
-    generateGridCanvas(allTiles);
+$('.dimension .sizeSubmit').click(function() {
+    var h = $('input.dimension-h').val();
+    var w = $('input.dimension-w').val();
+    if (h <= 0 || w <= 0) {
+        showMsg('error', 'Dimension can\'t be 0!');
+    } else if (h > 50 || w > 50) {
+        showMsg('error', 'Dimension are limited to max 50!');
+    } else {
+        floorSettings.height = $('input.dimension-h').val();
+        floorSettings.width = $('input.dimension-w').val();
+        generateGridCanvas(allTiles);
+    }
 });
 /* select field for floor selection */
 $('.floorSelect').change(function() {
-    $.ajax({
-        method: "POST",
-        url: "Resources/PHP/ajax.php",
-        data: {
-            type: "getFloor",
-            level: $(this).val(),
-        },
-        success: function(data) {
-            data = JSON.parse(data)[0];
-            if (data) {
-                floorSettings = {
-                    level: parseInt(data.level),
-                    startX: parseInt(data.startX),
-                    startY: parseInt(data.startY),
-                    endX: parseInt(data.endX),
-                    endY: parseInt(data.endY),
-                    height: parseInt(data.height),
-                    width: parseInt(data.width),
-                    endLink: parseInt(data.endLink),
-                    tiles: JSON.parse(data.tile_json)
-                };
-                $("select.endLink").val(floorSettings.endLink);
-                $('input.level').val(floorSettings.level);
-                $('input.isLoded').val("1");
-                setRange();
-                generateGridCanvas(allTiles);
-            } else {
-                $("select.endLink").val([]);
-                $("select.endLink option").prop("selected", false);
-                $('input.level').val("");
-                $('input.isLoded').val("0");
+    showMsgReset();
+    if ($('.floorSelect').val() > 0) {
+        $.ajax({
+            method: 'POST',
+            url: 'Resources/PHP/ajax.php',
+            data: {
+                type: 'getFloor',
+                level: $(this).val(),
+            },
+            success: function(data) {
+                data = JSON.parse(data);
+                if (data.type && data.msg) {
+                    showMsg(data.type, data.msg);
+                }
+                if (data.result) {
+                    result = data.result[0];
+                    floorSettings = {
+                        level: parseInt(result.level),
+                        startX: parseInt(result.startX),
+                        startY: parseInt(result.startY),
+                        endX: parseInt(result.endX),
+                        endY: parseInt(result.endY),
+                        height: parseInt(result.height),
+                        width: parseInt(result.width),
+                        endLink: parseInt(result.endLink),
+                        tiles: JSON.parse(result.tile_json)
+                    };
+                    $('select.endLink').val(floorSettings.endLink);
+                    $('input.level').val(floorSettings.level).prop('disabled', true);
+                    $('input.isLoded').val('1');
+                    setRange();
+                    generateGridCanvas(allTiles);
+                } else {
+                    resetForm();
+                }
+
+            },
+            error: function(err) {
+                console.log(err);
             }
-        },
-        error: function(err) {
-            console.log(err);
-        }
-    });
+        });
+    } else {
+        resetForm();
+    }
 });
+
 /***********************************
  ********** mouse events ***********
  ***********************************/
-$("#gameCanvas").mouseup(function() {
+$('#gameCanvas').mouseup(function() {
         mouseDown = false;
     })
     .mousedown(function() {
         mouseDown = true;
     });
 // start painting
-$("#gameCanvas").mousemove(function(event) {
+$('#gameCanvas').mousemove(function(event) {
     if (mouseDown == true) {
         addTile(event.offsetX, event.offsetY);
     }
@@ -315,26 +343,36 @@ $("#gameCanvas").mousemove(function(event) {
  ********* click events *************
  ***********************************/
 // start painting
-$("#gameCanvas").click(function(event) {
+$('#gameCanvas').click(function(event) {
     addTile(event.offsetX, event.offsetY);
 });
+
+$('.reset').click(function(event) {
+    resetForm();
+});
 /* select tile  */
-$(document).on('click', ".tiles .tile", function() {
+$(document).on('click', 'aside .tile', function() {
     if (!$(this).hasClass('isSelected')) {
-        $(".tiles .tile").removeClass('isSelected');
+        $('aside .tile').removeClass('isSelected');
         selectedEl = $(this).addClass('isSelected');
         $('body').toggleClass('open');
     } else {
-        $(".tiles .tile").removeClass('isSelected');
+        $('aside .tile').removeClass('isSelected');
     }
 });
+$(document).on('click', '.tileGroup', function() {
+    $('.tileGroup.show').removeClass('show');
+    $(this).addClass('show');
+});
+
 
 $('.tilesButton').click(function() {
     $('body').toggleClass('open');
 });
 
 /* save with ajax */
-$('button.save').click(function() {
+$('.save .saveFloor').click(function() {
+    showMsgReset();
     if ($('input.level').val()) {
         floorSettings.level = $('input.level').val();
     }
@@ -344,19 +382,17 @@ $('button.save').click(function() {
 
     if ($('input.level').val()) {
         $.ajax({
-            method: "POST",
-            url: "Resources/PHP/ajax.php",
+            method: 'POST',
+            url: 'Resources/PHP/ajax.php',
             data: {
-                type: "saveFloor",
+                type: 'saveFloor',
                 json: exportJson,
                 isLoaded: $('input.isLoded').val() || 0
             },
             success: function(data) {
-                $('.dbError').hide();
-                if (data == "floorUsed") {
-                    $('.dbError').html("Floor Level is already in use!").show();
-                } else {
-                    console.log("new/update " + data);
+                data = JSON.parse(data);
+                if (data.type && data.msg) {
+                    showMsg(data.type, data.msg);
                 }
                 loadFloorSelects();
             },
@@ -364,6 +400,15 @@ $('button.save').click(function() {
         });
     }
 });
+
+function showMsg(type, msg) {
+    showMsgReset();
+    $('.infoBox .' + type).html(msg).addClass('active');
+}
+
+function showMsgReset() {
+    $('.infoBox > span').removeClass('active')
+}
 
 
 /***********************************
@@ -375,8 +420,9 @@ preloader();
  ************* resize ***************
  ***********************************/
 $(window).resize(function() {
-    scaleWidth = ($(document).width() < $(document).height() ? $(document).width() : $(document).height()) - 150;
-    ctx.canvas.width = scaleWidth;
-    ctx.canvas.height = scaleWidth;
+    // scaleWidth = ($('main').width() < $('main').height() ? $('main').width() : $('main').height());
+    // ctx.canvas.width = scaleWidth;
+    // ctx.canvas.height = scaleWidth;
+    setCanvasSize();
     generateGridCanvas(allTiles);
 });

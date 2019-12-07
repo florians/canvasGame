@@ -1,140 +1,35 @@
+/*
+sass --sourcemap=none -C --watch /var/www/CanvasGame/Resources/SCSS:/var/www/CanvasGame/Resources/CSS
+*/
 /***********************************
 *************** reset **************
 ***********************************/
-* {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, Helvetica, sans-serif;
-}
-
 body {
-    height: 100%;
-    width: 100%;
-    position: absolute;
-    background: rgba(0, 0, 0, 0.1);
-    overflow-x: hidden;
-}
-
-/***********************************
-************ controls **************
-***********************************/
-.controls {
-    position: relative;
-}
-
-.controls span {
-    margin-top: 10px;
-    display: inline-block;
-}
-
-.controls span.range-x {
-    margin-left: 200px;
-    padding-right: 10px;
-}
-
-.controls span.range-y {
-    padding-left: 10px;
-}
-
-input[type=range] {
-    position: absolute;
-    height: 40px;
-}
-
-input[type=range][orient=vertical] {
-    top: 80px;
-    left: -40px;
-    transform: rotate(90deg);
-    height: 40px;
-}
-
-input[type=range][orient=horizontal] {
-    position: absolute;
-    left: 40px;
-    top: 0;
-}
-
-/***********************************
-********** gridContainer ***********
-***********************************/
-.gridContainer {
-    position: absolute;
-    border: 1px solid black;
-    font-size: 0;
-    margin: 50px;
-    box-sizing: border-box;
-}
-
-.gridContainer>div {
-    display: inline-block;
-    box-sizing: border-box;
-    background: rgba(0, 0, 0, 0.1);
-    border: 1px solid black;
-    cursor: pointer;
-    overflow: hidden;
-}
-
-.gridContainer>div>div {
-    height: 100%;
-    width: 100%;
-}
-
-.gridContainer>div.isSelected {
-    border: 0;
-}
+  overflow-x: hidden; }
 
 /***********************************
 ************** tiles ***************
 ***********************************/
-.tiles {
-    font-size: 0;
-    position: absolute;
-    left: 100%;
-    right: -100%;
-    width: 40%;
-    top: 0;
-    bottom: 0;
-    background: #000;
-    padding: 20px;
-    box-sizing: border-box;
-    overflow-y: auto;
-}
-
-body.open .tiles {
-    left: 60%;
-}
-
-.tilesButton {
-    content: "";
-    position: absolute;
-    height: 50px;
-    width: 40px;
-    right: 0;
-    background: #000;
-    top: 0;
-    bottom: 0;
-    margin: auto;
-    border-radius: 25px 0 0 25px;
-    background-repeat: no-repeat;
-    background-size: 50%;
-    background-position: center;
-    background-image: url(../Images/Icons/left.svg);
-}
-
-body.open .tilesButton {
-    background-image: url(../Images/Icons/right.svg);
-    right: 40%;
-}
-
-.tiles .title {
+aside .tileGroup {
+  margin-bottom: 30px;
+  background: rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  border-radius: 3px; }
+  aside .tileGroup.accordion > .tile {
+    display: none; }
+  aside .tileGroup.accordion.show {
+    background: rgba(0, 0, 0, 0.2); }
+    aside .tileGroup.accordion.show .title {
+      padding-bottom: 10px; }
+    aside .tileGroup.accordion.show > .tile {
+      display: inline-block; }
+  aside .tileGroup .title {
     font-size: 20px;
     display: block;
-    margin-bottom: 10px;
     text-transform: capitalize;
-    color:#FFF;
-}
-
-.tile {
+    color: #FFF;
+    cursor: pointer; }
+  aside .tileGroup .tile {
     height: 100px;
     display: inline-block;
     width: 100px;
@@ -143,46 +38,28 @@ body.open .tilesButton {
     position: relative;
     margin-right: 5px;
     margin-bottom: 5px;
-}
-.tileGroup{
-    margin-bottom: 30px;
-}
+    border-radius: 3px; }
+    aside .tileGroup .tile.isSelected {
+      border: 5px solid #FFF; }
+    aside .tileGroup .tile > img {
+      position: absolute;
+      width: 100%; }
 
-.tile>img {
-    position: absolute;
-    width: 100%;
-}
-
-.tile.isSelected {
-    border: 5px solid #FFF;
-}
-
-/* .tiles div:after {
-    content: attr(data-type);
-    position: absolute;
-    padding: 10px;
-    font-size: 20px;
-    text-transform: capitalize;
-} */
-/***********************************
-************** canvas ***************
-***********************************/
-canvas {
-    margin-top: 20px;
-    margin-left: 50px;
-}
-
-/***********************************
-************** error ***************
-***********************************/
-.dbError {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 30px;
-    line-height: 30px;
-    background: red;
-    text-align: center;
-}
+.tilesButton {
+  content: "";
+  position: absolute;
+  height: 50px;
+  width: 40px;
+  right: 0;
+  background: #000;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  border-radius: 25px 0 0 25px;
+  background-repeat: no-repeat;
+  background-size: 50%;
+  background-position: center;
+  background-image: url("../Images/Icons/left.svg"); }
+  body.open .tilesButton {
+    background-image: url("../Images/Icons/right.svg");
+    right: 40%; }

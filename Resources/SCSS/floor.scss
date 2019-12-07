@@ -1,0 +1,88 @@
+/*
+sass --sourcemap=none -C --watch /var/www/CanvasGame/Resources/SCSS:/var/www/CanvasGame/Resources/CSS
+*/
+/***********************************
+*************** reset **************
+***********************************/
+
+body {
+    overflow-x: hidden;
+}
+/***********************************
+************** tiles ***************
+***********************************/
+
+aside {
+    .tileGroup {
+        margin-bottom: 30px;
+        background: rgba(0,0,0,0.1);
+        box-sizing: border-box;
+        border-radius: 3px;
+
+        &.accordion > .tile {
+            display: none;
+        }
+
+        &.accordion.show {
+            background: rgba(0,0,0,0.2);
+            .title {
+                padding-bottom: 10px;
+            }
+
+            > .tile {
+                display: inline-block;
+            }
+        }
+
+        .title {
+            font-size: 20px;
+            display: block;
+            text-transform: capitalize;
+            color: #FFF;
+            cursor: pointer;
+        }
+
+        .tile {
+            height: 100px;
+            display: inline-block;
+            width: 100px;
+            box-sizing: border-box;
+            cursor: pointer;
+            position: relative;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            border-radius: 3px;
+
+            &.isSelected {
+                border: 5px solid #FFF;
+            }
+
+            > img {
+                position: absolute;
+                width: 100%;
+            }
+        }
+    }
+}
+
+.tilesButton {
+    content: "";
+    position: absolute;
+    height: 50px;
+    width: 40px;
+    right: 0;
+    background: #000;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    border-radius: 25px 0 0 25px;
+    background-repeat: no-repeat;
+    background-size: 50%;
+    background-position: center;
+    background-image: url("../Images/Icons/left.svg");
+
+    body.open & {
+        background-image: url("../Images/Icons/right.svg");
+        right: 40%;
+    }
+}

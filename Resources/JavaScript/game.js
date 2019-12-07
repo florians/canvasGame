@@ -60,7 +60,7 @@ function getAllTiles() {
                     image: image,
                     name: data[i].name,
                     type: data[i].type,
-                    subType: data[i].subType,
+                    subtype: data[i].subtype,
                     parts: parseInt(data[i].parts),
                     source: data[i].source,
                     collision: data[i].collision,
@@ -83,16 +83,19 @@ function getFloor(floorLevel) {
             level: floorLevel
         },
         success: function(data) {
-            data = JSON.parse(data)[0];
-            floorSettings = {
-                level: data.level,
-                startX: data.startX,
-                startY: data.startY,
-                endLink: data.endLink,
-                height: data.height,
-                width: data.width,
-                tiles: JSON.parse(data.tile_json),
-                //enemies: JSON.parse(data.enemy_json)
+            data = JSON.parse(data);
+            if (data.result) {
+                result = data.result[0];
+                floorSettings = {
+                    level: result.level,
+                    startX: result.startX,
+                    startY: result.startY,
+                    endLink: result.endLink,
+                    height: result.height,
+                    width: result.width,
+                    tiles: JSON.parse(result.tile_json),
+                    //enemies: JSON.parse(data.enemy_json)
+                }
             }
             if (game == null) {
                 game = new Game(ctx, ctx2);
@@ -158,14 +161,14 @@ function Floor(ctx, allTiles, floorSettings) {
                             h: this.partH,
                             name: this.getTileInfo(this.floorSettings.tiles[element].type, this.floorSettings.tiles[element].name, "name"),
                             type: this.getTileInfo(this.floorSettings.tiles[element].type, this.floorSettings.tiles[element].name, "type"),
-                            subType: this.getTileInfo(this.floorSettings.tiles[element].type, this.floorSettings.tiles[element].name, "subType"),
+                            subtype: this.getTileInfo(this.floorSettings.tiles[element].type, this.floorSettings.tiles[element].name, "subtype"),
                             parts: this.getTileInfo(this.floorSettings.tiles[element].type, this.floorSettings.tiles[element].name, "parts"),
                             collision: this.getTileInfo(this.floorSettings.tiles[element].type, this.floorSettings.tiles[element].name, "collision"),
                             direction: this.getTileInfo(this.floorSettings.tiles[element].type, this.floorSettings.tiles[element].name, "direction"),
                             render: true
                         }
-                        if (this.floorElements[allElements].parts > 1) {
-                            allElements = this.subType(allElements);
+                        if (this.floorElements[allElements].subtype != "default") {
+                            allElements = this.subtype(allElements);
                         } else {
                             this.floorElements[allElements].collision = parseInt(this.floorElements[allElements].collision);
                         }
@@ -196,14 +199,14 @@ function Floor(ctx, allTiles, floorSettings) {
             }
         }
     }
-    this.subType = function(counter) {
+    this.subtype = function(counter) {
         parts = this.floorElements[counter].parts;
-        subType = this.floorElements[counter].subType;
+        subtype = this.floorElements[counter].subtype;
         direction = this.floorElements[counter].direction;
         collision = this.floorElements[counter].collision.split(",");
         el = this.floorElements[counter];
         this.floorElements[counter].collision = false;
-        if (subType == "divided" && direction == "vertical") {
+        if (subtype == "divided" && direction == "vertical") {
             for (i = 0; i < parts; i++) {
                 counter++;
                 this.floorElements[counter] = {
@@ -216,7 +219,7 @@ function Floor(ctx, allTiles, floorSettings) {
                 }
             }
         }
-        if (subType == "divided" && direction == "horizontal") {
+        if (subtype == "divided" && direction == "horizontal") {
             for (i = 0; i < parts; i++) {
                 counter++;
                 this.floorElements[counter] = {
@@ -229,7 +232,7 @@ function Floor(ctx, allTiles, floorSettings) {
                 }
             }
         }
-        if (subType == "edge" && direction == "cube") {
+        if (subtype == "edge" && direction == "cube") {
             partCount = 0;
             cubeParts = parts / 2;
             for (er = 0; er < cubeParts; er++) {

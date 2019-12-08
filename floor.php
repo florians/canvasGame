@@ -1,5 +1,4 @@
 <main>
-    <!-- <div class="tilesButton"></div> -->
     <div class="controls flex flex-m">
         <div class="g30 dimension inline padding-lr-m padding-tb flex-min">
             <div class="dimension g100">

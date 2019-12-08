@@ -2,7 +2,7 @@
 if ($_GET && $_GET['p']) {
     $page = $_GET['p'];
 } else {
-    $page = false;
+    $page = 'floor';
 }
 
 $pages = ['floor', 'tile']//, 'enemies', 'skills', 'passives'];

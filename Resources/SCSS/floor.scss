@@ -40,6 +40,7 @@ aside {
             text-transform: capitalize;
             color: #FFF;
             cursor: pointer;
+
         }
 
         .tile {
@@ -52,6 +53,7 @@ aside {
             margin-right: 5px;
             margin-bottom: 5px;
             border-radius: 3px;
+            overflow: hidden;
 
             &.isSelected {
                 border: 5px solid #FFF;

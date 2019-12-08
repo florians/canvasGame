@@ -6,13 +6,10 @@ include_once 'db.php';
 // '[>]joinTable' => ['selectCol.col' => 'col'] | LEFT JOIN joinTable ON selectCol.col = joinTable.col
 // 'table.name(name2)' | table.name AS name2
 
-
 switch ($_POST['type']) {
+    // load
     case 'getFloor':
         getFloor($database,$_POST['level']);
-        break;
-    case 'saveFloor':
-        saveFloor($database,$_POST['json']);
         break;
     case 'getAllTiles':
         getAllTiles($database);
@@ -20,10 +17,41 @@ switch ($_POST['type']) {
     case 'getAllFloorLevels':
         getAllFloorLevels($database);
         break;
+    case 'getTileType':
+        getTileType($database);
+        break;
+    case 'getTileSubtype':
+        getTileSubtype($database);
+        break;
+    case 'getTileDirection':
+        getTileDirection($database);
+        break;
+
+    // save
+    case 'saveFloor':
+        saveFloor($database,$_POST['json']);
+        break;
+    case 'saveTile':
+        saveTile($database,$_POST['json'],$_FILES['file']);
+        break;
     default:
         // code...
         break;
 }
+
+function getTileType($db){
+    $result = $db->select('tile_type','*',['deleted' => 0]);
+    echo json_encode($result);
+}
+function getTileSubtype($db){
+    $result = $db->select('tile_subtype','*',['deleted' => 0]);
+    echo json_encode($result);
+}
+function getTileDirection($db){
+    $result = $db->select('tile_direction','*',['deleted' => 0]);
+    echo json_encode($result);
+}
+
 function getFloor($db,$level){
     $result = $db->select('floor','*',['deleted' => 0, 'level' => $level]);
     $type = 'success';
@@ -93,6 +121,40 @@ function saveFloor($db,$json){
     }
     echo json_encode(['type' => $type,'msg' => $msg]);
 }
+
+function saveTile($db,$json,$file){
+    $jsonObj = json_decode($json);
+
+    $name = $jsonObj->{'name'};
+    $source = $jsonObj->{'source'};
+    $collision  = $jsonObj->{'collision'};
+    $type  = $jsonObj->{'type'};
+    $subtype = $jsonObj->{'subtype'};
+    $direction = $jsonObj->{'direction'};
+
+
+    $dbTypeUid = $db->select('tile_type','uid',['deleted' => 0, 'name' => $type]);
+    $dbSubtypeUid = $db->select('tile_subtype','uid',['deleted' => 0, 'name' => $subtype]);
+    $dbDirectionUid = $db->select('tile_direction','uid',['deleted' => 0, 'name' => $direction]);
+
+    if($dbTypeUid[0] && $dbSubtypeUid[0] && $dbDirectionUid[0]){
+        $db->insert('tile', [
+            'name' => $name,
+            'source' => $source,
+            'collision' => $collision,
+            'type' => $dbTypeUid[0],
+            'subtype' => $dbSubtypeUid[0],
+            'direction' => $dbDirectionUid[0]
+        ]);
+        $target_file = '../Images/Floor/'.$type.'/'.$source;
+        move_uploaded_file($file["tmp_name"], $target_file);
+        $type = 'success';
+        $msg =  'Tile '.$name.' was saved!';
+    }
+    echo json_encode(['type' => $type,'msg' => $msg]);
+}
+
+
 
 function getAllTiles($db){
     $allTiles = $db->select('tile',

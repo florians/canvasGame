@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS `Game`.`tile` (
 CREATE TABLE IF NOT EXISTS `Game`.`tile_type` (
   `uid` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `name` VARCHAR(255) NOT NULL,
+  `factor` FLOAT(2) NOT NULL,
   `deleted` TINYINT(1) NULL DEFAULT 0
 );
 
@@ -160,16 +161,16 @@ ALTER TABLE `player_skills` ADD FOREIGN KEY (`skills_uid`) REFERENCES `Game`.`sk
 -- -----------------------------------------------------
 -- Fill DB with basic info
 -- -----------------------------------------------------
-INSERT INTO `tile_type` (`name`)
+INSERT INTO `tile_type` (`name`,`factor`)
 VALUES
-("start"),
-("end"),
-("water"),
-("gras"),
-("forest"),
-("snow"),
-("sand"),
-("mountain");
+("start",1),
+("end",1),
+("water",0),
+("gras",1),
+("forest",0.8),
+("snow",0.6),
+("sand",0.6),
+("mountain",0.6);
 
 INSERT INTO `tile_subtype` (`name`,`parts`)
 VALUES

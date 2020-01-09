@@ -170,6 +170,7 @@ function getAllTiles($db){
             'tile.collision',
             'tile.direction',
             'tile_type.name(type)',
+            'tile_type.factor(factor)',
             'tile_subtype.name(subtype)',
             'tile_subtype.parts(parts)',
             'tile_direction.name(direction)'

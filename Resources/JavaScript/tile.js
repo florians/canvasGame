@@ -37,10 +37,6 @@ function getInfo(type) {
 }
 
 getInfo('getTileType');
-getInfo('getTileSubtype');
-getInfo('getTileDirection');
-
-
 
 var tile = {
     name: '',
@@ -78,27 +74,8 @@ $('.tileName > input').change(function() {
     showPath();
 });
 
-$(document).on('change', '.getTileSubtype', function() {
-    if ($(this).val()) {
-        $('.subtype > div').removeClass('active');
-        $('.subtype .type-' + $(this).val()).addClass('active');
-        $('.subtypeInfo').addClass('active');
-    } else {
-        $('.subtypeInfo').removeClass('active');
-    }
-    getTileData();
-});
 
-$(document).on('change', '.getTileDirection', function() {
-    if ($(this).val() && $('.getTileSubtype').val()) {
-        $('.subtype .active').removeClass('horizontal vertical default cube');
-        $('.subtype .type-' + $('.getTileSubtype').val()).addClass($(this).val());
-    }
-    getTileData();
-});
-
-$('.subtype > div > div').click(function() {
-    $(this).parent().siblings().children().removeClass('selected');
+$('.collision > div').click(function() {
     $(this).toggleClass('selected');
     setCollision();
 });
@@ -114,12 +91,6 @@ $('.saveTile').click(function() {
     }
     if (tile.type == '') {
         $('.tile-type').addClass('missing')
-    }
-    if (tile.subtype == '') {
-        $('.tile-subtype').addClass('missing');
-    }
-    if (tile.direction == '') {
-        $('.tile-direction').addClass('missing');
     }
 
     if ($('.missing').length == 0 && file != "") {
@@ -148,7 +119,7 @@ $('.saveTile').click(function() {
 
 
 function setCollision() {
-    var selected = $('.subtype').find('.selected').parent().children();
+    var selected = $('.collision').find('.selected').parent().children();
     var collision = '';
     for (i = 0; i < selected.length; i++) {
         if ($(selected[i]).hasClass('selected')) {

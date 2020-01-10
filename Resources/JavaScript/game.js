@@ -1,4 +1,4 @@
-var showHitBox = false,
+var showHitBox = true,
     // get game container and start game
     c = document.getElementById("gameCanvas"),
     ctx = c.getContext("2d"),
@@ -7,11 +7,8 @@ var showHitBox = false,
     ctx2 = c2.getContext("2d"),
 
     gameBaseUrl = "Resources/Images/Floor/",
-    ajaxUrl = "Resources/PHP/ajax.php",
 
-    allTiles = [],
-    floorSettings = [],
-    game = null,
+    //game = null,
     floorLevel = 1,
 
     keyPressed = {
@@ -20,7 +17,7 @@ var showHitBox = false,
         left: false,
         right: false
     },
-
+    // animationframe fallbacks for diff browser
     myRequestAnimationFrame = window.requestAnimationFrame ||
     window.webkitRequestAnimationFrame ||
     window.mozRequestAnimationFrame ||
@@ -31,85 +28,8 @@ var showHitBox = false,
     },
     cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 
+// set fallback
 window.requestAnimationFrame = myRequestAnimationFrame;
-
-function getAllTiles() {
-    return $.ajax({
-        method: "POST",
-        url: ajaxUrl,
-        data: {
-            type: "getAllTiles"
-        },
-        success: function(data) {
-            data = JSON.parse(data);
-            var tileAmount = data.length;
-            for (i = 0; i < data.length; i++) {
-
-                var image = new Image(100, 100);
-                image.src = gameBaseUrl + data[i].type + "/" + data[i].source;
-                image.onload = function() {
-                    tileAmount--;
-                    if (!tileAmount) {
-                        getFloor(floorLevel);
-                    }
-                };
-                if (!allTiles[data[i].type]) {
-                    allTiles[data[i].type] = [];
-                }
-                allTiles[data[i].type][data[i].name] = {
-                    image: image,
-                    name: data[i].name,
-                    type: data[i].type,
-                    factor: data[i].factor,
-                    subtype: data[i].subtype,
-                    parts: parseInt(data[i].parts),
-                    source: data[i].source,
-                    collision: data[i].collision,
-                    direction: data[i].direction
-                };
-            }
-        },
-        error: function(err) {
-            console.log(err);
-        }
-    });
-}
-
-function getFloor(floorLevel) {
-    return $.ajax({
-        method: "POST",
-        url: ajaxUrl,
-        data: {
-            type: "getFloor",
-            level: floorLevel
-        },
-        success: function(data) {
-            data = JSON.parse(data);
-            if (data.result) {
-                result = data.result[0];
-                floorSettings = {
-                    level: result.level,
-                    startX: result.startX,
-                    startY: result.startY,
-                    endLink: result.endLink,
-                    height: result.height,
-                    width: result.width,
-                    tiles: JSON.parse(result.tile_json),
-                    //enemies: JSON.parse(data.enemy_json)
-                }
-            }
-            if (game == null) {
-                game = new Game(ctx, ctx2);
-            }
-            game.init(floorSettings, allTiles);
-        },
-        error: function(err) {
-            console.log(err);
-        }
-    });
-}
-
-
 
 function Floor(ctx, allTiles, floorSettings) {
     this.ctx = ctx;
@@ -133,7 +53,8 @@ function Floor(ctx, allTiles, floorSettings) {
     this.playerTop = 0;
     this.playerBottom = 0;
 
-    this.floorElements = [];
+    this.tilesLayer = [];
+    this.collisionLayer = [];
     this.init = function() {
         this.stageX = Math.floor((this.floorSettings.startX * this.partW) + this.partW / 2);
         this.stageY = Math.floor((this.floorSettings.startY * this.partH) + this.partH / 2);
@@ -150,8 +71,8 @@ function Floor(ctx, allTiles, floorSettings) {
     }
     this.setStageOffsetX = function(stageOffsetX, force = 0) {
         this.stageOffsetX = stageOffsetX;
-        this.playerLeft = Math.floor((this.stageOffsetX - game.player.offsetLeft) / this.partW);
-        this.playerRight = Math.floor((this.stageOffsetX + game.player.offsetRight - 1) / this.partW);
+        this.playerLeft = Math.floor((this.stageOffsetX - game.player.offsetLeft) / (this.partW / 2));
+        this.playerRight = Math.floor((this.stageOffsetX + game.player.offsetRight - 1) / (this.partW / 2));
         if (force) {
             return;
         }
@@ -164,8 +85,8 @@ function Floor(ctx, allTiles, floorSettings) {
     }
     this.setStageOffsetY = function(stageOffsetY, force = 0) {
         this.stageOffsetY = stageOffsetY;
-        this.playerTop = Math.floor((this.stageOffsetY - game.player.offsetTop) / this.partH);
-        this.playerBottom = Math.floor((this.stageOffsetY + game.player.offsetBottom - 1) / this.partH);
+        this.playerTop = Math.floor((this.stageOffsetY - game.player.offsetTop) / (this.partH / 2));
+        this.playerBottom = Math.floor((this.stageOffsetY + game.player.offsetBottom - 1) / (this.partH / 2));
         if (force) {
             return;
         }
@@ -177,7 +98,13 @@ function Floor(ctx, allTiles, floorSettings) {
         }
     }
     this.getTileInfo = function(type, name, info) {
-        return allTiles[type][name][info];
+        if (type, name, info) {
+            return allTiles[type][name][info];
+        } else if (type, name, !info) {
+            return allTiles[type][name];
+        } else if (type, !name, !info) {
+            return allTiles[type];
+        }
     }
     this.generateFloor = function() {
         var element = 0,
@@ -187,42 +114,49 @@ function Floor(ctx, allTiles, floorSettings) {
         this.stageY = 0;
         this.stageX = 0;
         // first render and after resize
-        if (this.floorElements.length == 0 || this.doFloorResize == 1) {
+        if (this.tilesLayer.length == 0 || this.doFloorResize == 1) {
+            // prepare collision layer
+            for (r = 0; r < this.floorSettings.height * 2; r++) {
+                b = Math.floor(this.stageY + (this.partH / 2 * r));
+                for (c = 0; c < this.floorSettings.width * 2; c++) {
+                    a = Math.floor(this.stageX + (this.partW / 2 * c));
+                    if (!this.collisionLayer[r]) {
+                        this.collisionLayer[r] = [];
+                    }
+                    this.collisionLayer[r][c] = {
+                        x: a,
+                        y: b,
+                        collision: false,
+                        type: false,
+                        w: this.partW / 2,
+                        h: this.partH / 2
+                    }
+                }
+            }
+            // prepaer tiles layer
             for (r = 0; r < this.floorSettings.height; r++) {
                 b = Math.floor(this.stageY + (this.partH * r));
                 for (c = 0; c < this.floorSettings.width; c++) {
                     a = Math.floor(this.stageX + (this.partW * c));
-                    if (!this.floorElements[r]) {
-                        this.floorElements[r] = [];
+                    if (!this.tilesLayer[r]) {
+                        this.tilesLayer[r] = [];
                     }
-                    if (this.floorSettings.tiles[element] && this.floorSettings.tiles[element].type) {
-                        // use new Tile instead >>
-                        this.floorElements[r][c] = {
+                    var type = this.floorSettings.tiles[element].type,
+                        name = this.floorSettings.tiles[element].name;
+                    if (this.floorSettings.tiles[element] && type) {
+                        this.tilesLayer[r][c] = {
                             x: a,
                             y: b,
-                            w: this.partW,
-                            h: this.partH,
-                            name: this.getTileInfo(this.floorSettings.tiles[element].type, this.floorSettings.tiles[element].name, "name"),
-                            type: this.getTileInfo(this.floorSettings.tiles[element].type, this.floorSettings.tiles[element].name, "type"),
-                            factor: this.getTileInfo(this.floorSettings.tiles[element].type, this.floorSettings.tiles[element].name, "factor"),
-                            subtype: this.getTileInfo(this.floorSettings.tiles[element].type, this.floorSettings.tiles[element].name, "subtype"),
-                            parts: this.getTileInfo(this.floorSettings.tiles[element].type, this.floorSettings.tiles[element].name, "parts"),
-                            collision: this.getTileInfo(this.floorSettings.tiles[element].type, this.floorSettings.tiles[element].name, "collision"),
-                            direction: this.getTileInfo(this.floorSettings.tiles[element].type, this.floorSettings.tiles[element].name, "direction"),
                             render: true
                         }
-                        if (this.floorElements[r][c].subtype != "default") {
-                            // needs fixing
-                            //allElements = this.subtype(r, c);
-                        } else {
-                            this.floorElements[r][c].collision = parseInt(this.floorElements[r][c].collision);
-                        }
+                        this.tilesLayer[r][c] = Object.assign(this.tilesLayer[r][c], this.getTileInfo(type, name).settings);
+
+                        var collision = this.tilesLayer[r][c].collision.split(",").map(Number);
+                        this.changeCollisionLayer(r, c, this.tilesLayer[r][c], collision);
                     } else {
-                        this.floorElements[r][c] = {
+                        this.tilesLayer[r][c] = {
                             x: a,
                             y: b,
-                            w: this.partW,
-                            h: this.partH,
                             collision: true,
                             render: false
                         }
@@ -237,68 +171,30 @@ function Floor(ctx, allTiles, floorSettings) {
             this.doFloorResize = 0;
         } else {
             // every other run
-            for (r = 0; r < this.floorElements.length; r++) {
+            for (r = 0; r < this.tilesLayer.length; r++) {
                 for (c = 0; c < this.floorSettings.width; c++) {
-                    if (this.isInView(this.floorElements[r][c].x, this.floorElements[r][c].y)) {
+                    if (this.isInView(this.tilesLayer[r][c].x, this.tilesLayer[r][c].y)) {
                         this.createBlocks(r, c);
                     }
                 }
             }
         }
     }
-    this.subtype = function(r, c) {
-        var counter = 0;
-        parts = this.floorElements[r][c].parts;
-        subtype = this.floorElements[r][c].subtype;
-        direction = this.floorElements[r][c].direction;
-        collision = this.floorElements[r][c].collision.split(",");
-        el = this.floorElements[r][c];
-        this.floorElements[r][c].collision = false;
-        if (subtype == "divided" && direction == "vertical") {
-            for (i = 0; i < parts; i++) {
-                counter++;
-                this.floorElements[r][c] = {
-                    x: el.x + ((this.partW / parts) * i),
-                    y: el.y,
-                    w: this.partW / parts,
-                    h: this.partH,
-                    collision: parseInt(collision[i]) > 0 ? 1 : 0,
-                    render: false
-                }
+    this.changeCollisionLayer = function(r, c, el, collision) {
+        var collisonArray = collision || [0, 0, 0, 0];
+        var collisionNr = 0;
+        var collisionRow = r * 2;
+        var collisionCol = c * 2;
+
+        for (r = 0; r < 2; r++) {
+            for (c = 0; c < 2; c++) {
+                collision = collisonArray[collisionNr] ? true : false || el.collision == 1 ? true : false;
+                this.collisionLayer[collisionRow + r][collisionCol + c].collision = collision;
+                this.collisionLayer[collisionRow + r][collisionCol + c].type = el.type;
+                this.collisionLayer[collisionRow + r][collisionCol + c].factor = el.collision == 1 ? 0 : el.factor;
+                collisionNr++;
             }
         }
-        if (subtype == "divided" && direction == "horizontal") {
-            for (i = 0; i < parts; i++) {
-                counter++;
-                this.floorElements[r][c] = {
-                    x: el.x,
-                    y: el.y + ((this.partW / parts) * i),
-                    w: this.partW,
-                    h: this.partH / parts,
-                    collision: parseInt(collision[i]) > 0 ? 1 : 0,
-                    render: false
-                }
-            }
-        }
-        if (subtype == "edge" && direction == "cube") {
-            partCount = 0;
-            cubeParts = parts / 2;
-            for (er = 0; er < cubeParts; er++) {
-                for (ec = 0; ec < cubeParts; ec++) {
-                    counter++;
-                    this.floorElements[r][c] = {
-                        x: el.x + ((this.partW / cubeParts) * ec),
-                        y: el.y + ((this.partH / cubeParts) * er),
-                        w: this.partW / cubeParts,
-                        h: this.partH / cubeParts,
-                        collision: parseInt(collision[partCount]) > 0 ? true : false,
-                        render: false
-                    }
-                    partCount++;
-                }
-            }
-        }
-        return counter;
     }
     this.isInView = function(x, y) {
         if (
@@ -311,24 +207,29 @@ function Floor(ctx, allTiles, floorSettings) {
         }
     }
     this.createBlocks = function(r, c) {
-        if (this.floorElements[r][c].render) {
+        if (this.tilesLayer[r][c].render) {
             ctx.drawImage(
-                this.getTileInfo(this.floorElements[r][c].type, this.floorElements[r][c].name, "image"),
-                this.floorElements[r][c].x,
-                this.floorElements[r][c].y,
-                this.floorElements[r][c].w,
-                this.floorElements[r][c].h
+                this.getTileInfo(this.tilesLayer[r][c].type, this.tilesLayer[r][c].name, "image"),
+                this.tilesLayer[r][c].x,
+                this.tilesLayer[r][c].y,
+                this.partW,
+                this.partH
             );
         }
         if (showHitBox) {
-            collisionDebug(this.floorElements[r][c]);
+            var collisionRow = r * 2;
+            var collisionCol = c * 2;
+            collisionDebug(this.collisionLayer[collisionRow][collisionCol]);
+            collisionDebug(this.collisionLayer[collisionRow][collisionCol + 1]);
+            collisionDebug(this.collisionLayer[collisionRow + 1][collisionCol]);
+            collisionDebug(this.collisionLayer[collisionRow + 1][collisionCol + 1]);
         }
     }
     this.draw = function() {
         // generate floor
         this.generateFloor();
         // check on collisions
-        this.collision(this.floorElements);
+        this.collision(this.collisionLayer);
         // move canvas content
         stageOffsetXInt = Math.round(this.stageOffsetX);
         stageOffsetYInt = Math.round(this.stageOffsetY);
@@ -336,16 +237,16 @@ function Floor(ctx, allTiles, floorSettings) {
         this.oldStageOffsetX = stageOffsetXInt;
         this.oldStageOffsetY = stageOffsetYInt;
     }
-    this.collision = function(el) {
+    this.collision = function() {
         // Player Center
-        var playerY = Math.floor((this.stageOffsetY) / this.partH),
-            playerX = Math.floor((this.stageOffsetX) / this.partW),
+        var playerY = Math.floor((this.stageOffsetY) / (this.partH / 2)),
+            playerX = Math.floor((this.stageOffsetX) / (this.partW / 2)),
             oldPlayerTop = this.playerTop,
             oldPlayerBottom = this.playerBottom,
             oldPlayerLeft = this.playerLeft,
             oldPlayerRight = this.playerRight,
-            type = this.floorElements[playerY][playerX].type,
-            factor = this.floorElements[playerY][playerX].factor,
+            type = this.collisionLayer[playerY][playerX].type || "default",
+            factor = this.collisionLayer[playerY][playerX].factor || 1,
             step = this.steps * factor,
             dx = 0,
             dy = 0;
@@ -370,12 +271,12 @@ function Floor(ctx, allTiles, floorSettings) {
         this.setStageOffsetY(this.stageOffsetY + dy, 1);
 
         // stage collision
-        if (this.playerTop < 0 || this.playerLeft < 0 || this.playerRight >= this.floorSettings.width || this.playerBottom >= this.floorSettings.height) {
+        if (this.playerTop < 0 || this.playerLeft < 0 || this.playerRight >= this.floorSettings.width * 2 || this.playerBottom >= this.floorSettings.height * 2) {
             if (this.playerTop < 0) {
                 //console.log('Field Top');
                 this.setStageOffsetY(game.player.offsetTop);
             }
-            if (this.playerBottom >= this.floorSettings.height) {
+            if (this.playerBottom >= this.floorSettings.height * 2) {
                 //console.log('Field Bottom');
                 this.setStageOffsetY(this.partH * this.floorSettings.height - game.player.offsetBottom);
             }
@@ -383,7 +284,7 @@ function Floor(ctx, allTiles, floorSettings) {
                 //console.log('Field Left');
                 this.setStageOffsetX(game.player.offsetLeft);
             }
-            if (this.playerRight >= this.floorSettings.width) {
+            if (this.playerRight >= this.floorSettings.width * 2) {
                 //console.log('Field Right');
                 this.setStageOffsetX(this.partW * this.floorSettings.width - game.player.offsetRight);
             }
@@ -422,15 +323,19 @@ function Floor(ctx, allTiles, floorSettings) {
 
             }
         }
-
-        if (this.floorElements[this.playerBottom][this.playerRight].collision || this.floorElements[this.playerBottom][this.playerLeft].collision || this.floorElements[this.playerTop][this.playerLeft].collision || this.floorElements[this.playerTop][this.playerRight].collision) {
+        if (
+            this.collisionLayer[this.playerBottom][this.playerRight].collision ||
+            this.collisionLayer[this.playerBottom][this.playerLeft].collision ||
+            this.collisionLayer[this.playerTop][this.playerLeft].collision ||
+            this.collisionLayer[this.playerTop][this.playerRight].collision
+        ) {
             //console.log('collision set to old Values');
             this.setStageOffsetX(this.oldStageOffsetX);
             this.setStageOffsetY(this.oldStageOffsetY);
         }
     }
     this.collisionBox = function(oldBoxX, oldBoxY, newBoxX, newBoxY, playerCornerLeft, playerCornerTop, dx, dy) {
-        if (!this.floorElements[newBoxY][newBoxX].collision) {
+        if (!this.collisionLayer[newBoxY][newBoxX].collision) {
             return;
         }
         //console.log('collisionBox kolidierter Ecken:' + (playerCornerLeft ? 'Links' : 'Rechts') + ", " + (playerCornerTop ? 'Oben' : 'Unten'));
@@ -442,11 +347,11 @@ function Floor(ctx, allTiles, floorSettings) {
             //var addBoxXPixel = playerCornerLeft ? this.partW : -1;
 
             // FS floor canvas translate
-            addBoxYPixel = playerCornerTop ? this.partH : 0,
-            addBoxXPixel = playerCornerLeft ? this.partW : 0,
+            addBoxYPixel = playerCornerTop ? this.partH / 2 : 0,
+            addBoxXPixel = playerCornerLeft ? this.partW / 2 : 0,
 
-            kanteX = this.partW * newBoxX + addBoxXPixel,
-            kanteY = this.partH * newBoxY + addBoxYPixel;
+            kanteX = (this.partW / 2) * newBoxX + addBoxXPixel,
+            kanteY = (this.partH / 2) * newBoxY + addBoxYPixel;
 
         if (oldBoxY == newBoxY) {
             this.setStageOffsetX(kanteX + playerOffsetX);
@@ -457,10 +362,10 @@ function Floor(ctx, allTiles, floorSettings) {
         } else {
             //Kollision untere Kante?
             //console.log("oldBoxX=" + oldBoxX + ", oldBoxY=" + oldBoxY);
-            if (!this.floorElements[oldBoxY][newBoxX].collision && this.floorElements[newBoxY][oldBoxX].collision) {
+            if (!this.collisionLayer[oldBoxY][newBoxX].collision && this.collisionLayer[newBoxY][oldBoxX].collision) {
                 this.setStageOffsetY(kanteY + playerOffsetY);
                 //console.log('collisionBox Korrektur Y: ');
-            } else if (!this.floorElements[newBoxY][oldBoxX].collision && this.floorElements[oldBoxY][newBoxX].collision) {
+            } else if (!this.collisionLayer[newBoxY][oldBoxX].collision && this.collisionLayer[oldBoxY][newBoxX].collision) {
                 this.setStageOffsetX(kanteX + playerOffsetX);
                 //console.log('collisionBox Korrektur X: ');
             } else {
@@ -471,7 +376,6 @@ function Floor(ctx, allTiles, floorSettings) {
         }
     }
 }
-
 
 function Player(ctx) {
     this.ctx = ctx;
@@ -701,7 +605,7 @@ function virtualJoystickInterval() {
 
 
 // preloading data + start the game
-getAllTiles();
+getAllTiles(floorLevel);
 
 $(window).resize(function() {
     game.resize();

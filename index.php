@@ -26,6 +26,7 @@
 </body>
 <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
 <script src="Resources/JavaScript/virtualjoystick.js"></script>
+<script src="Resources/JavaScript/game_ajax.js"></script>
 <script src="Resources/JavaScript/game.js"></script>
 <script src="Resources/JavaScript/debug.js"></script>
 </html>

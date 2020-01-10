@@ -5,10 +5,9 @@
     width: 0;
 }
 
-.missing{
+.missing {
     border: 1px solid red;
 }
-
 
 .imgContainer {
     height: 200px;
@@ -26,25 +25,21 @@
         font-size: 0;
     }
 
-    .type-default,
-    .type-divided,
-    .type-edge {
-        display: none;
+    .collision {
         position: absolute;
         left: 0;
         right: 0;
         top: 0;
         bottom: 0;
 
-        &.active {
-            display: block;
-        }
-
         > div {
             box-sizing: border-box;
             border: 1px solid black;
             background: rgba(0,0,0,0.1);
             cursor: pointer;
+            width: 50%;
+            height: 50%;
+            display: inline-block;
 
             &.selected,
             &.selected:hover {
@@ -55,31 +50,6 @@
                 background: rgba(0,0,0,0.2);
             }
         }
-    }
-
-    .type-default > div {
-        display: inline-block;
-        width: 100%;
-        height: 100%;
-    }
-
-    .type-divided > div {
-        display: inline-block;
-        width: 50%;
-        height: 100%;
-    }
-
-    .horizontal {
-        &.type-divided > div {
-            width: 100%;
-            height: 50%;
-        }
-    }
-
-    .type-edge > div {
-        width: 50%;
-        height: 50%;
-        display: inline-block;
     }
 }
 

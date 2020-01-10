@@ -18,51 +18,24 @@
     height: auto; }
   .imgContainer > div {
     font-size: 0; }
-  .imgContainer .type-default,
-  .imgContainer .type-divided,
-  .imgContainer .type-edge {
-    display: none;
+  .imgContainer .collision {
     position: absolute;
     left: 0;
     right: 0;
     top: 0;
     bottom: 0; }
-    .imgContainer .type-default.active,
-    .imgContainer .type-divided.active,
-    .imgContainer .type-edge.active {
-      display: block; }
-    .imgContainer .type-default > div,
-    .imgContainer .type-divided > div,
-    .imgContainer .type-edge > div {
+    .imgContainer .collision > div {
       box-sizing: border-box;
       border: 1px solid black;
       background: rgba(0, 0, 0, 0.1);
-      cursor: pointer; }
-      .imgContainer .type-default > div.selected, .imgContainer .type-default > div.selected:hover,
-      .imgContainer .type-divided > div.selected,
-      .imgContainer .type-divided > div.selected:hover,
-      .imgContainer .type-edge > div.selected,
-      .imgContainer .type-edge > div.selected:hover {
+      cursor: pointer;
+      width: 50%;
+      height: 50%;
+      display: inline-block; }
+      .imgContainer .collision > div.selected, .imgContainer .collision > div.selected:hover {
         background: rgba(255, 0, 0, 0.2); }
-      .imgContainer .type-default > div:hover,
-      .imgContainer .type-divided > div:hover,
-      .imgContainer .type-edge > div:hover {
+      .imgContainer .collision > div:hover {
         background: rgba(0, 0, 0, 0.2); }
-  .imgContainer .type-default > div {
-    display: inline-block;
-    width: 100%;
-    height: 100%; }
-  .imgContainer .type-divided > div {
-    display: inline-block;
-    width: 50%;
-    height: 100%; }
-  .imgContainer .horizontal.type-divided > div {
-    width: 100%;
-    height: 50%; }
-  .imgContainer .type-edge > div {
-    width: 50%;
-    height: 50%;
-    display: inline-block; }
 
 .path,
 .subtypeInfo {

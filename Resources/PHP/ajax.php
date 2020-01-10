@@ -123,33 +123,33 @@ function saveFloor($db,$json){
 }
 
 function saveTile($db,$json,$file){
+    $allowedTypes = array(IMAGETYPE_PNG, IMAGETYPE_JPEG, IMAGETYPE_GIF);
     $jsonObj = json_decode($json);
 
     $name = $jsonObj->{'name'};
     $source = $jsonObj->{'source'};
     $collision  = $jsonObj->{'collision'};
     $type  = $jsonObj->{'type'};
-    $subtype = $jsonObj->{'subtype'};
-    $direction = $jsonObj->{'direction'};
 
 
     $dbTypeUid = $db->select('tile_type','uid',['deleted' => 0, 'name' => $type]);
-    $dbSubtypeUid = $db->select('tile_subtype','uid',['deleted' => 0, 'name' => $subtype]);
-    $dbDirectionUid = $db->select('tile_direction','uid',['deleted' => 0, 'name' => $direction]);
 
-    if($dbTypeUid[0] && $dbSubtypeUid[0] && $dbDirectionUid[0]){
-        $db->insert('tile', [
-            'name' => $name,
-            'source' => $source,
-            'collision' => $collision,
-            'type' => $dbTypeUid[0],
-            'subtype' => $dbSubtypeUid[0],
-            'direction' => $dbDirectionUid[0]
-        ]);
+    if($dbTypeUid[0]){
         $target_file = '../Images/Floor/'.$type.'/'.$source;
-        move_uploaded_file($file["tmp_name"], $target_file);
-        $type = 'success';
-        $msg =  'Tile '.$name.' was saved!';
+        if(!in_array(exif_imagetype($file['tmp_name']), $allowedTypes)){
+            $type = 'error';
+            $msg = mime_content_type($file['tmp_name']).' format is not allowed';
+        }else{
+            $db->insert('tile', [
+                'name' => $name,
+                'source' => $source,
+                'collision' => $collision,
+                'type' => $dbTypeUid[0]
+            ]);
+            move_uploaded_file($file["tmp_name"], $target_file);
+            $type = 'success';
+            $msg =  'Tile '.$name.' was saved!';
+        }
     }
     echo json_encode(['type' => $type,'msg' => $msg]);
 }
@@ -159,21 +159,15 @@ function saveTile($db,$json,$file){
 function getAllTiles($db){
     $allTiles = $db->select('tile',
         [
-            '[>]tile_type' => ['tile.type' => 'uid'],
-            '[>]tile_subtype' => ['tile.subtype' => 'uid'],
-            '[>]tile_direction' => ['tile.direction' => 'uid']
+            '[>]tile_type' => ['tile.type' => 'uid']
         ],
         [
             'tile.sorting',
             'tile.name',
             'tile.source',
             'tile.collision',
-            'tile.direction',
             'tile_type.name(type)',
-            'tile_type.factor(factor)',
-            'tile_subtype.name(subtype)',
-            'tile_subtype.parts(parts)',
-            'tile_direction.name(direction)'
+            'tile_type.factor(factor)'
         ],
         [
             "tile.deleted" => 0,

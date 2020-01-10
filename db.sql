@@ -196,7 +196,7 @@ VALUES
 INSERT INTO `tile` (`sorting`,`name`,`type`,`source`,`collision`)
 VALUES
 (1,'start',1,'start.jpg','0'),
-(50,'end',2,'end.jpg','1'),
+(50,'end',2,'end.jpg','0'),
 (100,'water',3,'water.jpg','1'),
 (200,'gras',4,'gras.jpg','0'),
 (210,'gras_wlb',4,'gras_wlb.jpg','0,0,1,0'),

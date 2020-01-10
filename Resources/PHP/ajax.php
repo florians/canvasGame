@@ -136,7 +136,7 @@ function saveTile($db,$json,$file){
 
     if($dbTypeUid[0]){
         $target_file = '../Images/Floor/'.$type.'/'.$source;
-        if(!in_array(exif_imagetype($file['tmp_name']), $allowedTypes)){
+        if(!in_array(mime_content_type($file['tmp_name']), $allowedTypes)){
             $type = 'error';
             $msg = mime_content_type($file['tmp_name']).' format is not allowed';
         }else{

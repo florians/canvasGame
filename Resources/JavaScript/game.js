@@ -1,4 +1,4 @@
-var showHitBox = true,
+var showHitBox = false,
     // get game container and start game
     c = document.getElementById("gameCanvas"),
     ctx = c.getContext("2d"),
@@ -152,7 +152,8 @@ function Floor(ctx, allTiles, floorSettings) {
                         this.tilesLayer[r][c] = Object.assign(this.tilesLayer[r][c], this.getTileInfo(type, name).settings);
 
                         var collision = this.tilesLayer[r][c].collision.split(",").map(Number);
-                        this.changeCollisionLayer(r, c, this.tilesLayer[r][c], collision);
+                        this.tilesLayer[r][c].collision = collision;
+                        this.changeCollisionLayer(r, c, this.tilesLayer[r][c]);
                     } else {
                         this.tilesLayer[r][c] = {
                             x: a,
@@ -180,19 +181,20 @@ function Floor(ctx, allTiles, floorSettings) {
             }
         }
     }
-    this.changeCollisionLayer = function(r, c, el, collision) {
-        var collisonArray = collision || [0, 0, 0, 0];
+    this.changeCollisionLayer = function(r, c, el) {
+        var collisonArray = el.collision || [0, 0, 0, 0];
         var collisionNr = 0;
         var collisionRow = r * 2;
         var collisionCol = c * 2;
 
         for (r = 0; r < 2; r++) {
             for (c = 0; c < 2; c++) {
-                collision = collisonArray[collisionNr] ? true : false || el.collision == 1 ? true : false;
-                this.collisionLayer[collisionRow + r][collisionCol + c].collision = collision;
+                this.collisionLayer[collisionRow + r][collisionCol + c].collision = el.collision[collisionNr];
                 this.collisionLayer[collisionRow + r][collisionCol + c].type = el.type;
                 this.collisionLayer[collisionRow + r][collisionCol + c].factor = el.collision == 1 ? 0 : el.factor;
-                collisionNr++;
+                if (el.collision.length > 1) {
+                    collisionNr++;
+                }
             }
         }
     }
@@ -216,6 +218,26 @@ function Floor(ctx, allTiles, floorSettings) {
                 this.partH
             );
         }
+        for (a = 0; a < 2; a++) {
+            for (b = 0; b < 2; b++) {
+                if (
+                    this.tilesLayer[r][c].collision.length &&
+                    this.collisionLayer[r * 2 + a][c * 2 + b].collision ||
+                    this.tilesLayer[r][c].collision == 1
+                ) {
+                    ctx.fillStyle = "rgb(0,255,0)";
+                } else {
+                    ctx.fillStyle = "rgb(200,0,0,0)";
+                }
+                ctx.fillRect(
+                    this.collisionLayer[r * 2 + a][c * 2 + b].x + 0.5,
+                    this.collisionLayer[r * 2 + a][c * 2 + b].y + 0.5,
+                    this.partW / 2 - 1,
+                    this.partH / 2 - 1
+                );
+            }
+        }
+
         if (showHitBox) {
             var collisionRow = r * 2;
             var collisionCol = c * 2;
@@ -293,34 +315,31 @@ function Floor(ctx, allTiles, floorSettings) {
         }
         //console.log('bottomBox='+this.playerBottom + ",bottomX="+(this.stageOffsetY + game.player.offsetBottom)+",fiedl="+ (this.floorSettings.height * this.partH-1) + ", playerY="+ this.stageOffsetY);
         //console.log(this.playerTop,this.playerBottom,this.playerLeft,this.playerRight);
+
+        // smt is not right here
         if (dx > 0) {
             if (dy > 0) {
                 this.collisionBox(oldPlayerRight, oldPlayerBottom, this.playerRight, this.playerBottom, 0, 0, dx, dy);
                 this.collisionBox(oldPlayerRight, oldPlayerTop, this.playerRight, this.playerTop, 0, 1, dx, dy);
                 this.collisionBox(oldPlayerLeft, oldPlayerBottom, this.playerLeft, this.playerBottom, 1, 0, dx, dy);
                 this.collisionBox(oldPlayerLeft, oldPlayerTop, this.playerLeft, this.playerTop, 1, 1, dx, dy);
-
             } else {
                 this.collisionBox(oldPlayerLeft, oldPlayerTop, this.playerLeft, this.playerTop, 1, 1, dx, dy);
                 this.collisionBox(oldPlayerLeft, oldPlayerBottom, this.playerLeft, this.playerBottom, 1, 0, dx, dy);
                 this.collisionBox(oldPlayerRight, oldPlayerTop, this.playerRight, this.playerTop, 0, 1, dx, dy);
                 this.collisionBox(oldPlayerRight, oldPlayerBottom, this.playerRight, this.playerBottom, 0, 0, dx, dy);
-
             }
-
         } else {
             if (dy > 0) {
                 this.collisionBox(oldPlayerRight, oldPlayerBottom, this.playerRight, this.playerBottom, 0, 0, dx, dy);
                 this.collisionBox(oldPlayerRight, oldPlayerTop, this.playerRight, this.playerTop, 0, 1, dx, dy);
                 this.collisionBox(oldPlayerLeft, oldPlayerBottom, this.playerLeft, this.playerBottom, 1, 0, dx, dy);
                 this.collisionBox(oldPlayerLeft, oldPlayerTop, this.playerLeft, this.playerTop, 1, 1, dx, dy);
-
             } else {
                 this.collisionBox(oldPlayerLeft, oldPlayerTop, this.playerLeft, this.playerTop, 1, 1, dx, dy);
                 this.collisionBox(oldPlayerLeft, oldPlayerBottom, this.playerLeft, this.playerBottom, 1, 0, dx, dy);
                 this.collisionBox(oldPlayerRight, oldPlayerTop, this.playerRight, this.playerTop, 0, 1, dx, dy);
                 this.collisionBox(oldPlayerRight, oldPlayerBottom, this.playerRight, this.playerBottom, 0, 0, dx, dy);
-
             }
         }
         if (
@@ -343,8 +362,8 @@ function Floor(ctx, allTiles, floorSettings) {
             playerOffsetY = (game.player.h / 2) * (playerCornerTop ? 1 : -1),
 
             // erster Pixel ausserhalb von Block
-            //var addBoxYPixel = playerCornerTop ? this.partH : -1;
-            //var addBoxXPixel = playerCornerLeft ? this.partW : -1;
+            // addBoxYPixel = playerCornerTop ? this.partH / 2 : -1,
+            // addBoxXPixel = playerCornerLeft ? this.partW / 2 : -1,
 
             // FS floor canvas translate
             addBoxYPixel = playerCornerTop ? this.partH / 2 : 0,

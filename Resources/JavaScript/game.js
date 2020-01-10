@@ -56,8 +56,16 @@ function Floor(ctx, allTiles, floorSettings) {
     this.tilesLayer = [];
     this.collisionLayer = [];
     this.init = function() {
-        this.stageX = Math.floor((this.floorSettings.startX * this.partW) + this.partW / 2);
-        this.stageY = Math.floor((this.floorSettings.startY * this.partH) + this.partH / 2);
+        if (this.oldStageOffsetX == 0) {
+            this.stageX = Math.floor((this.floorSettings.startX * this.partW) + this.partW / 2);
+        } else {
+            this.stageX = this.oldStageOffsetX;
+        }
+        if (this.oldStageOffsetY == 0) {
+            this.stageY = Math.floor((this.floorSettings.startY * this.partH) + this.partH / 2);
+        } else {
+            this.stageY = this.oldStageOffsetY;
+        }
         ctx.translate(Math.floor(ctx.canvas.width / 2 - this.stageX), Math.floor(ctx.canvas.height / 2 - this.stageY));
         this.stageOffsetX = this.stageX;
         this.stageOffsetY = this.stageY;
@@ -114,7 +122,7 @@ function Floor(ctx, allTiles, floorSettings) {
         this.stageY = 0;
         this.stageX = 0;
         // first render and after resize
-        if (this.tilesLayer.length == 0 || this.doFloorResize == 1) {
+        if (this.tilesLayer.length == 0) { // || this.doFloorResize == 1) { not needed anymore?
             // prepare collision layer
             for (r = 0; r < this.floorSettings.height * 2; r++) {
                 b = Math.floor(this.stageY + (this.partH / 2 * r));

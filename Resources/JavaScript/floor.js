@@ -73,6 +73,7 @@ function generateGridCanvas(allTiles) {
             if (oldFloorSettings[elements]) {
                 tile.type = oldFloorSettings[elements].type;
                 tile.name = oldFloorSettings[elements].name;
+                tile.item = oldFloorSettings[elements].item;
             }
             genBlock(tile, allTiles);
             floorSettings.tiles.push(tile);
@@ -99,6 +100,16 @@ function genBlock(tile, allTiles) {
             tile.size,
             tile.size
         );
+        // item as overlay
+        if (tile.item) {
+            ctx.drawImage(
+                allTiles[tile.item.type][tile.item.name],
+                tile.x,
+                tile.y,
+                tile.size,
+                tile.size
+            );
+        }
     } else {
         ctx.fillStyle = 'rgb(255,255,255)';
         ctx.beginPath();
@@ -171,8 +182,18 @@ function addTile(offsetX, offsetY) {
                 event.offsetY >= floorSettings.tiles[i].y &&
                 event.offsetY <= floorSettings.tiles[i].y + floorSettings.tiles[i].size
             ) {
-                floorSettings.tiles[i].type = selectedEl.attr('data-type');
-                floorSettings.tiles[i].name = selectedEl.attr('data-name');
+                if (floorSettings.tiles[i].item && selectedEl.attr('data-type') != "item") {
+                    floorSettings.tiles[i].item = "";
+                }
+                if (selectedEl.attr('data-type') == "item") {
+                    floorSettings.tiles[i].item = {
+                        type: selectedEl.attr('data-type'),
+                        name: selectedEl.attr('data-name')
+                    }
+                } else {
+                    floorSettings.tiles[i].type = selectedEl.attr('data-type');
+                    floorSettings.tiles[i].name = selectedEl.attr('data-name');
+                }
             }
         }
         repaint();

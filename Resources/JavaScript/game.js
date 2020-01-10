@@ -153,6 +153,8 @@ function Floor(ctx, allTiles, floorSettings) {
 
                         var collision = this.tilesLayer[r][c].collision.split(",").map(Number);
                         this.tilesLayer[r][c].collision = collision;
+
+                        this.tilesLayer[r][c].item = this.floorSettings.tiles[element].item;
                         this.changeCollisionLayer(r, c, this.tilesLayer[r][c]);
                     } else {
                         this.tilesLayer[r][c] = {
@@ -217,6 +219,15 @@ function Floor(ctx, allTiles, floorSettings) {
                 this.partW,
                 this.partH
             );
+            if (this.tilesLayer[r][c].item) {
+                ctx.drawImage(
+                    this.getTileInfo(this.tilesLayer[r][c].item.type, this.tilesLayer[r][c].item.name, "image"),
+                    this.tilesLayer[r][c].x,
+                    this.tilesLayer[r][c].y,
+                    this.partW,
+                    this.partH
+                );
+            }
         }
         for (a = 0; a < 2; a++) {
             for (b = 0; b < 2; b++) {
@@ -271,9 +282,29 @@ function Floor(ctx, allTiles, floorSettings) {
             factor = this.collisionLayer[playerY][playerX].factor || 1,
             step = this.steps * factor,
             dx = 0,
-            dy = 0;
+            dy = 0,
+            elementTileLayer = this.tilesLayer[Math.floor(playerY / 2)][Math.floor(playerX / 2)];
         if (type == 'end') {
             game.newFloor(floorSettings.endLink);
+        }
+        if (elementTileLayer.item) {
+            var itemWasUsed = false;
+            if (elementTileLayer.item.name == "hp") {
+                if (game.player.stats.hp.current < game.player.stats.hp.max) {
+                    game.player.stats.hp.current++;
+                    itemWasUsed = true;
+                }
+            }
+            if (elementTileLayer.item.name == "mp") {
+                if (game.player.stats.mp.current < game.player.stats.mp.max) {
+                    game.player.stats.mp.current++;
+                    itemWasUsed = true;
+                }
+            }
+            // remove item
+            if (itemWasUsed == true) {
+                elementTileLayer.item = "";
+            }
         }
         if (keyPressed.up && !keyPressed.down) {
             dy = -step;
@@ -408,8 +439,29 @@ function Player(ctx) {
 
     this.x = 0;
     this.y = 0;
+
+    this.stats = {
+        hp: {
+            max: 5,
+            current: 4
+        },
+        mp: {
+            max: 4,
+            current: 1
+        }
+    }
     this.draw = function() {
+        this.drawPlayer();
+        this.drawHp();
+        this.drawMp();
+    }
+    this.resize = function() {
+        this.x = Math.floor(this.ctx.canvas.width / 2 - this.w / 2);
+        this.y = Math.floor(this.ctx.canvas.height / 2 - this.h / 2);
+    }
+    this.drawPlayer = function() {
         // idk why i need that
+        this.ctx.save();
         this.ctx.setTransform(1, 0, 0, 1, 0, 0);
         this.ctx.fillStyle = "rgb(255,0,0)";
         this.ctx.translate(this.x + this.w / 2, this.y + this.h / 2);
@@ -426,13 +478,25 @@ function Player(ctx) {
             this.ctx.rotate(225 * Math.PI / 180);
         }
         this.ctx.fillRect(-this.h / 2, -this.w / 2, this.w, this.h);
+        this.ctx.restore();
     }
-    this.resize = function() {
-        this.x = Math.floor(this.ctx.canvas.width / 2 - this.w / 2);
-        this.y = Math.floor(this.ctx.canvas.height / 2 - this.h / 2);
-
+    this.drawHp = function() {
+        this.drawBar(this.stats.hp, 0, "rgb(255,0,0)");
     }
-
+    this.drawMp = function() {
+        this.drawBar(this.stats.mp, 30, "rgb(0,0,255)");
+    }
+    this.drawBar = function(stat, y, color) {
+        var barSize = (this.ctx.canvas.width / 2) / stat.max;
+        for (i = 0; i < stat.max; i++) {
+            if (stat.current >= i + 1) {
+                this.ctx.fillStyle = color;
+            } else {
+                this.ctx.fillStyle = "rgb(10,10,10)";
+            }
+            this.ctx.fillRect(barSize * i, y, barSize - 5, 20);
+        }
+    }
 }
 
 
@@ -481,7 +545,11 @@ function Game(ctx, ctx2) {
     this.run = function(allTiles, floorSettings) {
         this.allTiles = allTiles;
         this.floorSettings = floorSettings;
-        this.player = new Player(this.ctx2);
+        if (typeof this.player != "undefined") {
+            this.player = this.player;
+        } else {
+            this.player = new Player(this.ctx2);
+        }
         this.floor = new Floor(this.ctx, this.allTiles, this.floorSettings);
         this.resize(true);
         this.animate();

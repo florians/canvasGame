@@ -135,14 +135,15 @@ function saveTile($db,$json,$file){
     $dbTypeUid = $db->select('tile_type','uid',['deleted' => 0, 'name' => $type]);
 
     if($dbTypeUid[0]){
-        $target_file = '../Images/Floor/'.$type.'/'.$source;
-        if(!in_array(mime_content_type($file['tmp_name']), $allowedTypes)){
+        $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $target_file = '../Images/Floor/'.$type.'/'.$source.'.'.$ext;
+        if(!in_array(exif_imagetype($file['tmp_name']), $allowedTypes)){
             $type = 'error';
             $msg = mime_content_type($file['tmp_name']).' format is not allowed';
         }else{
             $db->insert('tile', [
                 'name' => $name,
-                'source' => $source,
+                'source' => $source.'.'.$ext,
                 'collision' => $collision,
                 'type' => $dbTypeUid[0]
             ]);

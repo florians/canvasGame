@@ -134,7 +134,7 @@ function setCollision() {
 function getTileData() {
     tile = {
         name: $('.tile-name').val(),
-        source: $('.tile-name').val() + '.jpg',
+        source: $('.tile-name').val(),
         collision: setCollision(),
         type: $('.tile-type').val(),
         subtype: $('.tile-subtype').val(),

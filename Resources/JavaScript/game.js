@@ -163,6 +163,8 @@ function Floor(ctx, allTiles, floorSettings) {
                         this.tilesLayer[r][c].collision = collision;
 
                         this.tilesLayer[r][c].item = this.floorSettings.tiles[element].item;
+                        this.tilesLayer[r][c].trap = this.floorSettings.tiles[element].trap;
+                        this.tilesLayer[r][c].enemy = this.floorSettings.tiles[element].enemy;
                         this.changeCollisionLayer(r, c, this.tilesLayer[r][c]);
                     } else {
                         this.tilesLayer[r][c] = {
@@ -236,28 +238,47 @@ function Floor(ctx, allTiles, floorSettings) {
                     this.partH
                 );
             }
-        }
-        for (a = 0; a < 2; a++) {
-            for (b = 0; b < 2; b++) {
-                if (
-                    this.tilesLayer[r][c].collision.length &&
-                    this.collisionLayer[r * 2 + a][c * 2 + b].collision ||
-                    this.tilesLayer[r][c].collision == 1
-                ) {
-                    ctx.fillStyle = "rgb(0,255,0)";
-                } else {
-                    ctx.fillStyle = "rgb(200,0,0,0)";
-                }
-                ctx.fillRect(
-                    this.collisionLayer[r * 2 + a][c * 2 + b].x + 0.5,
-                    this.collisionLayer[r * 2 + a][c * 2 + b].y + 0.5,
-                    this.partW / 2 - 1,
-                    this.partH / 2 - 1
+            if (this.tilesLayer[r][c].trap) {
+                ctx.drawImage(
+                    this.getTileInfo(this.tilesLayer[r][c].trap.type, this.tilesLayer[r][c].trap.name, "image"),
+                    this.tilesLayer[r][c].x,
+                    this.tilesLayer[r][c].y,
+                    this.partW,
+                    this.partH
+                );
+            }
+            if (this.tilesLayer[r][c].enemy) {
+                ctx.drawImage(
+                    this.getTileInfo(this.tilesLayer[r][c].enemy.type, this.tilesLayer[r][c].enemy.name, "image"),
+                    this.tilesLayer[r][c].x,
+                    this.tilesLayer[r][c].y,
+                    this.partW,
+                    this.partH
                 );
             }
         }
-
         if (showHitBox) {
+            for (a = 0; a < 2; a++) {
+                for (b = 0; b < 2; b++) {
+                    if (
+                        this.tilesLayer[r][c].collision.length &&
+                        this.collisionLayer[r * 2 + a][c * 2 + b].collision ||
+                        this.tilesLayer[r][c].collision == 1
+                    ) {
+                        ctx.fillStyle = "rgb(0,255,0)";
+                    } else {
+                        ctx.fillStyle = "rgb(200,0,0,0)";
+                    }
+                    ctx.fillRect(
+                        this.collisionLayer[r * 2 + a][c * 2 + b].x + 0.5,
+                        this.collisionLayer[r * 2 + a][c * 2 + b].y + 0.5,
+                        this.partW / 2 - 1,
+                        this.partH / 2 - 1
+                    );
+                }
+            }
+
+
             var collisionRow = r * 2;
             var collisionCol = c * 2;
             collisionDebug(this.collisionLayer[collisionRow][collisionCol]);
@@ -295,25 +316,77 @@ function Floor(ctx, allTiles, floorSettings) {
         if (type == 'end') {
             game.newFloor(floorSettings.endLink);
         }
-        if (elementTileLayer.item) {
+        if (elementTileLayer.item || elementTileLayer.trap || elementTileLayer.enemy) {
             var itemWasUsed = false;
-            if (elementTileLayer.item.name == "hp") {
+            if (elementTileLayer.item && elementTileLayer.item.name == "hp") {
                 if (game.player.stats.hp.current < game.player.stats.hp.max) {
                     game.player.stats.hp.current++;
                     itemWasUsed = true;
                 }
             }
-            if (elementTileLayer.item.name == "mp") {
+            if (elementTileLayer.item && elementTileLayer.item.name == "mp") {
                 if (game.player.stats.mp.current < game.player.stats.mp.max) {
                     game.player.stats.mp.current++;
+                    itemWasUsed = true;
+                }
+            }
+            if (elementTileLayer.trap && elementTileLayer.trap.name == "trap") {
+                if (game.player.stats.hp.current > 0) {
+                    game.player.stats.hp.current--;
+                    itemWasUsed = true;
+                }
+            }
+            if (elementTileLayer.enemy && elementTileLayer.enemy.name == "enemy") {
+                var loseHp = Math.round(Math.random());
+                if (game.player.stats.hp.current > 0 && loseHp == 1) {
+                    game.player.stats.hp.current--;
+                    itemWasUsed = true;
+                }else{
                     itemWasUsed = true;
                 }
             }
             // remove item
             if (itemWasUsed == true) {
                 elementTileLayer.item = "";
+                elementTileLayer.enemy = "";
+                elementTileLayer.trap = "";
+            }
+            if (game.player.stats.hp.current == 0) {
+                game.player.resetStat("hp");
+                game.newFloor(floorSettings.level);
             }
         }
+        // if (elementTileLayer.trap) {
+        //     var itemWasUsed = false;
+        //     if (elementTileLayer.trap.name == "trap") {
+        //         if (game.player.stats.hp.current > 0) {
+        //             game.player.stats.hp.current--;
+        //             itemWasUsed = true;
+        //         }
+        //         if (game.player.stats.hp.current == 0) {
+        //             game.player.resetStat("hp");
+        //             game.newFloor(floorSettings.level);
+        //         }
+        //     }
+        //     // remove item
+        //     if (itemWasUsed == true) {
+        //         elementTileLayer.trap = "";
+        //     }
+        // }
+        // if (elementTileLayer.enemy) {
+        //     var itemWasUsed = false;
+        //     if (elementTileLayer.enemy.name == "enemy") {
+        //         var loseHp = Math.round(Math.random());
+        //         if (loseHp) {
+        //             game.player.stats.hp.current--;
+        //             itemWasUsed = true;
+        //         }
+        //     }
+        //     // remove item
+        //     if (itemWasUsed == true) {
+        //         elementTileLayer.enemy = "";
+        //     }
+        // }
         if (keyPressed.up && !keyPressed.down) {
             dy = -step;
         } else if (!keyPressed.up && keyPressed.down) {
@@ -450,7 +523,7 @@ function Player(ctx) {
 
     this.stats = {
         hp: {
-            max: 5,
+            max: 4,
             current: 4
         },
         mp: {
@@ -461,16 +534,15 @@ function Player(ctx) {
     this.draw = function() {
         this.drawPlayer();
         this.drawHp();
-        this.drawMp();
+        //this.drawMp();
     }
     this.resize = function() {
         this.x = Math.floor(this.ctx.canvas.width / 2 - this.w / 2);
         this.y = Math.floor(this.ctx.canvas.height / 2 - this.h / 2);
     }
     this.drawPlayer = function() {
-        // idk why i need that
+        // save already rendered ctx to only change following obj
         this.ctx.save();
-        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
         this.ctx.fillStyle = "rgb(255,0,0)";
         this.ctx.translate(this.x + this.w / 2, this.y + this.h / 2);
         if (keyPressed.up && keyPressed.right) {
@@ -486,7 +558,11 @@ function Player(ctx) {
             this.ctx.rotate(225 * Math.PI / 180);
         }
         this.ctx.fillRect(-this.h / 2, -this.w / 2, this.w, this.h);
+        // restore all saved ctx with new object
         this.ctx.restore();
+    }
+    this.resetStat = function(stat) {
+        this.stats[stat].current = this.stats[stat].max;
     }
     this.drawHp = function() {
         this.drawBar(this.stats.hp, 0, "rgb(255,0,0)");
@@ -525,10 +601,12 @@ function Game(ctx, ctx2) {
 
         // clear both canvas
         myself.ctx.save();
+        // used to removed old translate
         myself.ctx.setTransform(1, 0, 0, 1, 0, 0);
         myself.ctx.clearRect(0, 0, myself.ctx.canvas.width, myself.ctx.canvas.height);
         myself.ctx.restore();
         myself.ctx2.save();
+        // used to removed old translate
         myself.ctx2.setTransform(1, 0, 0, 1, 0, 0);
         myself.ctx2.clearRect(0, 0, myself.ctx2.canvas.width, myself.ctx2.canvas.height);
         myself.ctx2.restore();
@@ -562,7 +640,7 @@ function Game(ctx, ctx2) {
         this.resize(true);
         this.animate();
     }
-    this.draw = function(stop) {
+    this.draw = function() {
         this.floor.draw();
         this.player.draw();
     }

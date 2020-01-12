@@ -24,6 +24,18 @@ body {
 /***********************************
 ************** loader **************
 ***********************************/
+.loaderbar {
+  position: absolute;
+  bottom: 0;
+  height: 1vh;
+  left: 0;
+  background: #797979;
+  right: 0;
+  z-index: 11;
+  width: 0; }
+  .loading-done .loaderbar {
+    display: none; }
+
 .loader {
   position: absolute;
   top: 0;

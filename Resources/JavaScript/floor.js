@@ -74,6 +74,8 @@ function generateGridCanvas(allTiles) {
                 tile.type = oldFloorSettings[elements].type;
                 tile.name = oldFloorSettings[elements].name;
                 tile.item = oldFloorSettings[elements].item;
+                tile.trap = oldFloorSettings[elements].trap;
+                tile.enemy = oldFloorSettings[elements].enemy;
             }
             genBlock(tile, allTiles);
             floorSettings.tiles.push(tile);
@@ -104,6 +106,24 @@ function genBlock(tile, allTiles) {
         if (tile.item) {
             ctx.drawImage(
                 allTiles[tile.item.type][tile.item.name],
+                tile.x,
+                tile.y,
+                tile.size,
+                tile.size
+            );
+        }
+        if (tile.trap) {
+            ctx.drawImage(
+                allTiles[tile.trap.type][tile.trap.name],
+                tile.x,
+                tile.y,
+                tile.size,
+                tile.size
+            );
+        }
+        if (tile.enemy) {
+            ctx.drawImage(
+                allTiles[tile.enemy.type][tile.enemy.name],
                 tile.x,
                 tile.y,
                 tile.size,
@@ -185,8 +205,24 @@ function addTile(offsetX, offsetY) {
                 if (floorSettings.tiles[i].item && selectedEl.attr('data-type') != "item") {
                     floorSettings.tiles[i].item = "";
                 }
+                if (floorSettings.tiles[i].trap && selectedEl.attr('data-type') != "trap") {
+                    floorSettings.tiles[i].trap = "";
+                }
+                if (floorSettings.tiles[i].enemy && selectedEl.attr('data-type') != "enemy") {
+                    floorSettings.tiles[i].enemy = "";
+                }
                 if (selectedEl.attr('data-type') == "item") {
                     floorSettings.tiles[i].item = {
+                        type: selectedEl.attr('data-type'),
+                        name: selectedEl.attr('data-name')
+                    }
+                } else if (selectedEl.attr('data-type') == "trap") {
+                    floorSettings.tiles[i].trap = {
+                        type: selectedEl.attr('data-type'),
+                        name: selectedEl.attr('data-name')
+                    }
+                }  else if (selectedEl.attr('data-type') == "enemy") {
+                    floorSettings.tiles[i].enemy = {
                         type: selectedEl.attr('data-type'),
                         name: selectedEl.attr('data-name')
                     }

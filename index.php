@@ -9,6 +9,7 @@
 </head>
 
 <body>
+	<div class="loaderbar"></div>
 	<div class="loader">
 		<div class="rect1"></div>
 		<div class="rect2"></div>

@@ -42,25 +42,6 @@ CREATE TABLE IF NOT EXISTS `Game`.`tile_type` (
 );
 
 -- -----------------------------------------------------
--- Table `game`.`tile_subtype`
--- -----------------------------------------------------
--- CREATE TABLE IF NOT EXISTS `Game`.`tile_subtype` (
---   `uid` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
---   `name` VARCHAR(255) NOT NULL,
---   `parts` int(10) DEFAULT '0',
---   `deleted` TINYINT(1) NULL DEFAULT 0
--- );
-
--- -----------------------------------------------------
--- Table `game`.`tile_direction`
--- -----------------------------------------------------
--- CREATE TABLE IF NOT EXISTS `Game`.`tile_direction` (
---   `uid` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
---   `name` VARCHAR(255) NOT NULL,
---   `deleted` TINYINT(1) NULL DEFAULT 0
--- );
-
--- -----------------------------------------------------
 -- Table `game`.`enemy`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `Game`.`enemy` (
@@ -143,8 +124,6 @@ CREATE TABLE IF NOT EXISTS `Game`.`passives` (
 -- set FOREIGN KEY
 -- -----------------------------------------------------
 ALTER TABLE `tile` ADD FOREIGN KEY (`type`) REFERENCES `Game`.`tile_type` (`uid`);
--- ALTER TABLE `tile` ADD FOREIGN KEY (`subtype`) REFERENCES `Game`.`tile_subtype` (`uid`);
--- ALTER TABLE `tile` ADD FOREIGN KEY (`direction`) REFERENCES `Game`.`tile_direction` (`uid`);
 
 ALTER TABLE `skills` ADD FOREIGN KEY (`type`) REFERENCES `Game`.`skills_type` (`uid`);
 
@@ -166,22 +145,12 @@ VALUES
 ("water",0),
 ("gras",1),
 ("forest",0.8),
-("snow",0.6),
+("snow",0.5),
 ("sand",0.6),
-("mountain",0.6);
-
--- INSERT INTO `tile_subtype` (`name`,`parts`)
--- VALUES
--- ("default",1),
--- ("divided",2),
--- ("edge",4);
-
--- INSERT INTO `tile_direction` (`name`)
--- VALUES
--- ("default"),
--- ("vertical"),
--- ("horizontal"),
--- ("cube");
+("mountain",0.6),
+("item",1),
+("trap",1),
+("enemy",1);
 
 INSERT INTO `skills_type` (`name`, `description`)
 VALUES
@@ -193,25 +162,30 @@ VALUES
 ("debuff","Debuff"),
 ("sacrifice ","Sacrifice");
 
-INSERT INTO `tile` (`sorting`,`name`,`type`,`source`,`collision`)
+INSERT INTO `tile` (`sorting`,`name`,`type`,`source`,`collision`,`deleted`)
 VALUES
-(1,'start',1,'start.jpg','0'),
-(50,'end',2,'end.jpg','0'),
-(100,'water',3,'water.jpg','1'),
-(200,'gras',4,'gras.jpg','0'),
-(210,'gras_wlb',4,'gras_wlb.jpg','0,0,1,0'),
-(211,'gras_wlt',4,'gras_wlt.jpg','1,0,0,0'),
-(212,'gras_wrb',4,'gras_wrb.jpg','0,0,0,1'),
-(213,'gras_wrt',4,'gras_wrt.jpg','0,1,0,0'),
-(220,'gras_gl',4,'gras_l.jpg','0,1,0,1'),
-(221,'gras_gr',4,'gras_r.jpg','1,0,1,0'),
+(1,'start',1,'start.jpg','0',0),
+(50,'end',2,'end.jpg','0',0),
+(100,'water',3,'water.jpg','1',0),
+(200,'gras',4,'gras.jpg','0',0),
+(210,'gras_wlb',4,'gras_wlb.jpg','0,0,1,0',1),
+(211,'gras_wlt',4,'gras_wlt.jpg','1,0,0,0',1),
+(212,'gras_wrb',4,'gras_wrb.jpg','0,0,0,1',1),
+(213,'gras_wrt',4,'gras_wrt.jpg','0,1,0,0',1),
+(220,'gras_gl',4,'gras_l.jpg','0,1,0,1',1),
+(221,'gras_gr',4,'gras_r.jpg','1,0,1,0',1),
 (230,'gras_gt',4,'gras_t.jpg','0,0,1,1'),
-(231,'gras_gb',4,'gras_b.jpg','1,1,0,0'),
-(240,'gras_glb',4,'gras_lb.jpg','1,1,0,1'),
-(241,'gras_glt',4,'gras_lt.jpg','0,1,1,1'),
-(242,'gras_grb',4,'gras_rb.jpg','1,1,1,0'),
-(243,'gras_grt',4,'gras_rt.jpg','1,0,1,1'),
-(300,'forest',5,'forest.jpg','0'),
-(400,'snow',6,'snow.jpg','0'),
-(500,'sand',7,'sand.jpg','0'),
-(600,'mountain',8,'mountain.jpg','0');
+(231,'gras_gb',4,'gras_b.jpg','1,1,0,0',1),
+(240,'gras_glb',4,'gras_lb.jpg','1,1,0,1',1),
+(241,'gras_glt',4,'gras_lt.jpg','0,1,1,1',1),
+(242,'gras_grb',4,'gras_rb.jpg','1,1,1,0',1),
+(243,'gras_grt',4,'gras_rt.jpg','1,0,1,1',1),
+(300,'forest',5,'forest.jpg','0',0),
+(400,'snow',6,'snow.jpg','0',0),
+(401,'snow2',6,'snow2.jpg','0',0),
+(500,'sand',7,'sand.jpg','0',0),
+(600,'mountain',8,'mountain.jpg','0',0),
+(1000,'hp',9,'hp.png','0',0),
+(1010,'mp',9,'mp.png','0',1),
+(2000,'trap',10,'trap.png','0',0),
+(3000,'enemy',10,'enemy.png','0',0);

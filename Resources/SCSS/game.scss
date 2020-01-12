@@ -4,7 +4,6 @@ sass --sourcemap=none -C --watch /var/www/CanvasGame/Resources/SCSS:/var/www/Can
 /***********************************
 *************** reset **************
 ***********************************/
-
 body {
     overflow: hidden;
     background-color: #000;
@@ -13,6 +12,7 @@ body {
 /***********************************
 ************** canvas **************
 ***********************************/
+
 .game canvas {
     position: absolute;
     width: 100%;
@@ -25,6 +25,21 @@ body {
 /***********************************
 ************** loader **************
 ***********************************/
+
+.loaderbar {
+    position: absolute;
+    bottom: 0;
+    height: 1vh;
+    left: 0;
+    background: #797979;
+    right: 0;
+    z-index: 11;
+    width: 0;
+    .loading-done & {
+        display: none;
+    }
+}
+
 .loader {
     position: absolute;
     top: 0;
@@ -109,6 +124,7 @@ body {
 /***********************************
 ********* mobileControls ***********
 ***********************************/
+
 #mobileControls {
     position: fixed !important;
     top: 0;
@@ -120,6 +136,7 @@ body {
 /***********************************
 *********** fullscreen *************
 ***********************************/
+
 .fullscreen {
     display: inline-block;
     position: fixed;

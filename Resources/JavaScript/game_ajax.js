@@ -18,6 +18,7 @@ function getAllTiles(floorLevel) {
                 image.src = gameBaseUrl + resultData[i].type + "/" + resultData[i].source;
                 image.onload = function() {
                     tileAmount--;
+                    $('.loaderbar').css('width', (100 / tileAmount) + "%");
                     if (!tileAmount) {
                         getFloor(floorLevel);
                     }
@@ -27,15 +28,7 @@ function getAllTiles(floorLevel) {
                 }
                 allTiles[resultData[i].type][resultData[i].name] = {
                     image: image,
-                    settings: resultData[i],
-                    // name: resultData[i].name,
-                    // type: resultData[i].type,
-                    // factor: resultData[i].factor,
-                    // subtype: resultData[i].subtype,
-                    // parts: parseInt(resultData[i].parts),
-                    // source: resultData[i].source,
-                    // collision: resultData[i].collision,
-                    // direction: resultData[i].direction
+                    settings: resultData[i]
                 };
             }
         },

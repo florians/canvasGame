@@ -43,7 +43,7 @@ function Floor(ctx) {
         floor.setFloorSettings('height', $('input.dimension-h').val());
         floor.setFloorSettings('width', $('input.dimension-w').val());
     }
-    this.generateGrid = function(resize = false, load = false) {
+    this.generateGrid = function(load = false) {
         this.setFloorSettingsDimensions();
         var dimX = $('input.dimension-w').val(),
             dimY = $('input.dimension-h').val(),
@@ -51,45 +51,55 @@ function Floor(ctx) {
             cy = 0,
             tile = '';
 
-        if (resize == false) {
-            // clear it
-            if (load == false) {
-                this.floorSettings.tiles = [];
-            }
-
-            for (r = 0; r < dimY; r++) {
-                ry = this.blockSize * r;
-                for (c = 0; c < dimX; c++) {
-                    cx = this.blockSize * c;
-                    if (load == true) {
-                        if (!this.floorSettings.tiles[r]) {
-                            this.floorSettings.tiles[r] = [];
-                        }
-                        if (!this.floorSettings.tiles[r][c]) {
-                            this.floorSettings.tiles[r][c] = {};
-                        }
-                        this.floorSettings.tiles[r][c].x = cx;
-                        this.floorSettings.tiles[r][c].y = ry;
-                        this.floorSettings.tiles[r][c].posX = c;
-                        this.floorSettings.tiles[r][c].posY = r;
-                    } else {
-                        tile = {
-                            x: cx,
-                            y: ry,
-                            type: '',
-                            name: '',
-                            posX: c,
-                            posY: r
-                        }
-                        if (!this.floorSettings.tiles[r]) {
-                            this.floorSettings.tiles[r] = [];
-                        }
-                        this.floorSettings.tiles[r][c] = tile;
+        // clear it
+        if (load == false) {
+            this.floorSettings.tiles = [];
+        }
+        if (load == true) {
+            var oldFloorTiles = this.floorSettings.tiles;
+            this.floorSettings.tiles = [];
+        }
+        for (r = 0; r < dimY; r++) {
+            ry = this.blockSize * r;
+            for (c = 0; c < dimX; c++) {
+                cx = this.blockSize * c;
+                if (load == true) {
+                    if (!this.floorSettings.tiles[r]) {
+                        this.floorSettings.tiles[r] = [];
                     }
+                    if (!this.floorSettings.tiles[r][c]) {
+                        this.floorSettings.tiles[r][c] = {};
+                    }
+                    this.floorSettings.tiles[r][c].x = cx;
+                    this.floorSettings.tiles[r][c].y = ry;
+                    this.floorSettings.tiles[r][c].posX = c;
+                    this.floorSettings.tiles[r][c].posY = r;
+                    if (oldFloorTiles[r] && oldFloorTiles[r][c]) {
+                        this.floorSettings.tiles[r][c].type = oldFloorTiles[r][c].type;
+                        this.floorSettings.tiles[r][c].name = oldFloorTiles[r][c].name;
+                        this.floorSettings.tiles[r][c].item = oldFloorTiles[r][c].item;
+                        this.floorSettings.tiles[r][c].trap = oldFloorTiles[r][c].trap;
+                        this.floorSettings.tiles[r][c].enemy = oldFloorTiles[r][c].enemy;
+                        if (oldFloorTiles[r][c].level) {
+                            this.floorSettings.tiles[r][c].level = oldFloorTiles[r][c].level;
+                        }
+                    }
+                } else {
+                    tile = {
+                        x: cx,
+                        y: ry,
+                        type: '',
+                        name: '',
+                        posX: c,
+                        posY: r
+                    }
+                    if (!this.floorSettings.tiles[r]) {
+                        this.floorSettings.tiles[r] = [];
+                    }
+                    this.floorSettings.tiles[r][c] = tile;
                 }
             }
         }
-
         this.repaint();
     }
     this.fillCanvas = function(tiles, element) {
@@ -187,9 +197,10 @@ function Floor(ctx) {
 
     this.addTile = function(offsetX, offsetY) {
         var ignoreBrushItems = ['start', 'end', 'trap', 'enemy', 'item'];
+        var offsetX = Math.floor((offsetX - floor.canvasOffsetX) / floor.blockSize);
+        var offsetY = Math.floor((offsetY - floor.canvasOffsetY) / floor.blockSize);
         if (floor.selectedEl.length > 0) {
-            var offsetX = Math.floor((offsetX - floor.canvasOffsetX) / floor.blockSize);
-            var offsetY = Math.floor((offsetY - floor.canvasOffsetY) / floor.blockSize);
+
             if (floor.brushSize > 1 && $.inArray(floor.selectedEl.attr('data-type'), ignoreBrushItems) === -1) {
 
                 for (var r = offsetY - Math.floor(this.brushSize / 2); r < offsetY + Math.ceil(this.brushSize / 2); r++) {
@@ -204,6 +215,21 @@ function Floor(ctx) {
                     this.setTileInfo(floor.floorSettings.tiles[offsetY][offsetX]);
                 }
             }
+        } else {
+            if (floor.floorSettings.tiles[offsetY] && floor.floorSettings.tiles[offsetY][offsetX]) {
+                this.showCustomBox(floor.floorSettings.tiles[offsetY][offsetX].type, floor.floorSettings.tiles[offsetY][offsetX]);
+            }
+        }
+    }
+    this.showCustomBox = function(type, tile) {
+        console.log();
+        if (type == 'start' || type == 'end') {
+            $('aside .custom').addClass('active');
+            $('aside .custom label').html('Connect to Level');
+            $('aside .custom .level').val(tile.level);
+            $('aside .custom .custom-hidden').attr('data-x', tile.posX).attr('data-y', tile.posY);
+        } else {
+            $('aside .custom').removeClass('active');
         }
     }
     this.setTileInfo = function(tile) {
@@ -211,12 +237,7 @@ function Floor(ctx) {
         if ($.inArray(floor.selectedEl.attr('data-type'), onlyOverlay) === -1) {
             tile.type = floor.selectedEl.attr('data-type');
             tile.name = floor.selectedEl.attr('data-name');
-            if (floor.selectedEl.attr('data-type') == 'start' || floor.selectedEl.attr('data-type') == 'end') {
-                $('aside .custom').addClass('active');
-                $('aside .custom label').html('Connect to Level');
-                $('aside .custom .level').val('');
-                $('aside .custom .custom-hidden').attr('data-x', tile.posX).attr('data-y', tile.posY);
-            }
+            this.showCustomBox(this.selectedEl.attr('data-type'), tile);
         } else {
             if (floor.selectedEl.attr('data-type') == 'item' && tile.type != '') {
                 if (tile.item) {
@@ -313,10 +334,6 @@ function resetForm() {
     floor.generateGrid();
 }
 
-// function preloader() {
-//     getAllTiles().then(loadFloorSelects);
-// }
-
 /***********************************
  ********* ajax events ************
  ***********************************/
@@ -394,7 +411,7 @@ $('.dimension .sizeSubmit').click(function() {
         floor.doZoom(true);
         floor.repaint();
         floor.setFloorSettingsDimensions();
-        floor.generateGrid(false, true);
+        floor.generateGrid(true);
     }
 });
 /* select field for floor selection */
@@ -432,7 +449,7 @@ $('.floorSelect').change(function() {
                     floor.canvasOffsetX = 0;
                     floor.canvasOffsetY = 0;
                     floor.setRange();
-                    floor.generateGrid(false, true);
+                    floor.generateGrid(true);
                 } else {
                     resetForm();
                 }

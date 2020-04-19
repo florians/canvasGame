@@ -1,4 +1,4 @@
-var showHitBox = true,
+var showHitBox = false,
     // get game container and start game
     c = document.getElementById("gameCanvas"),
     ctx = c.getContext("2d"),
@@ -55,7 +55,7 @@ function Floor(ctx, allTiles, floorSettings) {
 
     this.tilesLayer = [];
     this.collisionLayer = [];
-    this.collisionLayerSize = 4;
+    this.collisionLayerSize = 2;
     this.leftStartZone = false;
     this.init = function() {
         if (this.oldStageOffsetX == 0) {
@@ -81,22 +81,22 @@ function Floor(ctx, allTiles, floorSettings) {
     }
     this.setStageOffsetX = function(stageOffsetX, force = 0) {
         this.stageOffsetX = stageOffsetX;
-        this.playerLeft = Math.floor((this.stageOffsetX - game.player.offsetLeft) / (this.partW / 2));
-        this.playerRight = Math.floor((this.stageOffsetX + game.player.offsetRight - 1) / (this.partW / 2));
+        this.playerLeft = Math.floor((this.stageOffsetX - game.player.offsetLeft) / (this.partW / this.collisionLayerSize));
+        this.playerRight = Math.floor((this.stageOffsetX + game.player.offsetRight - 1) / (this.partW / this.collisionLayerSize));
         if (force) {
             return;
         }
         if (this.playerLeft < 0) {
             this.playerLeft = 0;
         }
-        if (this.playerRight >= (this.floorSettings.width * 2)) {
-            this.playerRight = (this.floorSettings.width * 2) - 1;
+        if (this.playerRight >= (this.floorSettings.width * this.collisionLayerSize)) {
+            this.playerRight = (this.floorSettings.width * this.collisionLayerSize) - 1;
         }
     }
     this.setStageOffsetY = function(stageOffsetY, force = 0) {
         this.stageOffsetY = stageOffsetY;
-        this.playerTop = Math.floor((this.stageOffsetY - game.player.offsetTop) / (this.partH / 2));
-        this.playerBottom = Math.floor((this.stageOffsetY + game.player.offsetBottom - 1) / (this.partH / 2));
+        this.playerTop = Math.floor((this.stageOffsetY - game.player.offsetTop) / (this.partH / this.collisionLayerSize));
+        this.playerBottom = Math.floor((this.stageOffsetY + game.player.offsetBottom - 1) / (this.partH / this.collisionLayerSize));
 
         if (force) {
             return;
@@ -104,8 +104,8 @@ function Floor(ctx, allTiles, floorSettings) {
         if (this.playerTop < 0) {
             this.playerTop = 0;
         }
-        if (this.playerBottom >= (this.floorSettings.height * 2)) {
-            this.playerBottom = (this.floorSettings.height * 2) - 1;
+        if (this.playerBottom >= (this.floorSettings.height * this.collisionLayerSize)) {
+            this.playerBottom = (this.floorSettings.height * this.collisionLayerSize) - 1;
         }
     }
     this.getTileInfo = function(type, name, info) {
@@ -123,12 +123,12 @@ function Floor(ctx, allTiles, floorSettings) {
         this.stageY = 0;
         this.stageX = 0;
         // first render and after resize
-        if (this.collisionLayer.length === 0) { // || this.doFloorResize == 1) { not needed anymore?
+        if (this.collisionLayer.length === 0) {
             // prepare collision layer
-            for (r = 0; r < this.floorSettings.height * 2; r++) {
-                b = Math.floor(this.stageY + (this.partH / 2 * r));
-                for (c = 0; c < this.floorSettings.width * 2; c++) {
-                    a = Math.floor(this.stageX + (this.partW / 2 * c));
+            for (r = 0; r < this.floorSettings.height * this.collisionLayerSize; r++) {
+                b = Math.floor(this.stageY + (this.partH / this.collisionLayerSize * r));
+                for (c = 0; c < this.floorSettings.width * this.collisionLayerSize; c++) {
+                    a = Math.floor(this.stageX + (this.partW / this.collisionLayerSize * c));
                     if (!this.collisionLayer[r]) {
                         this.collisionLayer[r] = [];
                     }
@@ -137,8 +137,8 @@ function Floor(ctx, allTiles, floorSettings) {
                         y: b,
                         collision: false,
                         type: false,
-                        w: this.partW / 2,
-                        h: this.partH / 2
+                        w: this.partW / this.collisionLayerSize,
+                        h: this.partH / this.collisionLayerSize
                     }
                 }
             }
@@ -196,11 +196,11 @@ function Floor(ctx, allTiles, floorSettings) {
     }
     this.changeCollisionLayer = function(r, c, el) {
         var collisionNr = 0;
-        var collisionRow = r * 2;
-        var collisionCol = c * 2;
+        var collisionRow = r * this.collisionLayerSize;
+        var collisionCol = c * this.collisionLayerSize;
 
-        for (r = 0; r < 2; r++) {
-            for (c = 0; c < 2; c++) {
+        for (r = 0; r < this.collisionLayerSize; r++) {
+            for (c = 0; c < this.collisionLayerSize; c++) {
                 this.collisionLayer[collisionRow + r][collisionCol + c].collision = el.collision[collisionNr];
                 this.collisionLayer[collisionRow + r][collisionCol + c].type = el.type || "default";
                 this.collisionLayer[collisionRow + r][collisionCol + c].factor = el.collision == 1 ? 0 : el.factor;
@@ -262,23 +262,22 @@ function Floor(ctx, allTiles, floorSettings) {
             }
         }
         if (showHitBox) {
-            for (a = 0; a < 2; a++) {
-                for (b = 0; b < 2; b++) {
+            var hitBoxCounter = 0;
+            for (var a = 0; a < this.collisionLayerSize; a++) {
+                for (var b = 0; b < this.collisionLayerSize; b++) {
                     if (
-                        this.floorSettings.tiles[r][c].collision.length &&
-                        this.collisionLayer[r * 2 + a][c * 2 + b].collision ||
-                        this.floorSettings.tiles[r][c].collision == 1
+                        this.floorSettings.tiles[r][c].collision.length > 1 &&
+                        this.floorSettings.tiles[r][c].collision[hitBoxCounter] == 1
                     ) {
                         ctx.fillStyle = "rgb(0,255,0)";
-                    } else {
-                        ctx.fillStyle = "rgb(200,0,0,0)";
+                        ctx.fillRect(
+                            this.collisionLayer[r * this.collisionLayerSize + a][c * this.collisionLayerSize + b].x + 0.5,
+                            this.collisionLayer[r * this.collisionLayerSize + a][c * this.collisionLayerSize + b].y + 0.5,
+                            this.partW / this.collisionLayerSize - 1,
+                            this.partH / this.collisionLayerSize - 1
+                        );
                     }
-                    ctx.fillRect(
-                        this.collisionLayer[r * 2 + a][c * 2 + b].x + 0.5,
-                        this.collisionLayer[r * 2 + a][c * 2 + b].y + 0.5,
-                        this.partW / 2 - 1,
-                        this.partH / 2 - 1
-                    );
+                    hitBoxCounter++;
                 }
             }
         }
@@ -308,7 +307,7 @@ function Floor(ctx, allTiles, floorSettings) {
             dx = 0,
             dy = 0,
             step = this.steps * factor,
-            elementTileLayer = this.floorSettings.tiles[Math.floor(playerY / 2)][Math.floor(playerX / 2)];
+            elementTileLayer = this.floorSettings.tiles[Math.floor(playerY / this.collisionLayerSize)][Math.floor(playerX / this.collisionLayerSize)];
 
         if (type != 'start' && this.leftStartZone == false) {
             this.leftStartZone = true;
@@ -327,13 +326,14 @@ function Floor(ctx, allTiles, floorSettings) {
                 }
             }
             if (elementTileLayer.item && elementTileLayer.item.name == "key") {
-                game.player.items.key = true;
-                itemWasUsed = true;
+                if (game.player.items.key == false) {
+                    game.player.items.key = true;
+                    itemWasUsed = true;
+                }
             }
             if (elementTileLayer.item && elementTileLayer.item.name == "lock") {
-                console.log(elementTileLayer);
                 if (game.player.items.key == true) {
-                    elementTileLayer.collision = [0,0,0,0];
+                    elementTileLayer.collision = [0];
                     this.changeCollisionLayer(elementTileLayer.posY, elementTileLayer.posX, elementTileLayer);
                     game.player.items.key = false;
                     itemWasUsed = true;
@@ -385,12 +385,12 @@ function Floor(ctx, allTiles, floorSettings) {
         this.setStageOffsetY(this.stageOffsetY + dy, 1);
 
         // stage collision
-        if (this.playerTop < 0 || this.playerLeft < 0 || this.playerRight >= this.floorSettings.width * 2 || this.playerBottom >= this.floorSettings.height * 2) {
+        if (this.playerTop < 0 || this.playerLeft < 0 || this.playerRight >= this.floorSettings.width * this.collisionLayerSize || this.playerBottom >= this.floorSettings.height * this.collisionLayerSize) {
             if (this.playerTop < 0) {
                 //console.log('Field Top');
                 this.setStageOffsetY(game.player.offsetTop);
             }
-            if (this.playerBottom >= this.floorSettings.height * 2) {
+            if (this.playerBottom >= this.floorSettings.height * this.collisionLayerSize) {
                 //console.log('Field Bottom');
                 this.setStageOffsetY(this.partH * this.floorSettings.height - game.player.offsetBottom);
             }
@@ -398,17 +398,16 @@ function Floor(ctx, allTiles, floorSettings) {
                 //console.log('Field Left');
                 this.setStageOffsetX(game.player.offsetLeft);
             }
-            if (this.playerRight >= this.floorSettings.width * 2) {
+            if (this.playerRight >= this.floorSettings.width * this.collisionLayerSize) {
                 //console.log('Field Right');
                 this.setStageOffsetX(this.partW * this.floorSettings.width - game.player.offsetRight);
             }
             //console.log('topBox='+this.playerTop + ",topX="+(this.stageOffsetY + game.player.offsetTop)+" playerY="+ this.stageOffsetY);
             //console.log('bottomBox='+this.playerBottom + ",bottomX="+(this.stageOffsetY + game.player.offsetBottom)+",fiedl="+ (this.floorSettings.height * this.partH-1) + ", playerY="+ this.stageOffsetY);
         }
-        //console.log('bottomBox='+this.playerBottom + ",bottomX="+(this.stageOffsetY + game.player.offsetBottom)+",fiedl="+ (this.floorSettings.height * this.partH-1) + ", playerY="+ this.stageOffsetY);
+        //console.log('bottomBox='+this.playerBottom + ",bottomX="+(this.stageOffsetY + game.player.offsetBottom)+",field="+ (this.floorSettings.height * this.partH-1) + ", playerY="+ this.stageOffsetY);
         //console.log(this.playerTop,this.playerBottom,this.playerLeft,this.playerRight);
 
-        // smt is not right here
         if (dx > 0) {
             if (dy > 0) {
                 this.collisionBox(oldPlayerRight, oldPlayerBottom, this.playerRight, this.playerBottom, 0, 0);
@@ -445,7 +444,7 @@ function Floor(ctx, allTiles, floorSettings) {
             this.setStageOffsetY(this.oldStageOffsetY);
         }
     }
-    this.collisionBox = function(oldBoxX, oldBoxY, newBoxX, newBoxY, playerCornerLeft, playerCornerTop) {
+    this.collisionBox = function(oldBoxX, oldBoxY, newBoxX, newBoxY, playerCornerLeft, playerCornerTop, side) {
         if (!this.collisionLayer[newBoxY][newBoxX].collision) {
             return;
         }
@@ -454,11 +453,11 @@ function Floor(ctx, allTiles, floorSettings) {
             playerOffsetY = (game.player.h / 2) * (playerCornerTop ? 1 : -1),
 
             // erster Pixel ausserhalb von Block
-            addBoxYPixel = playerCornerTop ? this.partH / 2 : 0,
-            addBoxXPixel = playerCornerLeft ? this.partW / 2 : 0,
+            addBoxYPixel = playerCornerTop ? this.partH / this.collisionLayerSize : 0,
+            addBoxXPixel = playerCornerLeft ? this.partW / this.collisionLayerSize : 0,
 
-            kanteX = (this.partW / 2) * newBoxX + addBoxXPixel,
-            kanteY = (this.partH / 2) * newBoxY + addBoxYPixel;
+            kanteX = (this.partW / this.collisionLayerSize) * newBoxX + addBoxXPixel,
+            kanteY = (this.partH / this.collisionLayerSize) * newBoxY + addBoxYPixel;
 
         if (oldBoxY == newBoxY) {
             this.setStageOffsetX(kanteX + playerOffsetX);
@@ -511,7 +510,9 @@ function Player(ctx) {
             current: 2000
         }
     }
-    this.items = {};
+    this.items = {
+        key: false
+    };
     this.draw = function() {
         this.drawPlayer();
         this.drawStat("hp", 0, "rgb(255,0,0)");
@@ -633,25 +634,6 @@ function Game(ctx, ctx2) {
         this.floor.draw();
         this.player.draw();
     }
-    this.handleFullscreen = function() {
-        // The page is not in an iframe
-        var doc = window.document,
-            docEl = doc.documentElement,
-            requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen,
-            cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
-
-        if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
-            if (!$('body').hasClass('isFullscreen')) {
-                requestFullScreen.call(docEl);
-                $('body').addClass('isFullscreen');
-            }
-        } else {
-            if ($('body').hasClass('isFullscreen')) {
-                cancelFullScreen.call(doc);
-                $('body').removeClass('isFullscreen');
-            }
-        }
-    }
     this.resize = function() {
         canvasBeforH = this.ctx.canvas.height;
         canvasBeforW = this.ctx.canvas.width;
@@ -683,7 +665,7 @@ $(document).keydown(function(e) {
             keyPressed.right = true;
         }
         if (e.keyCode == 70) {
-            game.handleFullscreen();
+            handleFullscreen();
         }
     } else {
         keyPressed.up = false;
@@ -709,7 +691,7 @@ $(document).keydown(function(e) {
     }
 });
 $('.fullscreen').on('click', function() {
-    game.handleFullscreen();
+    handleFullscreen();
 });
 
 // virtual joystick
@@ -738,6 +720,26 @@ $('#mobileControls').on('touchstart mousedown', function(e) {
     keyPressed.right = false;
     keyPressed.left = false;
 });
+
+function handleFullscreen() {
+    // The page is not in an iframe
+    var doc = window.document,
+        docEl = doc.documentElement,
+        requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen,
+        cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+    if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+        if (!$('body').hasClass('isFullscreen')) {
+            requestFullScreen.call(docEl);
+            $('body').addClass('isFullscreen');
+        }
+    } else {
+        if ($('body').hasClass('isFullscreen')) {
+            cancelFullScreen.call(doc);
+            $('body').removeClass('isFullscreen');
+        }
+    }
+}
 
 function virtualJoystickInterval() {
     return setInterval(function() {

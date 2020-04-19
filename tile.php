@@ -9,11 +9,23 @@
                 <div class="g100 inline padding-tb-s">
                     <div class="imgContainer">
                         <img class="" src="" height="">
-                        <div class="collision">
+                        <div class="collision parts-4">
                             <div data-part="1"></div>
                             <div data-part="2"></div>
                             <div data-part="3"></div>
                             <div data-part="4"></div>
+                            <!-- <div data-part="5"></div>
+                            <div data-part="6"></div>
+                            <div data-part="7"></div>
+                            <div data-part="8"></div>
+                            <div data-part="9"></div>
+                            <div data-part="10"></div>
+                            <div data-part="11"></div>
+                            <div data-part="12"></div>
+                            <div data-part="13"></div>
+                            <div data-part="14"></div>
+                            <div data-part="15"></div>
+                            <div data-part="16"></div> -->
                         </div>
                     </div>
                 </div>

@@ -37,8 +37,8 @@
             border: 1px solid black;
             background: rgba(0,0,0,0.1);
             cursor: pointer;
-            width: 50%;
-            height: 50%;
+            width: 25%;
+            height: 25%;
             display: inline-block;
 
             &.selected,
@@ -49,6 +49,18 @@
             &:hover {
                 background: rgba(0,0,0,0.2);
             }
+        }
+        &.parts-4 > div{
+            width: 50%;
+            height: 50%;
+        }
+        &.parts-9 > div{
+            width: 33.333%;
+            height: 33.333%;
+        }
+        &.parts-16 > div{
+            width: 25%;
+            height: 25%;
         }
     }
 }

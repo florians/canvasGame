@@ -29,13 +29,22 @@
       border: 1px solid black;
       background: rgba(0, 0, 0, 0.1);
       cursor: pointer;
-      width: 50%;
-      height: 50%;
+      width: 25%;
+      height: 25%;
       display: inline-block; }
       .imgContainer .collision > div.selected, .imgContainer .collision > div.selected:hover {
         background: rgba(255, 0, 0, 0.2); }
       .imgContainer .collision > div:hover {
         background: rgba(0, 0, 0, 0.2); }
+    .imgContainer .collision.parts-4 > div {
+      width: 50%;
+      height: 50%; }
+    .imgContainer .collision.parts-9 > div {
+      width: 33.333%;
+      height: 33.333%; }
+    .imgContainer .collision.parts-16 > div {
+      width: 25%;
+      height: 25%; }
 
 .path,
 .subtypeInfo {

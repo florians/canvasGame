@@ -145,7 +145,7 @@ function saveTile($db, $json, $file)
 
     $dbTypeUid = $db->select('tile_type', 'uid', ['deleted' => 0, 'name' => $type]);
 
-    $selectByNameUid = $db->select('tile', 'uid', ['deleted' => 0, 'name' => $name]);
+    $selectByNameUid = $db->select('tile', '*', ['deleted' => 0, 'name' => $name]);
 
     if ($dbTypeUid[0] && $selectByNameUid[0] == '') {
         $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
@@ -171,9 +171,12 @@ function saveTile($db, $json, $file)
             $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
             $target_file = '../Images/Floor/' . $type . '/' . $source . '.' . $ext;
             move_uploaded_file($file["tmp_name"], $target_file);
-            if ($ext) {
-                $source = $name . '.' . $ext;
-            }
+
+        }
+        if ($ext) {
+            $source = $name . '.' . $ext;
+        } else {
+            $source = $selectByNameUid[0]['source'];
         }
         $db->update('tile', [
             'name' => $name,
@@ -181,8 +184,10 @@ function saveTile($db, $json, $file)
             'collision' => $collision,
             'type' => $dbTypeUid[0],
         ], [
-            'uid' => $selectByNameUid[0],
+            'uid' => $selectByNameUid[0]['uid'],
         ]);
+        $type = 'success';
+        $msg = 'Tile ' . $name . ' was saved!';
     }
     echo json_encode(['type' => $type, 'msg' => $msg]);
 }
@@ -239,7 +244,7 @@ function delTile($db, $name)
     $db->update('tile',
         ['deleted' => 1],
         [
-            'name' => $name
+            'name' => $name,
         ]
     );
     $type = 'success';

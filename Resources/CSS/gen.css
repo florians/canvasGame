@@ -1,4 +1,4 @@
-                       /***********************************
+/***********************************
 ************** body *****************
 ***********************************/
 body {
@@ -29,7 +29,8 @@ nav {
 
 main {
   grid-area: main;
-  padding: 20px; }
+  padding: 20px;
+  box-sizing: border-box; }
 
 aside {
   grid-area: aside;
@@ -117,10 +118,12 @@ input[type="file"],
 .block.flex-b {
   margin-left: -20px;
   margin-right: -20px; }
+
 .flex.flex-m,
 .block.flex-m {
   margin-left: -10px;
   margin-right: -10px; }
+
 .flex.flex-s,
 .block.flex-s {
   margin-left: -5px;
@@ -175,7 +178,6 @@ input[type="file"],
   .g33,
   .g40 {
     width: 50%; }
-
   .g50,
   .g60,
   .g66,

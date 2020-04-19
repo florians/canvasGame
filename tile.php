@@ -26,8 +26,16 @@
         <div class="g100 inline padding-lr-m spacer">
             <div class="g100">
                 <div class="g100 inline padding-tb-s">
+                    <label class="g30 inline">Load Tile</label>
+                    <select class="getAllTiles g70 inline"></select>
+                </div>
+                <div class="g100 inline padding-tb-s">
                     <label class="g30 inline">Set Type</label>
                     <select class="tile-type getTileType g70 inline"></select>
+                </div>
+                <div class="g100 inline padding-tb-s">
+                    <label class="g30 inline">Factor</label>
+                    <input class="tile-factor g70 inline" />
                 </div>
                 <div class="tileName g100 inline padding-tb-s">
                     <label for="name" class="g30 inline">Set Name</label>
@@ -42,11 +50,14 @@
                 <div class="path g100 inline padding-tb-s spacer">
                     <label class="g30 inline">Save Path:</label>
                     <label class="inline">
-                        Resources/Images/Floor/<span class="pathType"></span>/<span class="pathName"></span><span>.jpg</span>
+                        Resources/Images/Floor/<span class="pathType"></span>/<span class="pathName"></span><span><span class="extension"></span></span>
                     </label>
                 </div>
-                <div class="inputContainer g100 inline padding-tb-s spacer">
+                <div class="inputContainer g100 inline padding-tb-s">
                     <input type="submit" class="saveTile" value="Save Tile" />
+                </div>
+                <div class="inputContainer g100 inline padding-tb-s">
+                    <input type="submit" class="deleteTile" value="Delete Tile" />
                 </div>
             </div>
         </div>

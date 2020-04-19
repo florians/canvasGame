@@ -142,6 +142,8 @@ body {
     position: fixed;
     right: 0;
     bottom: 0;
+    max-height: 50px;
+    max-width: 50px;
     height: 10vh;
     width: 10vh;
     cursor: pointer;

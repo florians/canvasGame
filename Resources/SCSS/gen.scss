@@ -38,6 +38,7 @@ nav {
 main {
     grid-area: main;
     padding: $global_padding;
+    box-sizing: border-box;
 }
 
 aside {

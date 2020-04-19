@@ -2,10 +2,10 @@
 
 include_once "Medoo.php";
 
-$host = "localhost";
-$username = "game";
-$password = "iwas1234";
-$db = "Game";
+$host = "**";
+$username = "**";
+$password = "**";
+$db = "**";
 
 // Using Medoo namespace
 use Medoo\Medoo;

@@ -1,239 +1,300 @@
 // get game container and start game
-var c = document.getElementById('gameCanvas');
-var ctx = c.getContext('2d');
-// var scaleWidth = ($('main').width() < $('main').height() ? $('main').width() : $('main').height());
+var c = document.getElementById('gameCanvas'),
+    ctx = c.getContext('2d');
 
-var mouseDown = false;
+var floor = new Floor(ctx);
 
-var allTiles = [];
+floor.setCanvasSize();
+floor.setFloorSettingsDimensions();
 
-var selectedEl = '';
+function Floor(ctx) {
+    this.floorSettings = {
+        startX: 0,
+        startY: 0,
+        endX: 0,
+        endY: 0,
+        height: 0,
+        width: 0,
+        tiles: [],
+    }
+    this.canvasOffsetX = 0;
+    this.canvasOffsetY = 0;
+    this.brushSize = 1;
+    this.zoom = 1;
+    this.blockSize = 30 * this.zoom;
+    this.mouseDown = false;
+    this.allTiles = [];
+    this.selectedEl = '';
 
-// ctx.canvas.width = scaleWidth;
-// ctx.canvas.height = scaleWidth;
-setCanvasSize();
+    this.preloader = function() {
+        getAllTiles().then(loadFloorSelects);
+    }
+    this.setBlockSize = function() {
+        this.blockSize = 30 * this.zoom;
+    }
+    this.setCanvasSize = function() {
+        ctx.canvas.width = Math.floor($('.canvasContainer').width());
+        ctx.canvas.height = Math.floor($('body').height() - $('#gameCanvas').offset().top - 25);
+    }
+    this.setFloorSettings = function(type, val) {
+        this.floorSettings[type] = val;
+    }
+    this.setFloorSettingsDimensions = function() {
+        floor.setFloorSettings('height', $('input.dimension-h').val());
+        floor.setFloorSettings('width', $('input.dimension-w').val());
+    }
+    this.generateGrid = function(resize = false, load = false) {
+        this.setFloorSettingsDimensions();
+        var dimX = $('input.dimension-w').val(),
+            dimY = $('input.dimension-h').val(),
+            rx = 0,
+            cy = 0,
+            tile = '';
 
-var floorSettings = {
-    startX: 0,
-    startY: 0,
-    endX: 0,
-    endY: 0,
-    height: 0,
-    width: 0,
-    tiles: [],
-};
-
-floorSettings.height = $('input.dimension-h').val();
-floorSettings.width = $('input.dimension-w').val();
-
-function setCanvasSize() {
-    ctx.canvas.width = $('main').width();
-    ctx.canvas.height = $('main').width();
-}
-
-function setRange() {
-    $('input.dimension-w').val(floorSettings.width);
-    $('input.dimension-h').val(floorSettings.height);
-}
-
-function generateGridCanvas(allTiles) {
-    var rangeX = $('input.dimension-w').val();
-    var rangeY = $('input.dimension-h').val();
-    var y = 0;
-    var x = 0;
-    var size = Math.floor(ctx.canvas.width / rangeX);
-
-    var tile = '';
-    var elements = 0;
-    // fill in old
-    var oldFloorSettings = floorSettings.tiles;
-    var resizeLength = floorSettings.width;
-
-    // clear it
-    floorSettings.tiles = [];
-    floorSettings.height = $('input.dimension-h').val();
-    floorSettings.width = $('input.dimension-w').val();
-
-    ctx.canvas.width = size * rangeX;
-    ctx.canvas.height = size * rangeY;
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.width);
-    for (r = 0; r < rangeY; r++) {
-        this.b = Math.floor(y + (size * r));
-        for (c = 0; c < rangeX; c++) {
-            this.a = Math.floor(x + (size * c));
-            tile = {
-                x: this.a,
-                y: this.b,
-                size: size,
-                type: '',
-                name: '',
-                posX: c,
-                posY: r
+        if (resize == false) {
+            // clear it
+            if (load == false) {
+                this.floorSettings.tiles = [];
             }
-            if (oldFloorSettings[elements]) {
-                tile.type = oldFloorSettings[elements].type;
-                tile.name = oldFloorSettings[elements].name;
-                tile.item = oldFloorSettings[elements].item;
-                tile.trap = oldFloorSettings[elements].trap;
-                tile.enemy = oldFloorSettings[elements].enemy;
+
+            for (r = 0; r < dimY; r++) {
+                ry = this.blockSize * r;
+                for (c = 0; c < dimX; c++) {
+                    cx = this.blockSize * c;
+                    if (load == true) {
+                        if (!this.floorSettings.tiles[r]) {
+                            this.floorSettings.tiles[r] = [];
+                        }
+                        if (!this.floorSettings.tiles[r][c]) {
+                            this.floorSettings.tiles[r][c] = {};
+                        }
+                        this.floorSettings.tiles[r][c].x = cx;
+                        this.floorSettings.tiles[r][c].y = ry;
+                        this.floorSettings.tiles[r][c].posX = c;
+                        this.floorSettings.tiles[r][c].posY = r;
+                    } else {
+                        tile = {
+                            x: cx,
+                            y: ry,
+                            type: '',
+                            name: '',
+                            posX: c,
+                            posY: r
+                        }
+                        if (!this.floorSettings.tiles[r]) {
+                            this.floorSettings.tiles[r] = [];
+                        }
+                        this.floorSettings.tiles[r][c] = tile;
+                    }
+                }
             }
-            genBlock(tile, allTiles);
-            floorSettings.tiles.push(tile);
-            if (elements < resizeLength * (r + 1)) {
-                elements++;
+        }
+
+        this.repaint();
+    }
+    this.fillCanvas = function(tiles, element) {
+        if (element) {
+            this.genBlock(element);
+        } else {
+            var cStart = Math.floor(-this.canvasOffsetX / this.blockSize);
+            var rStart = Math.floor(-this.canvasOffsetY / this.blockSize);
+            var cStop = Math.floor((ctx.canvas.width + this.blockSize * 2) / this.blockSize);
+            var rStop = Math.floor((ctx.canvas.height + this.blockSize * 2) / this.blockSize);
+
+            cStart = cStart > 0 ? cStart : 0;
+            rStart = rStart > 0 ? rStart : 0;
+
+            cStop = cStart + cStop < this.floorSettings.width ? cStart + cStop : this.floorSettings.width;
+            rStop = rStart + rStop < this.floorSettings.height ? rStart + rStop : this.floorSettings.height;
+
+            for (r = rStart; r < rStop; r++) {
+                for (c = cStart; c < cStop; c++) {
+                    this.genBlock(tiles[r][c]);
+                }
             }
         }
     }
-}
-
-function repaint() {
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    for (i = 0; i < floorSettings.tiles.length; i++) {
-        genBlock(floorSettings.tiles[i], allTiles);
+    this.repaint = function(element = '') {
+        ctx.save();
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        if (element == '') {
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        }
+        ctx.translate(this.canvasOffsetX, this.canvasOffsetY)
+        this.fillCanvas(this.floorSettings.tiles, element);
+        ctx.restore();
     }
-}
-
-function genBlock(tile, allTiles) {
-    if (allTiles[tile.type]) {
-        ctx.drawImage(
-            allTiles[tile.type][tile.name],
-            tile.x,
-            tile.y,
-            tile.size,
-            tile.size
-        );
-        // item as overlay
-        if (tile.item) {
-            ctx.drawImage(
-                allTiles[tile.item.type][tile.item.name],
-                tile.x,
-                tile.y,
-                tile.size,
-                tile.size
-            );
-        }
-        if (tile.trap) {
-            ctx.drawImage(
-                allTiles[tile.trap.type][tile.trap.name],
-                tile.x,
-                tile.y,
-                tile.size,
-                tile.size
-            );
-        }
-        if (tile.enemy) {
-            ctx.drawImage(
-                allTiles[tile.enemy.type][tile.enemy.name],
-                tile.x,
-                tile.y,
-                tile.size,
-                tile.size
-            );
-        }
-    } else {
-        ctx.fillStyle = 'rgb(255,255,255)';
-        ctx.beginPath();
-        ctx.rect(
-            tile.x,
-            tile.y,
-            tile.size,
-            tile.size
-        );
-        ctx.stroke();
-    }
-}
-
-
-function setStartEnd(exportFloorSettings) {
-    for (i = 0; i < exportFloorSettings.tiles.length; i++) {
-        if (exportFloorSettings.tiles[i].type == 'start') {
-            exportFloorSettings.startX = exportFloorSettings.tiles[i].posX;
-            exportFloorSettings.startY = exportFloorSettings.tiles[i].posY;
-        } else if (exportFloorSettings.tiles[i].type == 'end') {
-            exportFloorSettings.endX = exportFloorSettings.tiles[i].posX;
-            exportFloorSettings.endY = exportFloorSettings.tiles[i].posY;
+    this.genBlock = function(tile) {
+        var x = tile.x * this.zoom,
+            y = tile.y * this.zoom,
+            h = this.blockSize,
+            w = this.blockSize;
+        if (this.allTiles[tile.type]) {
+            ctx.drawImage(this.allTiles[tile.type][tile.name], x, y, h, w);
+            // item as overlay
+            if (tile.item) {
+                ctx.drawImage(this.allTiles[tile.item.type][tile.item.name], x, y, h, w);
+            }
+            if (tile.trap) {
+                ctx.drawImage(this.allTiles[tile.trap.type][tile.trap.name], x, y, h, w);
+            }
+            if (tile.enemy) {
+                ctx.drawImage(this.allTiles[tile.enemy.type][tile.enemy.name], x, y, h, w);
+            }
+        } else {
+            ctx.fillStyle = 'rgb(255,255,255)';
+            ctx.beginPath();
+            ctx.rect(x, y, h, w);
+            ctx.stroke();
         }
     }
-    return exportFloorSettings;
+    this.setRange = function() {
+        $('input.dimension-w').val(this.floorSettings.width);
+        $('input.dimension-h').val(this.floorSettings.height);
+    }
+    this.doZoom = function(reset = false) {
+        if (reset) {
+            this.zoom = 1;
+            this.blockSize = 30 * this.zoom;
+            this.repaint();
+        } else {
+            this.zoom = Math.round(this.zoom * 100) / 100;
+            this.blockSize = 30 * this.zoom;
+            this.repaint();
+        }
+
+    }
+    this.setZoom = function(direction) {
+        if (this.zoom < 20 && direction == '+') {
+            this.zoom += 0.1;
+        }
+        if (this.zoom >= 0.2 && direction == '-') {
+            this.zoom -= 0.1;
+        }
+        $('.zoomLevel').html(Math.round(this.zoom * 100));
+    }
+    this.setBrushSize = function(direction) {
+        var brushSizes = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 49];
+        if (this.brushSize <= 48 && direction == '+') {
+            this.brushSize = brushSizes[brushSizes.indexOf(this.brushSize) + 1];
+        }
+        if (this.brushSize > 1 && direction == '-') {
+            this.brushSize = brushSizes[brushSizes.indexOf(this.brushSize) - 1];
+        }
+        console.log(this.brushSize);
+        $('.brushSize').html(this.brushSize);
+    }
+
+    this.addTile = function(offsetX, offsetY) {
+        var ignoreBrushItems = ['start', 'end', 'trap', 'enemy', 'item'];
+        if (floor.selectedEl.length > 0) {
+            var offsetX = Math.floor((offsetX - floor.canvasOffsetX) / floor.blockSize);
+            var offsetY = Math.floor((offsetY - floor.canvasOffsetY) / floor.blockSize);
+            if (floor.brushSize > 1 && $.inArray(floor.selectedEl.attr('data-type'), ignoreBrushItems) === -1) {
+
+                for (var r = offsetY - Math.floor(this.brushSize / 2); r < offsetY + Math.ceil(this.brushSize / 2); r++) {
+                    for (var c = offsetX - Math.floor(this.brushSize / 2); c < offsetX + Math.ceil(this.brushSize / 2); c++) {
+                        if (floor.floorSettings.tiles[r] && floor.floorSettings.tiles[r][c]) {
+                            this.setTileInfo(floor.floorSettings.tiles[r][c]);
+                        }
+                    }
+                }
+            } else {
+                if (floor.floorSettings.tiles[offsetY] && floor.floorSettings.tiles[offsetY][offsetX]) {
+                    this.setTileInfo(floor.floorSettings.tiles[offsetY][offsetX]);
+                }
+            }
+        }
+    }
+    this.setTileInfo = function(tile) {
+        var onlyOverlay = ['trap', 'enemy', 'item'];
+        if ($.inArray(floor.selectedEl.attr('data-type'), onlyOverlay) === -1) {
+            tile.type = floor.selectedEl.attr('data-type');
+            tile.name = floor.selectedEl.attr('data-name');
+            if (floor.selectedEl.attr('data-type') == 'start' || floor.selectedEl.attr('data-type') == 'end') {
+                $('aside .custom').addClass('active');
+                $('aside .custom label').html('Connect to Level');
+                $('aside .custom .level').val('');
+                $('aside .custom .custom-hidden').attr('data-x', tile.posX).attr('data-y', tile.posY);
+            }
+        } else {
+            if (floor.selectedEl.attr('data-type') == 'item' && tile.type != '') {
+                if (tile.item) {
+                    delete tile.item;
+                } else {
+                    delete tile.trap;
+                    delete tile.enemy;
+                    tile.item = {
+                        type: floor.selectedEl.attr('data-type'),
+                        name: floor.selectedEl.attr('data-name')
+                    }
+                }
+            } else if (floor.selectedEl.attr('data-type') == 'trap' && tile.type != '') {
+                if (tile.trap) {
+                    delete tile.trap;
+                } else {
+                    delete tile.item;
+                    delete tile.enemy;
+                    tile.trap = {
+                        type: floor.selectedEl.attr('data-type'),
+                        name: floor.selectedEl.attr('data-name')
+                    }
+                }
+            } else if (floor.selectedEl.attr('data-type') == 'enemy' && tile.type != '') {
+                if (tile.enemy) {
+                    delete tile.enemy;
+                } else {
+                    delete tile.item;
+                    delete tile.trap;
+                    tile.enemy = {
+                        type: floor.selectedEl.attr('data-type'),
+                        name: floor.selectedEl.attr('data-name')
+                    }
+                }
+            }
+        }
+        this.repaint(tile);
+    }
 }
 
 function cleanUpSettings(exportFloorSettings) {
-    setStartEnd(exportFloorSettings);
-    for (i = 0; i < exportFloorSettings.tiles.length; i++) {
-        if (exportFloorSettings.tiles[i].type == '') {
-            delete exportFloorSettings.tiles[i].type;
+    for (r = 0; r < exportFloorSettings.height; r++) {
+        for (c = 0; c < exportFloorSettings.width; c++) {
+            if (exportFloorSettings.tiles[r][c].type == 'start') {
+                exportFloorSettings.startX = exportFloorSettings.tiles[r][c].posX;
+                exportFloorSettings.startY = exportFloorSettings.tiles[r][c].posY;
+            } else if (exportFloorSettings.tiles[r][c].type == 'end') {
+                exportFloorSettings.endX = exportFloorSettings.tiles[r][c].posX;
+                exportFloorSettings.endY = exportFloorSettings.tiles[r][c].posY;
+            }
+            if (exportFloorSettings.tiles[r][c].type == '') {
+                delete exportFloorSettings.tiles[r][c].type;
+            }
+            if (exportFloorSettings.tiles[r][c].name == '') {
+                delete exportFloorSettings.tiles[r][c].name;
+            }
+            delete exportFloorSettings.tiles[r][c].posX;
+            delete exportFloorSettings.tiles[r][c].posY;
+            delete exportFloorSettings.tiles[r][c].x;
+            delete exportFloorSettings.tiles[r][c].y;
+            delete exportFloorSettings.tiles[r][c].repaint;
+
         }
-        if (exportFloorSettings.tiles[i].name == '') {
-            delete exportFloorSettings.tiles[i].name;
-        }
-        if (
-            exportFloorSettings.tiles[i].type != 'start' ||
-            exportFloorSettings.tiles[i].type != 'end'
-        ) {
-            delete exportFloorSettings.tiles[i].posX;
-            delete exportFloorSettings.tiles[i].posY;
-        }
-        delete exportFloorSettings.tiles[i].size;
-        delete exportFloorSettings.tiles[i].x;
-        delete exportFloorSettings.tiles[i].y;
     }
     return exportFloorSettings;
 }
 
-function fillTilesHtml(allTiles) {
-    $.each(Object.keys(allTiles), function(index, type) {
+function fillTilesHtml() {
+    $.each(Object.keys(floor.allTiles), function(index, type) {
         var array = [];
         array.push('<div class="tileGroup accordion padding-lr-m padding-tb-m block flex-m">');
         array.push('<div class="title">' + type + '</div>');
-        $.each(Object.keys(allTiles[type]), function(index, name) {
-            array.push('<div class="tile" data-name="' + name + '" data-type="' + type + '"><img src="' + allTiles[type][name].src + '" /></div>');
+        $.each(Object.keys(floor.allTiles[type]), function(index, name) {
+            array.push('<div class="tile" data-name="' + name + '" data-type="' + type + '"><img src="' + floor.allTiles[type][name].src + '" /></div>');
         });
         array.push('</div>');
-        $('aside').append(array.join(''));
+        $('aside .accordion-container').append(array.join(''));
     });
-}
-
-function addTile(offsetX, offsetY) {
-    if ($('aside .tile.isSelected').length > 0) {
-        for (i = 0; i < floorSettings.tiles.length; i++) {
-            if (
-                event.offsetX >= floorSettings.tiles[i].x &&
-                event.offsetX <= floorSettings.tiles[i].x + floorSettings.tiles[i].size &&
-                event.offsetY >= floorSettings.tiles[i].y &&
-                event.offsetY <= floorSettings.tiles[i].y + floorSettings.tiles[i].size
-            ) {
-                if (floorSettings.tiles[i].item && selectedEl.attr('data-type') != "item") {
-                    floorSettings.tiles[i].item = "";
-                }
-                if (floorSettings.tiles[i].trap && selectedEl.attr('data-type') != "trap") {
-                    floorSettings.tiles[i].trap = "";
-                }
-                if (floorSettings.tiles[i].enemy && selectedEl.attr('data-type') != "enemy") {
-                    floorSettings.tiles[i].enemy = "";
-                }
-                if (selectedEl.attr('data-type') == "item") {
-                    floorSettings.tiles[i].item = {
-                        type: selectedEl.attr('data-type'),
-                        name: selectedEl.attr('data-name')
-                    }
-                } else if (selectedEl.attr('data-type') == "trap") {
-                    floorSettings.tiles[i].trap = {
-                        type: selectedEl.attr('data-type'),
-                        name: selectedEl.attr('data-name')
-                    }
-                }  else if (selectedEl.attr('data-type') == "enemy") {
-                    floorSettings.tiles[i].enemy = {
-                        type: selectedEl.attr('data-type'),
-                        name: selectedEl.attr('data-name')
-                    }
-                } else {
-                    floorSettings.tiles[i].type = selectedEl.attr('data-type');
-                    floorSettings.tiles[i].name = selectedEl.attr('data-name');
-                }
-            }
-        }
-        repaint();
-    }
 }
 
 function resetForm() {
@@ -242,15 +303,19 @@ function resetForm() {
     $('select.floorSelect option').prop('selected', false);
     $('select.endLink').val([]);
     $('select.endLink option').prop('selected', false);
-    $('input.level').val('').prop('disabled', false);
+    $('.controls input.level').val('').prop('disabled', false);
     $('input.isLoded').val('0');
-    floorSettings.tiles = [];
-    generateGridCanvas(allTiles);
+
+    $('input.dimension-w').val(20);
+    $('input.dimension-h').val(20);
+    floor.floorSettings.tiles = [];
+    floor.setFloorSettingsDimensions();
+    floor.generateGrid();
 }
 
-function preloader() {
-    getAllTiles().then(loadFloorSelects);
-}
+// function preloader() {
+//     getAllTiles().then(loadFloorSelects);
+// }
 
 /***********************************
  ********* ajax events ************
@@ -272,9 +337,9 @@ function loadFloorSelects() {
             for (i = 0; i < data.length; i++) {
                 $('.endLink').append('<option value="' + data[i] + '">Level ' + data[i] + '</option>');
             }
-            $('select.endLink').val(floorSettings.endLink);
-            $('select.floorSelect').val(floorSettings.level);
-            $('input.level').val(floorSettings.level);
+            $('select.endLink').val(floor.floorSettings.endLink);
+            $('select.floorSelect').val(floor.floorSettings.level);
+            $('.controls input.level').val(floor.floorSettings.level);
         },
         error: function(err) {
             console.log(err);
@@ -294,20 +359,19 @@ function getAllTiles() {
             data = JSON.parse(data);
             var tileAmount = data.length;
             for (i = 0; i < data.length; i++) {
-
                 var image = new Image();
                 image.src = 'Resources/Images/Floor/' + data[i].type + '/' + data[i].source;
                 image.onload = function() {
                     tileAmount--;
                     if (!tileAmount) {
-                        generateGridCanvas(allTiles);
-                        fillTilesHtml(allTiles);
+                        floor.generateGrid();
+                        fillTilesHtml();
                     }
                 };
-                if (!allTiles[data[i].type]) {
-                    allTiles[data[i].type] = [];
+                if (!floor.allTiles[data[i].type]) {
+                    floor.allTiles[data[i].type] = [];
                 }
-                allTiles[data[i].type][data[i].name] = image;
+                floor.allTiles[data[i].type][data[i].name] = image;
             }
         },
         error: function(err) {
@@ -324,12 +388,13 @@ $('.dimension .sizeSubmit').click(function() {
     var w = $('input.dimension-w').val();
     if (h <= 0 || w <= 0) {
         showMsg('error', 'Dimension can\'t be 0!');
-    } else if (h > 50 || w > 50) {
-        showMsg('error', 'Dimension are limited to max 50!');
+    } else if (h > 500 || w > 500) {
+        showMsg('error', 'Dimension are limited to max 500!');
     } else {
-        floorSettings.height = $('input.dimension-h').val();
-        floorSettings.width = $('input.dimension-w').val();
-        generateGridCanvas(allTiles);
+        floor.doZoom(true);
+        floor.repaint();
+        floor.setFloorSettingsDimensions();
+        floor.generateGrid(false, true);
     }
 });
 /* select field for floor selection */
@@ -350,7 +415,7 @@ $('.floorSelect').change(function() {
                 }
                 if (data.result) {
                     result = data.result[0];
-                    floorSettings = {
+                    floor.floorSettings = {
                         level: parseInt(result.level),
                         startX: parseInt(result.startX),
                         startY: parseInt(result.startY),
@@ -361,11 +426,13 @@ $('.floorSelect').change(function() {
                         endLink: parseInt(result.endLink),
                         tiles: JSON.parse(result.tile_json)
                     };
-                    $('select.endLink').val(floorSettings.endLink);
-                    $('input.level').val(floorSettings.level).prop('disabled', true);
+                    $('select.endLink').val(floor.floorSettings.endLink);
+                    $('.controls input.level').val(floor.floorSettings.level).prop('disabled', true);
                     $('input.isLoded').val('1');
-                    setRange();
-                    generateGridCanvas(allTiles);
+                    floor.canvasOffsetX = 0;
+                    floor.canvasOffsetY = 0;
+                    floor.setRange();
+                    floor.generateGrid(false, true);
                 } else {
                     resetForm();
                 }
@@ -384,34 +451,76 @@ $('.floorSelect').change(function() {
  ********** mouse events ***********
  ***********************************/
 $('#gameCanvas').mouseup(function() {
-        mouseDown = false;
+        floor.mouseDown = false;
     })
     .mousedown(function() {
-        mouseDown = true;
+        floor.mouseDown = true;
     });
-// start painting
+/***********************************
+ ********** mouse painting *********
+ ***********************************/
 $('#gameCanvas').mousemove(function(event) {
-    if (mouseDown == true) {
-        addTile(event.offsetX, event.offsetY);
+    if (floor.mouseDown == true) {
+        floor.addTile(event.offsetX, event.offsetY);
+    }
+});
+$('#gameCanvas').click(function(event) {
+    floor.addTile(event.offsetX, event.offsetY);
+});
+
+/***********************************
+ ********** key down events ********
+ ***********************************/
+$(document).keydown(function(e) {
+    var repaint = false;
+    // a / left
+    if ((e.keyCode == 37 || e.keyCode == 65) && floor.canvasOffsetX < floor.blockSize) {
+        floor.canvasOffsetX += floor.blockSize;
+        repaint = true;
+    }
+    // d / right
+    if ((e.keyCode == 39 || e.keyCode == 68) && floor.canvasOffsetX > -(floor.floorSettings.width * floor.blockSize - ctx.canvas.width + floor.blockSize)) {
+        floor.canvasOffsetX -= floor.blockSize;
+        repaint = true;
+    }
+    // w / up
+    if ((e.keyCode == 38 || e.keyCode == 87) && floor.canvasOffsetY < floor.blockSize) {
+        floor.canvasOffsetY += floor.blockSize;
+        repaint = true;
+    }
+    // s / down
+    if ((e.keyCode == 40 || e.keyCode == 83) && floor.canvasOffsetY > -(floor.floorSettings.height * floor.blockSize - ctx.canvas.height + floor.blockSize)) {
+        floor.canvasOffsetY -= floor.blockSize;
+        repaint = true;
+    }
+    if (repaint) {
+        floor.repaint();
     }
 });
 
 /***********************************
  ********* click events *************
  ***********************************/
-// start painting
-$('#gameCanvas').click(function(event) {
-    addTile(event.offsetX, event.offsetY);
-});
-
 $('.reset').click(function(event) {
     resetForm();
 });
+// add custom config to start / end elements
+$('aside .custom .save-to-element').click(function() {
+    var x = $('aside .custom .custom-hidden').attr('data-x');
+    var y = $('aside .custom .custom-hidden').attr('data-y');
+    var level = $('aside .custom .level').val();
+    if (y != '' && x != '' && level != '') {
+        floor.floorSettings.tiles[y][x].level = level;
+        showMsg('success', 'Level has been set');
+        $('aside .custom').removeClass('active');
+    }
+});
+
 /* select tile  */
 $(document).on('click', 'aside .tile', function() {
     if (!$(this).hasClass('isSelected')) {
         $('aside .tile').removeClass('isSelected');
-        selectedEl = $(this).addClass('isSelected');
+        floor.selectedEl = $(this).addClass('isSelected');
         $('body').toggleClass('open');
     } else {
         $('aside .tile').removeClass('isSelected');
@@ -428,15 +537,14 @@ $('.tilesButton').click(function() {
 });
 
 /* save with ajax */
-$('.save .saveFloor').click(function() {
+$('.saveFloor').click(function() {
     showMsgReset();
     if ($('input.level').val()) {
-        floorSettings.level = $('input.level').val();
+        floor.floorSettings.level = $('input.level').val();
     }
-    floorSettings.endLink = $('select.endLink').val() || 0;
-    exportFloorSettings = JSON.parse(JSON.stringify(floorSettings));
+    //floor.floorSettings.endLink = $('select.endLink').val() || 0;
+    exportFloorSettings = JSON.parse(JSON.stringify(floor.floorSettings));
     exportJson = JSON.stringify(cleanUpSettings(exportFloorSettings));
-
     if ($('input.level').val()) {
         $.ajax({
             method: 'POST',
@@ -469,17 +577,34 @@ function showMsgReset() {
 
 
 /***********************************
+ ********* brush size *************
+ ***********************************/
+$('.brush').click(function(event) {
+    floor.setBrushSize($(this).data('change'));
+});
+/***********************************
+ ********* zoom events *************
+ ***********************************/
+$('.zoom').click(function(event) {
+    floor.setZoom($(this).data('change'));
+    floor.doZoom();
+});
+
+$('.canvasContainer').bind('mousewheel', function(e) {
+    floor.setZoom(e.originalEvent.wheelDelta / 120 > 0 ? '+' : '-');
+    floor.doZoom();
+});
+
+
+/***********************************
  ********* start script ************
  ***********************************/
-preloader();
+floor.preloader();
 
 /***********************************
  ************* resize ***************
  ***********************************/
 $(window).resize(function() {
-    // scaleWidth = ($('main').width() < $('main').height() ? $('main').width() : $('main').height());
-    // ctx.canvas.width = scaleWidth;
-    // ctx.canvas.height = scaleWidth;
-    setCanvasSize();
-    generateGridCanvas(allTiles);
+    floor.setCanvasSize();
+    floor.repaint();
 });

@@ -10,6 +10,10 @@ body {
 /***********************************
 ************** tiles ***************
 ***********************************/
+main .canvasContainer {
+  width: 100%;
+  height: auto; }
+
 aside .tileGroup {
   margin-bottom: 30px;
   background: rgba(0, 0, 0, 0.1);
@@ -46,6 +50,11 @@ aside .tileGroup {
       position: absolute;
       width: 100%; }
 
+aside .custom {
+  display: none; }
+  aside .custom.active {
+    display: block; }
+
 .tilesButton {
   content: "";
   position: absolute;
@@ -64,3 +73,15 @@ aside .tileGroup {
   body.open .tilesButton {
     background-image: url("../Images/Icons/right.svg");
     right: 40%; }
+
+.smallbtn {
+  background-color: rgba(0, 0, 0, 0.2);
+  margin-right: 5px;
+  height: 25px;
+  width: 25px;
+  text-align: center;
+  line-height: 25px;
+  font-weight: bold;
+  color: #FFF;
+  border-radius: 3px;
+  cursor: pointer; }

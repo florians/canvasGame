@@ -9,7 +9,7 @@
 </head>
 
 <body>
-	<div class="loaderbar"></div>
+	<!-- <div class="loaderbar"></div> -->
 	<div class="loader">
 		<div class="rect1"></div>
 		<div class="rect2"></div>
@@ -25,7 +25,7 @@
 		<canvas id="gameCanvas2"></canvas>
 	</div>
 </body>
-<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
 <script src="Resources/JavaScript/virtualjoystick.js"></script>
 <script src="Resources/JavaScript/game_ajax.js"></script>
 <script src="Resources/JavaScript/game.js"></script>

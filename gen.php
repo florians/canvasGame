@@ -46,7 +46,7 @@ $pages = ['floor', 'tile']//, 'enemies', 'skills', 'passives'];
     ?>
 </body>
 
-<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
 <?php
 if ($page) {
     echo '<script src="Resources/JavaScript/' . $page . '.js"></script>';

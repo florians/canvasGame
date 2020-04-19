@@ -11,7 +11,12 @@ body {
 /***********************************
 ************** tiles ***************
 ***********************************/
-
+main{
+    .canvasContainer{
+        width: 100%;
+        height: auto
+    }
+}
 aside {
     .tileGroup {
         margin-bottom: 30px;
@@ -65,6 +70,12 @@ aside {
             }
         }
     }
+    .custom{
+        display: none;
+        &.active{
+            display: block;
+        }
+    }
 }
 
 .tilesButton {
@@ -87,4 +98,16 @@ aside {
         background-image: url("../Images/Icons/right.svg");
         right: 40%;
     }
+}
+.smallbtn{
+    background-color: rgba(0, 0, 0, 0.2);
+    margin-right: 5px;
+    height: 25px;
+    width: 25px;
+    text-align: center;
+    line-height: 25px;
+    font-weight: bold;
+    color: #FFF;
+    border-radius: 3px;
+    cursor: pointer;
 }

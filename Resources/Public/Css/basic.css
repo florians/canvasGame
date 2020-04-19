@@ -1,6 +1,6 @@
 /*
 sass --sourcemap=none -C --watch /var/www/CanvasGame/Resources/SCSS:/var/www/CanvasGame/Resources/CSS
-sassc /var/www/florian/www/Resources/SCSS/basic.scss > /var/www/florian/www/Resources/CSS/basic.css;sassc /var/www/florian/www/Resources/SCSS/floor.scss > /var/www/florian/www/Resources/CSS/floor.css;sassc /var/www/florian/www/Resources/SCSS/game.scss > /var/www/florian/www/Resources/CSS/game.css;sassc /var/www/florian/www/Resources/SCSS/gen.scss > /var/www/florian/www/Resources/CSS/gen.css;sassc /var/www/florian/www/Resources/SCSS/tile.scss > /var/www/florian/www/Resources/CSS/tile.css
+sassc /var/www/florian/www/Resources/Public/Scss/basic.scss > /var/www/florian/www/Resources/Public/Css/basic.css;sassc /var/www/florian/www/Resources/Public/Scss/floor.scss > /var/www/florian/www/Resources/Public/Css/floor.css;sassc /var/www/florian/www/Resources/Public/Scss/game.scss > /var/www/florian/www/Resources/Public/Css/game.css;sassc /var/www/florian/www/Resources/Public/Scss/gen.scss > /var/www/florian/www/Resources/Public/Css/gen.css;sassc /var/www/florian/www/Resources/Public/Scss/tile.scss > /var/www/florian/www/Resources/Public/Css/tile.css
 */
 /***********************************
 *************** reset **************

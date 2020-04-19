@@ -51,7 +51,16 @@ aside .tileGroup {
       width: 100%; }
 
 aside .custom {
-  display: none; }
+  display: none;
+  top: 50%;
+  transform: translateY(-50%);
+  margin: auto;
+  background-color: #b7b7b7;
+  position: fixed;
+  max-width: 300px;
+  margin: auto;
+  left: 0;
+  right: 0; }
   aside .custom.active {
     display: block; }
 

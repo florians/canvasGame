@@ -59,7 +59,7 @@
 </main>
 <aside>
     <div class="accordion-container"></div>
-    <div class="custom block flex-m">
+    <div class="custom block padding-tb padding-lr">
         <div class="g100 inline">
             <div class="g100">
                 <div class="inputContainer g100 inline padding-tb-s">

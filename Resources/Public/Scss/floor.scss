@@ -4,19 +4,19 @@ sass --sourcemap=none -C --watch /var/www/CanvasGame/Resources/SCSS:/var/www/Can
 /***********************************
 *************** reset **************
 ***********************************/
-
 body {
     overflow-x: hidden;
 }
 /***********************************
 ************** tiles ***************
 ***********************************/
-main{
-    .canvasContainer{
+main {
+    .canvasContainer {
         width: 100%;
-        height: auto
+        height: auto;
     }
 }
+
 aside {
     .tileGroup {
         margin-bottom: 30px;
@@ -30,6 +30,7 @@ aside {
 
         &.accordion.show {
             background: rgba(0,0,0,0.2);
+
             .title {
                 padding-bottom: 10px;
             }
@@ -45,7 +46,6 @@ aside {
             text-transform: capitalize;
             color: #FFF;
             cursor: pointer;
-
         }
 
         .tile {
@@ -70,9 +70,20 @@ aside {
             }
         }
     }
-    .custom{
+
+    .custom {
         display: none;
-        &.active{
+        top: 50%;
+        transform: translateY(-50%);
+        margin: auto;
+        background-color: #b7b7b7;
+        position: fixed;
+        max-width: 300px;
+        margin: auto;
+        left: 0;
+        right: 0;
+
+        &.active {
             display: block;
         }
     }
@@ -99,7 +110,8 @@ aside {
         right: 40%;
     }
 }
-.smallbtn{
+
+.smallbtn {
     background-color: rgba(0, 0, 0, 0.2);
     margin-right: 5px;
     height: 25px;

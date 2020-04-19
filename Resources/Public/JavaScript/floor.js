@@ -222,10 +222,8 @@ function Floor(ctx) {
         }
     }
     this.showCustomBox = function(type, tile) {
-        console.log();
         if (type == 'start' || type == 'end') {
             $('aside .custom').addClass('active');
-            $('aside .custom label').html('Connect to Level');
             $('aside .custom .level').val(tile.level);
             $('aside .custom .custom-hidden').attr('data-x', tile.posX).attr('data-y', tile.posY);
         } else {
@@ -324,9 +322,9 @@ function resetForm() {
     $('select.floorSelect option').prop('selected', false);
     $('.controls input.level').val('').prop('disabled', false);
     $('input.isLoded').val('0');
-
     $('input.dimension-w').val(20);
     $('input.dimension-h').val(20);
+    $('aside .custom').removeClass('active');
     floor.floorSettings.tiles = [];
     floor.setFloorSettingsDimensions();
     floor.generateGrid();

@@ -17,6 +17,9 @@ var showHitBox = false,
         left: false,
         right: false
     },
+    allTiles = [],
+    floorSettings = [],
+    game = null,
     // animationframe fallbacks for diff browser
     myRequestAnimationFrame = window.requestAnimationFrame ||
     window.webkitRequestAnimationFrame ||
@@ -767,9 +770,57 @@ function virtualJoystickInterval() {
     }, 1000 / 60);
 }
 
+function getAllTiles(result, params = "") {
+    var resultData = JSON.parse(result),
+        tileAmount = resultData.length;
+    for (i = 0; i < resultData.length; i++) {
+        var image = new Image(100, 100);
+        image.src = gameBaseUrl + resultData[i].type + "/" + resultData[i].source;
+        image.onload = function() {
+            tileAmount--;
+            $('.loaderbar').css('width', (100 / tileAmount) + "%");
+            if (!tileAmount) {
+                params.type = 'getFloor';
+                ajaxHandler(getFloor, params);
+            }
+        };
+        if (!allTiles[resultData[i].type]) {
+            allTiles[resultData[i].type] = [];
+        }
+        allTiles[resultData[i].type][resultData[i].name] = {
+            image: image,
+            settings: resultData[i]
+        };
+    }
+}
+
+function getFloor(result, params = "") {
+    var resultData = JSON.parse(result);
+    if (resultData.result) {
+        result = resultData.result[0];
+        floorSettings = {
+            level: result.level,
+            startX: result.startX,
+            startY: result.startY,
+            endLink: result.endLink,
+            height: result.height,
+            width: result.width,
+            tiles: JSON.parse(result.tile_json)
+        }
+    }
+    if (game == null) {
+        game = new Game(ctx, ctx2);
+    }
+    game.init(floorSettings, allTiles);
+}
 
 // preloading data + start the game
-getAllTiles(floorLevel);
+ajaxHandler(getAllTiles,
+    data = {
+        type: 'getAllTiles',
+        level: floorLevel
+    });
+//getAllTiles(floorLevel, bla);
 
 $(window).resize(function() {
     game.resize();

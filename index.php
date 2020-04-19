@@ -27,6 +27,6 @@
 </body>
 <script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
 <script src="Resources/Public/JavaScript/Lib/virtualjoystick.js"></script>
-<script src="Resources/Public/JavaScript/game_ajax.js"></script>
+<script src="Resources/Public/JavaScript/ajax.js"></script>
 <script src="Resources/Public/JavaScript/game.js"></script>
 </html>

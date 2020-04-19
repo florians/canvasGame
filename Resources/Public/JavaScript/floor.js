@@ -27,7 +27,7 @@ function Floor(ctx) {
     this.selectedEl = '';
 
     this.preloader = function() {
-        getAllTiles().then(loadFloorSelects);
+        getAllTiles();
     }
     this.setBlockSize = function() {
         this.blockSize = 30 * this.zoom;
@@ -166,6 +166,7 @@ function Floor(ctx) {
         if (reset) {
             this.zoom = 1;
             this.blockSize = 30 * this.zoom;
+            $('.zoomLevel').html(Math.round(this.zoom * 100));
             this.repaint();
         } else {
             this.zoom = Math.round(this.zoom * 100) / 100;
@@ -191,7 +192,6 @@ function Floor(ctx) {
         if (this.brushSize > 1 && direction == '-') {
             this.brushSize = brushSizes[brushSizes.indexOf(this.brushSize) - 1];
         }
-        console.log(this.brushSize);
         $('.brushSize').html(this.brushSize);
     }
 
@@ -335,60 +335,51 @@ function resetForm() {
 /***********************************
  ********* ajax events ************
  ***********************************/
-function loadFloorSelects() {
-    return $.ajax({
-        method: 'POST',
-        url: 'Resources/Private/PHP/ajax.php',
-        data: {
-            type: 'getAllFloorLevels'
-        },
-        success: function(data) {
-            data = JSON.parse(data);
-            $('.floorSelect').html('<option></option>');
+function getAllFloorLevels(result = "", params = "") {
+    if (!result) {
+        ajaxHandler(getAllFloorLevels,
+            data = {
+                type: 'getAllFloorLevels'
+            });
+    } else {
+        result = JSON.parse(result);
+        $('.floorSelect').html('<option></option>');
 
-            for (i = 0; i < data.length; i++) {
-                $('.floorSelect').append('<option value="' + data[i] + '">Level ' + data[i] + '</option>');
-            }
-            $('select.floorSelect').val(floor.floorSettings.level);
-            $('.controls input.level').val(floor.floorSettings.level);
-        },
-        error: function(err) {
-            console.log(err);
+        for (i = 0; i < result.length; i++) {
+            $('.floorSelect').append('<option value="' + result[i] + '">Level ' + result[i] + '</option>');
         }
-    });
+        $('select.floorSelect').val(floor.floorSettings.level);
+        $('.controls input.level').val(floor.floorSettings.level);
+    }
 }
 
-function getAllTiles() {
-    var arrLength = 0;
-    return $.ajax({
-        method: 'POST',
-        url: 'Resources/Private/PHP/ajax.php',
-        data: {
-            type: 'getAllTiles'
-        },
-        success: function(data) {
-            data = JSON.parse(data);
-            var tileAmount = data.length;
-            for (i = 0; i < data.length; i++) {
-                var image = new Image();
-                image.src = 'Resources/Public/Images/Floor/' + data[i].type + '/' + data[i].source;
-                image.onload = function() {
-                    tileAmount--;
-                    if (!tileAmount) {
-                        floor.generateGrid();
-                        fillTilesHtml();
-                    }
-                };
-                if (!floor.allTiles[data[i].type]) {
-                    floor.allTiles[data[i].type] = [];
+function getAllTiles(result = "", params = "") {
+    if (!result) {
+        ajaxHandler(getAllTiles,
+            data = {
+                type: 'getAllTiles'
+            });
+    } else {
+        var arrLength = 0;
+        result = JSON.parse(result);
+        var tileAmount = result.length;
+        for (i = 0; i < result.length; i++) {
+            var image = new Image();
+            image.src = 'Resources/Public/Images/Floor/' + result[i].type + '/' + result[i].source;
+            image.onload = function() {
+                tileAmount--;
+                if (!tileAmount) {
+                    floor.generateGrid();
+                    fillTilesHtml();
                 }
-                floor.allTiles[data[i].type][data[i].name] = image;
+            };
+            if (!floor.allTiles[result[i].type]) {
+                floor.allTiles[result[i].type] = [];
             }
-        },
-        error: function(err) {
-            console.log(err)
+            floor.allTiles[result[i].type][result[i].name] = image;
         }
-    });
+        getAllFloorLevels();
+    }
 }
 /***********************************
  ********* change events ************
@@ -412,49 +403,43 @@ $('.dimension .sizeSubmit').click(function() {
 $('.floorSelect').change(function() {
     showMsgReset();
     if ($('.floorSelect').val() > 0) {
-        $.ajax({
-            method: 'POST',
-            url: 'Resources/Private/PHP/ajax.php',
-            data: {
+        ajaxHandler(getFloor,
+            data = {
                 type: 'getFloor',
                 level: $(this).val(),
-            },
-            success: function(data) {
-                data = JSON.parse(data);
-                if (data.type && data.msg) {
-                    showMsg(data.type, data.msg);
-                }
-                if (data.result) {
-                    result = data.result[0];
-                    floor.floorSettings = {
-                        level: parseInt(result.level),
-                        startX: parseInt(result.startX),
-                        startY: parseInt(result.startY),
-                        endX: parseInt(result.endX),
-                        endY: parseInt(result.endY),
-                        height: parseInt(result.height),
-                        width: parseInt(result.width),
-                        tiles: JSON.parse(result.tile_json)
-                    };
-                    $('.controls input.level').val(floor.floorSettings.level).prop('disabled', true);
-                    $('input.isLoded').val('1');
-                    floor.canvasOffsetX = 0;
-                    floor.canvasOffsetY = 0;
-                    floor.setRange();
-                    floor.generateGrid(true);
-                } else {
-                    resetForm();
-                }
-
-            },
-            error: function(err) {
-                console.log(err);
-            }
-        });
+            });
     } else {
         resetForm();
     }
 });
+
+function getFloor(result, params = "") {
+    result = JSON.parse(result);
+    if (result.type && result.msg) {
+        showMsg(result.type, result.msg);
+    }
+    if (result.result) {
+        result = result.result[0];
+        floor.floorSettings = {
+            level: parseInt(result.level),
+            startX: parseInt(result.startX),
+            startY: parseInt(result.startY),
+            endX: parseInt(result.endX),
+            endY: parseInt(result.endY),
+            height: parseInt(result.height),
+            width: parseInt(result.width),
+            tiles: JSON.parse(result.tile_json)
+        };
+        $('.controls input.level').val(floor.floorSettings.level).prop('disabled', true);
+        $('input.isLoded').val('1');
+        floor.canvasOffsetX = 0;
+        floor.canvasOffsetY = 0;
+        floor.setRange();
+        floor.generateGrid(true);
+    } else {
+        resetForm();
+    }
+}
 
 /***********************************
  ********** mouse events ***********
@@ -554,25 +539,25 @@ $('.saveFloor').click(function() {
     exportFloorSettings = JSON.parse(JSON.stringify(floor.floorSettings));
     exportJson = JSON.stringify(cleanUpSettings(exportFloorSettings));
     if ($('input.level').val()) {
-        $.ajax({
-            method: 'POST',
-            url: 'Resources/Private/PHP/ajax.php',
-            data: {
+        ajaxHandler(saveFloor,
+            data = {
                 type: 'saveFloor',
                 json: exportJson,
                 isLoaded: $('input.isLoded').val() || 0
-            },
-            success: function(data) {
-                data = JSON.parse(data);
-                if (data.type && data.msg) {
-                    showMsg(data.type, data.msg);
-                }
-                loadFloorSelects();
-            },
-            error: function(err) {}
-        });
+            });
     }
 });
+
+function saveFloor(result, params = "") {
+    result = JSON.parse(result);
+    if (result.type && result.msg) {
+        showMsg(result.type, result.msg);
+    }
+    ajaxHandler(getAllFloorLevels,
+        data = {
+            type: 'getAllFloorLevels'
+        });
+}
 
 function showMsg(type, msg) {
     showMsgReset();

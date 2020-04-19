@@ -27,60 +27,46 @@ function previewFile() {
 }
 
 function getInfo(type, addGroup = 0) {
-    return $.ajax({
-        method: 'POST',
-        url: 'Resources/Private/PHP/ajax.php',
-        data: {
-            type: type
-        },
-        success: function(data) {
-            data = JSON.parse(data);
-            $('select.' + type).children().remove();
-            $('select.' + type).append(fillSelect(data, addGroup));
-        },
-        error: function(err) {
-            console.log(err)
-        }
-    });
+    ajaxHandler(setInfo,
+        data = {
+            type: type,
+            addGroup: addGroup
+        });
+}
+
+function setInfo(result, params = "") {
+    result = JSON.parse(result);
+    $('select.' + params.type).children().remove();
+    $('select.' + params.type).append(fillSelect(result, params.addGroup));
 }
 
 function getTile(type, name) {
-    return $.ajax({
-        method: 'POST',
-        url: 'Resources/Private/PHP/ajax.php',
-        data: {
+    ajaxHandler(setTile,
+        data = {
             type: type,
             name: name
-        },
-        success: function(data) {
-            data = JSON.parse(data);
-            setTileData(data[0]);
-        },
-        error: function(err) {
-            console.log(err)
-        }
-    });
+        });
+}
+
+function setTile(result, params = "") {
+    result = JSON.parse(result);
+    setTileData(result[0]);
 }
 
 function delTile(type, name) {
-    return $.ajax({
-        method: 'POST',
-        url: 'Resources/Private/PHP/ajax.php',
-        data: {
+    ajaxHandler(delTileReturn,
+        data = {
             type: type,
             name: name
-        },
-        success: function(data) {
-            data = JSON.parse(data);
-            if (data.type && data.msg) {
-                showMsg(data.type, data.msg);
-            }
-            getInfo('getAllTiles', 1);
-        },
-        error: function(err) {
-            console.log(err)
-        }
-    });
+        });
+}
+
+function delTileReturn(result, params = "") {
+    result = JSON.parse(result);
+    if (result.type && result.msg) {
+        showMsg(result.type, result.msg);
+    }
+    getInfo('getAllTiles', 1);
 }
 
 function fillSelect(data, addGroup) {
@@ -153,25 +139,17 @@ $('.saveTile').click(function() {
         formData.append('type', 'saveTile');
         formData.append('json', JSON.stringify(tile));
         formData.append('file', file);
-        $.ajax({
-            method: 'POST',
-            url: 'Resources/Private/PHP/ajax.php',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(data) {
-                data = JSON.parse(data);
-                if (data.type && data.msg) {
-                    showMsg(data.type, data.msg);
-                }
-                getInfo('getAllTiles', 1);
-            },
-            error: function(err) {
-                console.log(err)
-            }
-        });
+        ajaxHandlerFile(saveTile, formData);
     }
 });
+
+function saveTile(result, params = "") {
+    result = JSON.parse(result);
+    if (result.type && result.msg) {
+        showMsg(result.type, result.msg);
+    }
+    getInfo('getAllTiles', 1);
+}
 
 $('.deleteTile').click(function() {
     var tile = $('.getAllTiles').val();

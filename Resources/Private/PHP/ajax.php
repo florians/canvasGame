@@ -40,6 +40,7 @@ switch ($_POST['type']) {
         delTile($database, $_POST['name']);
         break;
     default:
+        print_r($_POST);
         // code...
         break;
 }
@@ -148,8 +149,9 @@ function saveTile($db, $json, $file)
     $selectByNameUid = $db->select('tile', '*', ['deleted' => 0, 'name' => $name]);
 
     if ($dbTypeUid[0] && $selectByNameUid[0] == '') {
+        $sorting = $db->select('tile', 'sorting', ['type' => $dbTypeUid[0], 'ORDER' => ['sorting' => 'DESC'], 'LIMIT' => 1]);
         $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-        $target_file = '../Images/Floor/' . $type . '/' . $source . '.' . $ext;
+        $target_file = '../../Public/Images/Floor/' . $type . '/' . $source . '.' . $ext;
         if (!in_array(exif_imagetype($file['tmp_name']), $allowedTypes)) {
             $type = 'error';
             $msg = mime_content_type($file['tmp_name']) . ' format is not allowed';
@@ -158,6 +160,7 @@ function saveTile($db, $json, $file)
                 'name' => $name,
                 'source' => $source . '.' . $ext,
                 'collision' => $collision,
+                'sorting' => $sorting[0] + 1,
                 'type' => $dbTypeUid[0],
             ]);
             move_uploaded_file($file["tmp_name"], $target_file);
@@ -169,9 +172,8 @@ function saveTile($db, $json, $file)
     if ($dbTypeUid[0] && $selectByNameUid[0] != '') {
         if ($file && in_array(exif_imagetype($file['tmp_name']), $allowedTypes)) {
             $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-            $target_file = '../Images/Floor/' . $type . '/' . $source . '.' . $ext;
+            $target_file = '../../Public/Images/Floor/' . $type . '/' . $source . '.' . $ext;
             move_uploaded_file($file["tmp_name"], $target_file);
-
         }
         if ($ext) {
             $source = $name . '.' . $ext;

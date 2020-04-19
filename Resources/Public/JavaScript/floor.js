@@ -322,8 +322,6 @@ function resetForm() {
     showMsgReset();
     $('select.floorSelect').val([]);
     $('select.floorSelect option').prop('selected', false);
-    $('select.endLink').val([]);
-    $('select.endLink option').prop('selected', false);
     $('.controls input.level').val('').prop('disabled', false);
     $('input.isLoded').val('0');
 
@@ -340,21 +338,17 @@ function resetForm() {
 function loadFloorSelects() {
     return $.ajax({
         method: 'POST',
-        url: 'Resources/PHP/ajax.php',
+        url: 'Resources/Private/PHP/ajax.php',
         data: {
             type: 'getAllFloorLevels'
         },
         success: function(data) {
             data = JSON.parse(data);
             $('.floorSelect').html('<option></option>');
-            $('.endLink').html('<option></option>');
+
             for (i = 0; i < data.length; i++) {
                 $('.floorSelect').append('<option value="' + data[i] + '">Level ' + data[i] + '</option>');
             }
-            for (i = 0; i < data.length; i++) {
-                $('.endLink').append('<option value="' + data[i] + '">Level ' + data[i] + '</option>');
-            }
-            $('select.endLink').val(floor.floorSettings.endLink);
             $('select.floorSelect').val(floor.floorSettings.level);
             $('.controls input.level').val(floor.floorSettings.level);
         },
@@ -368,7 +362,7 @@ function getAllTiles() {
     var arrLength = 0;
     return $.ajax({
         method: 'POST',
-        url: 'Resources/PHP/ajax.php',
+        url: 'Resources/Private/PHP/ajax.php',
         data: {
             type: 'getAllTiles'
         },
@@ -377,7 +371,7 @@ function getAllTiles() {
             var tileAmount = data.length;
             for (i = 0; i < data.length; i++) {
                 var image = new Image();
-                image.src = 'Resources/Images/Floor/' + data[i].type + '/' + data[i].source;
+                image.src = 'Resources/Public/Images/Floor/' + data[i].type + '/' + data[i].source;
                 image.onload = function() {
                     tileAmount--;
                     if (!tileAmount) {
@@ -420,7 +414,7 @@ $('.floorSelect').change(function() {
     if ($('.floorSelect').val() > 0) {
         $.ajax({
             method: 'POST',
-            url: 'Resources/PHP/ajax.php',
+            url: 'Resources/Private/PHP/ajax.php',
             data: {
                 type: 'getFloor',
                 level: $(this).val(),
@@ -440,10 +434,8 @@ $('.floorSelect').change(function() {
                         endY: parseInt(result.endY),
                         height: parseInt(result.height),
                         width: parseInt(result.width),
-                        endLink: parseInt(result.endLink),
                         tiles: JSON.parse(result.tile_json)
                     };
-                    $('select.endLink').val(floor.floorSettings.endLink);
                     $('.controls input.level').val(floor.floorSettings.level).prop('disabled', true);
                     $('input.isLoded').val('1');
                     floor.canvasOffsetX = 0;
@@ -559,13 +551,12 @@ $('.saveFloor').click(function() {
     if ($('input.level').val()) {
         floor.floorSettings.level = $('input.level').val();
     }
-    //floor.floorSettings.endLink = $('select.endLink').val() || 0;
     exportFloorSettings = JSON.parse(JSON.stringify(floor.floorSettings));
     exportJson = JSON.stringify(cleanUpSettings(exportFloorSettings));
     if ($('input.level').val()) {
         $.ajax({
             method: 'POST',
-            url: 'Resources/PHP/ajax.php',
+            url: 'Resources/Private/PHP/ajax.php',
             data: {
                 type: 'saveFloor',
                 json: exportJson,

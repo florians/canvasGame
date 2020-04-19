@@ -1,6 +1,6 @@
 <?php
 
-include_once "Medoo.php";
+include_once "Lib/Medoo.php";
 
 $host = "**";
 $username = "**";

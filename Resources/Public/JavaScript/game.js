@@ -6,7 +6,7 @@ var showHitBox = false,
     c2 = document.getElementById("gameCanvas2"),
     ctx2 = c2.getContext("2d"),
 
-    gameBaseUrl = "Resources/Images/Floor/",
+    gameBaseUrl = "Resources/Public/Images/Floor/",
 
     //game = null,
     floorLevel = 1,
@@ -701,7 +701,7 @@ var joystickOffset = 25,
         mouseSupport: true,
         limitStickTravel: true,
         stickRadius: joystickOffset * 2,
-        strokeStyle: "#008000"
+        strokeStyle: "#868686"
     }),
     joystickInterval = null,
     isTouched = false;

@@ -29,7 +29,7 @@ function previewFile() {
 function getInfo(type, addGroup = 0) {
     return $.ajax({
         method: 'POST',
-        url: 'Resources/PHP/ajax.php',
+        url: 'Resources/Private/PHP/ajax.php',
         data: {
             type: type
         },
@@ -47,7 +47,7 @@ function getInfo(type, addGroup = 0) {
 function getTile(type, name) {
     return $.ajax({
         method: 'POST',
-        url: 'Resources/PHP/ajax.php',
+        url: 'Resources/Private/PHP/ajax.php',
         data: {
             type: type,
             name: name
@@ -65,7 +65,7 @@ function getTile(type, name) {
 function delTile(type, name) {
     return $.ajax({
         method: 'POST',
-        url: 'Resources/PHP/ajax.php',
+        url: 'Resources/Private/PHP/ajax.php',
         data: {
             type: type,
             name: name
@@ -155,7 +155,7 @@ $('.saveTile').click(function() {
         formData.append('file', file);
         $.ajax({
             method: 'POST',
-            url: 'Resources/PHP/ajax.php',
+            url: 'Resources/Private/PHP/ajax.php',
             data: formData,
             processData: false,
             contentType: false,
@@ -209,7 +209,7 @@ function setTileData(data) {
     $('.tile-name').val(tile.name);
     $('.tile-type').val(tile.type);
     $('.tile-factor').val(tile.factor);
-    $('.imgContainer img').attr('src', 'Resources/Images/Floor/' + tile.type + '/' + tile.source);
+    $('.imgContainer img').attr('src', 'Resources/Public/Images/Floor/' + tile.type + '/' + tile.source);
     // set collision
     $('.collision').children().removeClass();
     if (tile.collision) {

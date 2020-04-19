@@ -12,11 +12,11 @@ $pages = ['floor', 'tile']//, 'enemies', 'skills', 'passives'];
 
 <head>
     <title>IDK Generator</title>
-    <link rel="stylesheet" type="text/css" href="Resources/CSS/basic.css" />
-    <link rel="stylesheet" type="text/css" href="Resources/CSS/gen.css" />
+    <link rel="stylesheet" type="text/css" href="Resources/Public/Css/basic.css" />
+    <link rel="stylesheet" type="text/css" href="Resources/Public/Css/gen.css" />
     <?php
         if ($page) {
-            echo '<link rel="stylesheet" type="text/css" href="Resources/CSS/' . $page . '.css" />';
+            echo '<link rel="stylesheet" type="text/css" href="Resources/Public/Css/' . $page . '.css" />';
         }
     ?>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -41,7 +41,7 @@ $pages = ['floor', 'tile']//, 'enemies', 'skills', 'passives'];
     </div>
     <?php
         if ($page) {
-            include_once $page . ".php";
+            include_once "Resources/Private/PHP/Includes/".$page . ".php";
         }
     ?>
 </body>
@@ -49,7 +49,7 @@ $pages = ['floor', 'tile']//, 'enemies', 'skills', 'passives'];
 <script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
 <?php
 if ($page) {
-    echo '<script src="Resources/JavaScript/' . $page . '.js"></script>';
+    echo '<script src="Resources/Public/JavaScript/' . $page . '.js"></script>';
 }
 ?>
 

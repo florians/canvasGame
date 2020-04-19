@@ -21,12 +21,6 @@
                         <option></option>
                     </select>
                 </div>
-                <!-- <div class="inputContainer g100 inline padding-tb-s">
-                    <label class="g30 inline">Link with Floor</label>
-                    <select class="endLink g70 inline">
-                        <option></option>
-                    </select>
-                </div> -->
                 <div class="inputContainer g100 inline padding-tb-s">
                     <label class="g30 inline">Floor Level</label>
                     <input class="level g70 inline" type="number" />

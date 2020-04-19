@@ -1,4 +1,4 @@
-var ajaxUrl = "Resources/PHP/ajax.php",
+var ajaxUrl = "Resources/Private/PHP/ajax.php",
     allTiles = [],
     floorSettings = [],
     game = null;

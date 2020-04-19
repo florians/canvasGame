@@ -3,8 +3,8 @@
 
 <head>
 	<title>IDK</title>
-	<link rel="stylesheet" type="text/css" href="Resources/CSS/basic.css" />
-	<link rel="stylesheet" type="text/css" href="Resources/CSS/game.css" />
+	<link rel="stylesheet" type="text/css" href="Resources/Public/Css/basic.css" />
+	<link rel="stylesheet" type="text/css" href="Resources/Public/Css/game.css" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 </head>
 
@@ -26,8 +26,7 @@
 	</div>
 </body>
 <script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
-<script src="Resources/JavaScript/virtualjoystick.js"></script>
-<script src="Resources/JavaScript/game_ajax.js"></script>
-<script src="Resources/JavaScript/game.js"></script>
-<script src="Resources/JavaScript/debug.js"></script>
+<script src="Resources/Public/JavaScript/Lib/virtualjoystick.js"></script>
+<script src="Resources/Public/JavaScript/game_ajax.js"></script>
+<script src="Resources/Public/JavaScript/game.js"></script>
 </html>

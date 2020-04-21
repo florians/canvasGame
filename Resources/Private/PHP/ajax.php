@@ -64,9 +64,14 @@ function getTileDirection($db)
 function getFloor($db, $level)
 {
     $result = $db->select('floor', '*', ['deleted' => 0, 'level' => $level]);
+    $target_file = '../../Private/Floor/level_uid_' . $result[0]['uid'] . '.json';
+    if (file_exists($target_file)) {
+        $file = file_get_contents($target_file);
+        $result[0]['tile_json'] = $file;
+    }
     $type = 'success';
     $msg = 'Floor Level ' . $level . ' successfully loaded';
-    echo json_encode(['type' => $type, 'msg' => $msg, 'result' => $result]);
+    echo json_encode(['type' => $type, 'msg' => $msg, 'result' => $result[0]]);
 }
 function getAllFloorLevels($db)
 {
@@ -95,12 +100,18 @@ function saveFloor($db, $json)
             'startY' => $startY,
             'height' => $height,
             'width' => $width,
-            'endLink' => $endLink,
-            'tile_json' => $tile_json,
-            'enemy_json' => $enemy_json,
+            //'endLink' => $endLink,
+            //'tile_json' => $tile_json,
+            //'enemy_json' => $enemy_json,
         ], [
-            'uid' => $freeLevelCheck,
+            'uid' => $freeLevelCheck[0],
         ]);
+        if ($freeLevelCheck[0]) {
+            $target_file = '../../Private/Floor/level_uid_' . $freeLevelCheck[0] . '.json';
+            $file = fopen($target_file, "w");
+            fwrite($file, $tile_json);
+            fclose($file);
+        }
         $type = 'success';
         $msg = 'Floor Level ' . $level . ' updated!';
         //echo $db->id().' updated!';
@@ -117,10 +128,16 @@ function saveFloor($db, $json)
                 'startY' => $startY,
                 'height' => $height,
                 'width' => $width,
-                'endLink' => $endLink,
-                'tile_json' => $tile_json,
-                'enemy_json' => $enemy_json,
+                //'endLink' => $endLink,
+                //'tile_json' => $tile_json,
+                //'enemy_json' => $enemy_json,
             ]);
+            if ($db->id()) {
+                $target_file = '../../Private/Floor/level_uid_' . $db->id() . '.json';
+                $file = fopen($target_file, "w");
+                fwrite($file, $tile_json);
+                fclose($file);
+            }
             //echo $db->id().' is a new entry!';
             $type = 'success';
             $msg = 'Floor Level ' . $level . ' was saved!';
@@ -201,6 +218,7 @@ function getAllTiles($db)
             '[>]tile_type' => ['tile.type' => 'uid'],
         ],
         [
+            'tile.uid',
             'tile.sorting',
             'tile.name',
             'tile.source',

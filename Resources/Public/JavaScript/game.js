@@ -36,6 +36,7 @@ window.requestAnimationFrame = myRequestAnimationFrame;
 
 function Floor(ctx, allTiles, floorSettings) {
     this.ctx = ctx;
+    this.allTiles = allTiles;
     this.partW = 100;
     this.partH = 100;
     this.steps = 5;
@@ -111,15 +112,6 @@ function Floor(ctx, allTiles, floorSettings) {
             this.playerBottom = (this.floorSettings.height * this.collisionLayerSize) - 1;
         }
     }
-    this.getTileInfo = function(type, name, info) {
-        if (type, name, info) {
-            return allTiles[type][name][info];
-        } else if (type, name, !info) {
-            return allTiles[type][name];
-        } else if (type, !name, !info) {
-            return allTiles[type];
-        }
-    }
     this.generateFloor = function() {
         var a = 0,
             b = 0;
@@ -150,12 +142,13 @@ function Floor(ctx, allTiles, floorSettings) {
                 b = Math.floor(this.stageY + (this.partH * r));
                 for (c = 0; c < this.floorSettings.width; c++) {
                     a = Math.floor(this.stageX + (this.partW * c));
-                    if (this.floorSettings.tiles[r][c].type) {
+                    if (this.floorSettings.tiles[r][c].uid) {
                         this.floorSettings.tiles[r][c].x = a;
                         this.floorSettings.tiles[r][c].y = b;
                         this.floorSettings.tiles[r][c].render = true;
-                        var settings = this.getTileInfo(this.floorSettings.tiles[r][c].type, this.floorSettings.tiles[r][c].name, 'settings');
+                        var settings = this.allTiles[this.floorSettings.tiles[r][c].uid].settings;
                         this.floorSettings.tiles[r][c].collision = settings.collision.split(",").map(Number);
+                        this.floorSettings.tiles[r][c].type = settings.type;
                         this.floorSettings.tiles[r][c].factor = settings.factor;
                         this.floorSettings.tiles[r][c].posX = c;
                         this.floorSettings.tiles[r][c].posY = r;
@@ -226,7 +219,7 @@ function Floor(ctx, allTiles, floorSettings) {
     this.createBlocks = function(r, c) {
         if (this.floorSettings.tiles[r][c].render) {
             ctx.drawImage(
-                this.getTileInfo(this.floorSettings.tiles[r][c].type, this.floorSettings.tiles[r][c].name, "image"),
+                this.allTiles[this.floorSettings.tiles[r][c].uid].image,
                 this.floorSettings.tiles[r][c].x,
                 this.floorSettings.tiles[r][c].y,
                 this.partW,
@@ -234,20 +227,20 @@ function Floor(ctx, allTiles, floorSettings) {
             );
             if (this.floorSettings.tiles[r][c].item) {
                 ctx.drawImage(
-                    this.getTileInfo(this.floorSettings.tiles[r][c].item.type, this.floorSettings.tiles[r][c].item.name, "image"),
+                    this.allTiles[this.floorSettings.tiles[r][c].item.uid].image,
                     this.floorSettings.tiles[r][c].x,
                     this.floorSettings.tiles[r][c].y,
                     this.partW,
                     this.partH
                 );
-                if (this.floorSettings.tiles[r][c].item.name == "lock") {
+                if (this.allTiles[this.floorSettings.tiles[r][c].item.uid].settings.name == "lock") {
                     this.floorSettings.tiles[r][c].collision = [0, 1, 0, 1];
                     this.changeCollisionLayer(r, c, this.floorSettings.tiles[r][c]);
                 }
             }
             if (this.floorSettings.tiles[r][c].trap) {
                 ctx.drawImage(
-                    this.getTileInfo(this.floorSettings.tiles[r][c].trap.type, this.floorSettings.tiles[r][c].trap.name, "image"),
+                    this.allTiles[this.floorSettings.tiles[r][c].trap.uid].image,
                     this.floorSettings.tiles[r][c].x,
                     this.floorSettings.tiles[r][c].y,
                     this.partW,
@@ -256,7 +249,7 @@ function Floor(ctx, allTiles, floorSettings) {
             }
             if (this.floorSettings.tiles[r][c].enemy) {
                 ctx.drawImage(
-                    this.getTileInfo(this.floorSettings.tiles[r][c].enemy.type, this.floorSettings.tiles[r][c].enemy.name, "image"),
+                    this.allTiles[this.floorSettings.tiles[r][c].enemy.uid].image,
                     this.floorSettings.tiles[r][c].x,
                     this.floorSettings.tiles[r][c].y,
                     this.partW,
@@ -312,29 +305,27 @@ function Floor(ctx, allTiles, floorSettings) {
             step = this.steps * factor,
             elementTileLayer = this.floorSettings.tiles[Math.floor(playerY / this.collisionLayerSize)][Math.floor(playerX / this.collisionLayerSize)];
 
-        if (type != 'start' && this.leftStartZone == false) {
-            this.leftStartZone = true;
-        }
-        if (type == 'end' || (type == 'start' && this.leftStartZone == true)) {
+        if (type == 'portal') {
             if (elementTileLayer.level) {
                 game.newFloor(elementTileLayer.level);
             }
         }
         if (elementTileLayer.item || elementTileLayer.trap || elementTileLayer.enemy) {
             var itemWasUsed = false;
-            if (elementTileLayer.item && elementTileLayer.item.name == "hp") {
+            if (elementTileLayer.item && this.allTiles[elementTileLayer.item.uid].settings.name == "hp") {
                 if (game.player.stats.hp.current < game.player.stats.hp.max) {
                     game.player.stats.hp.current++;
                     itemWasUsed = true;
                 }
             }
-            if (elementTileLayer.item && elementTileLayer.item.name == "key") {
+            if (elementTileLayer.item && this.allTiles[elementTileLayer.item.uid].settings.name == "key") {
                 if (game.player.items.key == false) {
                     game.player.items.key = true;
+                    game.player.items.keyImg = this.allTiles[elementTileLayer.item.uid].image;
                     itemWasUsed = true;
                 }
             }
-            if (elementTileLayer.item && elementTileLayer.item.name == "lock") {
+            if (elementTileLayer.item && this.allTiles[elementTileLayer.item.uid].settings.name == "lock") {
                 if (game.player.items.key == true) {
                     elementTileLayer.collision = [0];
                     this.changeCollisionLayer(elementTileLayer.posY, elementTileLayer.posX, elementTileLayer);
@@ -342,13 +333,13 @@ function Floor(ctx, allTiles, floorSettings) {
                     itemWasUsed = true;
                 }
             }
-            if (elementTileLayer.trap && elementTileLayer.trap.name == "trap") {
+            if (elementTileLayer.trap && this.allTiles[elementTileLayer.trap.uid].settings.name == "trap") {
                 if (game.player.stats.hp.current > 0) {
                     game.player.stats.hp.current--;
                     itemWasUsed = true;
                 }
             }
-            if (elementTileLayer.enemy && elementTileLayer.enemy.name == "enemy") {
+            if (elementTileLayer.enemy && this.allTiles[elementTileLayer.enemy.uid].settings.name == "enemy") {
                 var loseHp = Math.round(Math.random());
                 if (game.player.stats.hp.current > 0 && loseHp == 1) {
                     game.player.stats.hp.current--;
@@ -516,11 +507,12 @@ function Player(ctx) {
     this.items = {
         key: false
     };
+    this.items.keyImg = '';
     this.draw = function() {
         this.drawPlayer();
         this.drawStat("hp", 0, "rgb(255,0,0)");
         if (this.items.key == true) {
-            this.drawItem("key");
+            this.drawItem(this.items.keyImg);
         }
         //this.drawStat("mp", 30, "rgb(0,0,255)");
         //this.drawStat("exp", 60, "rgb(0,255,0)");
@@ -553,9 +545,9 @@ function Player(ctx) {
     this.resetStat = function(stat) {
         this.stats[stat].current = this.stats[stat].max;
     }
-    this.drawItem = function(type) {
+    this.drawItem = function() {
         ctx.drawImage(
-            allTiles.item[type].image,
+            this.items.keyImg,
             20,
             30,
             50,
@@ -619,7 +611,11 @@ function Game(ctx, ctx2) {
     this.newFloor = function(newFloor) {
         $('body').removeClass('loading-done');
         this.stopGame = true;
-        getFloor(newFloor);
+        ajaxHandler(getFloor,
+            data = {
+                type: 'getFloor',
+                level: newFloor
+            });
     }
     this.run = function(allTiles, floorSettings) {
         this.allTiles = allTiles;
@@ -771,11 +767,10 @@ function virtualJoystickInterval() {
 }
 
 function getAllTiles(result, params = "") {
-    var resultData = JSON.parse(result),
-        tileAmount = resultData.length;
-    for (i = 0; i < resultData.length; i++) {
+    var tileAmount = result.length;
+    for (i = 0; i < result.length; i++) {
         var image = new Image(100, 100);
-        image.src = gameBaseUrl + resultData[i].type + "/" + resultData[i].source;
+        image.src = gameBaseUrl + result[i].type + "/" + result[i].source;
         image.onload = function() {
             tileAmount--;
             $('.loaderbar').css('width', (100 / tileAmount) + "%");
@@ -784,28 +779,31 @@ function getAllTiles(result, params = "") {
                 ajaxHandler(getFloor, params);
             }
         };
-        if (!allTiles[resultData[i].type]) {
-            allTiles[resultData[i].type] = [];
-        }
-        allTiles[resultData[i].type][resultData[i].name] = {
+        // FSFSFS
+        allTiles[result[i].uid] = {
             image: image,
-            settings: resultData[i]
+            settings: result[i]
         };
+        // if (!allTiles[result[i].type]) {
+        //     allTiles[result[i].type] = [];
+        // }
+        // allTiles[result[i].type][result[i].name] = {
+        //     image: image,
+        //     settings: result[i]
+        // };
     }
 }
 
 function getFloor(result, params = "") {
-    var resultData = JSON.parse(result);
-    if (resultData.result) {
-        result = resultData.result[0];
+    if (result.result) {
         floorSettings = {
-            level: result.level,
-            startX: result.startX,
-            startY: result.startY,
-            endLink: result.endLink,
-            height: result.height,
-            width: result.width,
-            tiles: JSON.parse(result.tile_json)
+            level: result.result.level,
+            startX: result.result.startX,
+            startY: result.result.startY,
+            endLink: result.result.endLink,
+            height: result.result.height,
+            width: result.result.width,
+            tiles: JSON.parse(result.result.tile_json)
         }
     }
     if (game == null) {

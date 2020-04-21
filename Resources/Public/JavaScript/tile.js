@@ -35,7 +35,6 @@ function getInfo(type, addGroup = 0) {
 }
 
 function setInfo(result, params = "") {
-    result = JSON.parse(result);
     $('select.' + params.type).children().remove();
     $('select.' + params.type).append(fillSelect(result, params.addGroup));
 }
@@ -49,7 +48,6 @@ function getTile(type, name) {
 }
 
 function setTile(result, params = "") {
-    result = JSON.parse(result);
     setTileData(result[0]);
 }
 
@@ -62,7 +60,6 @@ function delTile(type, name) {
 }
 
 function delTileReturn(result, params = "") {
-    result = JSON.parse(result);
     if (result.type && result.msg) {
         showMsg(result.type, result.msg);
     }
@@ -144,7 +141,6 @@ $('.saveTile').click(function() {
 });
 
 function saveTile(result, params = "") {
-    result = JSON.parse(result);
     if (result.type && result.msg) {
         showMsg(result.type, result.msg);
     }

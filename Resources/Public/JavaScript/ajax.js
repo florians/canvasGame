@@ -6,6 +6,7 @@ function ajaxHandler(callback, params) {
         url: ajaxUrl,
         data: params,
         success: function(result) {
+            var result = JSON.parse(result)
             callback(result, params);
         },
         error: function(err) {
@@ -21,6 +22,7 @@ function ajaxHandlerFile(callback, params) {
         processData: false,
         contentType: false,
         success: function(result) {
+            var result = JSON.parse(result)
             callback(result, params);
         },
         error: function(err) {

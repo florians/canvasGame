@@ -71,22 +71,22 @@ function Floor(ctx) {
                     if (!this.floorSettings.tiles[r][c]) {
                         this.floorSettings.tiles[r][c] = {};
                     }
+                    if (oldFloorTiles[r] && oldFloorTiles[r][c]) {
+                        if (oldFloorTiles[r][c].uid) {
+                            this.floorSettings.tiles[r][c].uid = oldFloorTiles[r][c].uid;
+                            this.floorSettings.tiles[r][c].type = this.allTiles[oldFloorTiles[r][c].uid].settings.type;
+                        }
+                        if (oldFloorTiles[r][c].level) {
+                            this.floorSettings.tiles[r][c].level = oldFloorTiles[r][c].level;
+                        }
+                        if (oldFloorTiles[r][c].overlay) {
+                            this.floorSettings.tiles[r][c].overlay = oldFloorTiles[r][c].overlay;
+                        }
+                    }
                     this.floorSettings.tiles[r][c].x = cx;
                     this.floorSettings.tiles[r][c].y = ry;
                     this.floorSettings.tiles[r][c].posX = c;
                     this.floorSettings.tiles[r][c].posY = r;
-                    if (oldFloorTiles[r] && oldFloorTiles[r][c]) {
-                        if (oldFloorTiles[r][c].uid) {
-                            this.floorSettings.tiles[r][c].uid = oldFloorTiles[r][c].uid;
-                            this.floorSettings.tiles[r][c].settings = this.allTiles[oldFloorTiles[r][c].uid].settings;
-                        }
-                        this.floorSettings.tiles[r][c].item = oldFloorTiles[r][c].item;
-                        this.floorSettings.tiles[r][c].trap = oldFloorTiles[r][c].trap;
-                        this.floorSettings.tiles[r][c].enemy = oldFloorTiles[r][c].enemy;
-                        if (oldFloorTiles[r][c].level) {
-                            this.floorSettings.tiles[r][c].level = oldFloorTiles[r][c].level;
-                        }
-                    }
                 } else {
                     tile = {
                         x: cx,
@@ -142,17 +142,11 @@ function Floor(ctx) {
             y = tile.y * this.zoom,
             h = this.blockSize,
             w = this.blockSize;
-        if (this.allTiles[tile.uid]) {
+        if (tile.uid) {
             ctx.drawImage(this.allTiles[tile.uid].img, x, y, h, w);
-            // item as overlay
-            if (tile.item) {
-                ctx.drawImage(this.allTiles[tile.item.uid].img, x, y, h, w);
-            }
-            if (tile.trap) {
-                ctx.drawImage(this.allTiles[tile.trap.uid].img, x, y, h, w);
-            }
-            if (tile.enemy) {
-                ctx.drawImage(this.allTiles[tile.enemy.uid].img, x, y, h, w);
+            // draw as overlay
+            if (tile.overlay) {
+                ctx.drawImage(this.allTiles[tile.overlay].img, x, y, h, w);
             }
         } else {
             ctx.fillStyle = 'rgb(255,255,255)';
@@ -218,7 +212,7 @@ function Floor(ctx) {
             }
         } else {
             if (floor.floorSettings.tiles[offsetY] && floor.floorSettings.tiles[offsetY][offsetX]) {
-                this.showCustomBox(floor.floorSettings.tiles[offsetY][offsetX].settings.type, floor.floorSettings.tiles[offsetY][offsetX]);
+                this.showCustomBox(floor.floorSettings.tiles[offsetY][offsetX].type, floor.floorSettings.tiles[offsetY][offsetX]);
             }
         }
     }
@@ -232,68 +226,60 @@ function Floor(ctx) {
         }
     }
     this.setTileInfo = function(tile) {
-        var onlyOverlay = ['trap', 'enemy', 'item'];
-        this.showCustomBox(floor.allTiles[floor.selectedEl.attr('data-uid')].settings.type, tile);
-        if ($.inArray(floor.allTiles[floor.selectedEl.attr('data-uid')].settings.type, onlyOverlay) === -1) {
-            tile.uid = floor.selectedEl.attr('data-uid');
-            tile.settings = floor.allTiles[floor.selectedEl.attr('data-uid')].settings;
-            console.log(tile);
-            if (floor.allTiles[floor.selectedEl.attr('data-uid')].settings.type == 'start') {
+        var onlyOverlay = ['trap', 'enemy', 'item'],
+            newUid = floor.selectedEl.attr('data-uid'),
+            newTile = {
+                uid: tile.uid || newUid,
+                x: tile.x,
+                y: tile.y,
+                posX: tile.posX,
+                posY: tile.posY,
+            };
+        this.showCustomBox(floor.allTiles[newUid].settings.type, tile);
+        if ($.inArray(floor.allTiles[newUid].settings.type, onlyOverlay) === -1) {
+            if (floor.allTiles[newUid].settings.type == 'start') {
                 floor.floorSettings.startX = tile.posX;
                 floor.floorSettings.startY = tile.posY;
             }
+            floor.floorSettings.tiles[tile.posY][tile.posX] = Object.assign(newTile, floor.allTiles[newUid].settings);
         } else {
-            if (floor.allTiles[floor.selectedEl.attr('data-uid')].settings.type == 'item' && tile.uid != '') {
-                if (tile.item) {
-                    delete tile.item;
-                } else {
-                    delete tile.trap;
-                    delete tile.enemy;
-                    tile.item = {
-                        uid: floor.selectedEl.attr('data-uid')
-                    }
-                }
-            } else if (floor.allTiles[floor.selectedEl.attr('data-uid')].settings.type == 'trap' && tile.uid != '') {
-                if (tile.trap) {
-                    delete tile.trap;
-                } else {
-                    delete tile.item;
-                    delete tile.enemy;
-                    tile.trap = {
-                        uid: floor.selectedEl.attr('data-uid')
-                    }
-                }
-            } else if (floor.allTiles[floor.selectedEl.attr('data-uid')].settings.type == 'enemy' && tile.uid != '') {
-                if (tile.enemy) {
-                    delete tile.enemy;
-                } else {
-                    delete tile.item;
-                    delete tile.trap;
-                    tile.enemy = {
-                        uid: floor.selectedEl.attr('data-uid')
-                    }
-                }
+            if (tile.uid) {
+                floor.floorSettings.tiles[tile.posY][tile.posX] = Object.assign(newTile, floor.allTiles[tile.uid].settings);
+                floor.floorSettings.tiles[tile.posY][tile.posX].overlay = floor.allTiles[newUid].settings.uid;
             }
         }
-        this.repaint(tile);
+        this.repaint(floor.floorSettings.tiles[tile.posY][tile.posX]);
     }
 }
 
 function cleanUpSettings(exportFloorSettings) {
+    var uid = 0;
+    var level = 0;
+    var overlay = "";
     for (r = 0; r < exportFloorSettings.height; r++) {
         for (c = 0; c < exportFloorSettings.width; c++) {
-            if(exportFloorSettings.tiles[r][c].settings && exportFloorSettings.tiles[r][c].settings.type != "portal"){
-                delete exportFloorSettings.tiles[r][c].level;
+            uid = 0;
+            level = 0;
+            overlay = "";
+            if (exportFloorSettings.tiles[r][c].type == "portal") {
+                level = exportFloorSettings.tiles[r][c].level;
             }
-            delete exportFloorSettings.tiles[r][c].settings;
-            delete exportFloorSettings.tiles[r][c].posX;
-            delete exportFloorSettings.tiles[r][c].posY;
-            delete exportFloorSettings.tiles[r][c].x;
-            delete exportFloorSettings.tiles[r][c].y;
-            delete exportFloorSettings.tiles[r][c].repaint;
+            if (exportFloorSettings.tiles[r][c].overlay) {
+                overlay = exportFloorSettings.tiles[r][c].overlay;
+            }
+            uid = exportFloorSettings.tiles[r][c].uid;
+            exportFloorSettings.tiles[r][c] = {};
+            if (level > 0) {
+                exportFloorSettings.tiles[r][c].level = level;
+            }
+            if (overlay) {
+                exportFloorSettings.tiles[r][c].overlay = overlay;
+            }
+            if (uid > 0) {
+                exportFloorSettings.tiles[r][c].uid = uid;
+            }
         }
     }
-    console.log(exportFloorSettings);
     return exportFloorSettings;
 }
 
@@ -364,9 +350,10 @@ function getAllTiles(result = "", params = "") {
                 }
             };
             floor.allTiles[result[i].uid] = {
-                img: image,
-                settings: result[i]
-            }
+                settings: result[i],
+                img: image
+            };
+
             if (!floor.allTilesGrouped[result[i].type]) {
                 floor.allTilesGrouped[result[i].type] = [];
             }
@@ -400,6 +387,7 @@ $('.dimension .sizeSubmit').click(function() {
 $('.floorSelect').change(function() {
     showMsgReset();
     if ($('.floorSelect').val() > 0) {
+        floor.doZoom(true);
         ajaxHandler(getFloor,
             data = {
                 type: 'getFloor',
@@ -499,7 +487,6 @@ $('aside .custom .save-to-element').click(function() {
     var y = $('aside .custom .custom-hidden').attr('data-y');
     var level = $('aside .custom .level').val();
     if (y != '' && x != '' && level != '') {
-        console.log(floor.floorSettings.tiles[y][x]);
         floor.floorSettings.tiles[y][x].level = level;
         showMsg('success', 'Level has been set');
         $('aside .custom').removeClass('active');
@@ -510,6 +497,7 @@ $('aside .custom .save-to-element').click(function() {
 $(document).on('click', 'aside .tile', function() {
     if (!$(this).hasClass('isSelected')) {
         $('aside .tile').removeClass('isSelected');
+        // FS only deliver uid
         floor.selectedEl = $(this).addClass('isSelected');
         $('body').toggleClass('open');
     } else {

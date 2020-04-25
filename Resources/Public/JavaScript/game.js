@@ -1,12 +1,12 @@
 var showHitBox = false,
     // get game container and start game
-    c = document.getElementById("gameCanvas"),
-    ctx = c.getContext("2d"),
+    c = document.getElementById('gameCanvas'),
+    ctx = c.getContext('2d'),
 
-    c2 = document.getElementById("gameCanvas2"),
-    ctx2 = c2.getContext("2d"),
+    c2 = document.getElementById('gameCanvas2'),
+    ctx2 = c2.getContext('2d'),
 
-    gameBaseUrl = "Resources/Public/Images/Floor/",
+    gameBaseUrl = 'Resources/Public/Images/Floor/',
 
     //game = null,
     floorLevel = 1,
@@ -39,7 +39,7 @@ function Floor(ctx, allTiles, floorSettings) {
     this.allTiles = allTiles;
     this.partW = 100;
     this.partH = 100;
-    this.steps = 5;
+    this.steps = 20;
     this.x = 0;
     this.y = 0;
     this.stageX = 0;
@@ -147,7 +147,7 @@ function Floor(ctx, allTiles, floorSettings) {
                         this.floorSettings.tiles[r][c].y = b;
                         this.floorSettings.tiles[r][c].render = true;
                         var settings = this.allTiles[this.floorSettings.tiles[r][c].uid].settings;
-                        this.floorSettings.tiles[r][c].collision = settings.collision.split(",").map(Number);
+                        this.floorSettings.tiles[r][c].collision = settings.collision.split(',').map(Number);
                         this.floorSettings.tiles[r][c].type = settings.type;
                         this.floorSettings.tiles[r][c].factor = settings.factor;
                         this.floorSettings.tiles[r][c].posX = c;
@@ -198,7 +198,7 @@ function Floor(ctx, allTiles, floorSettings) {
         for (r = 0; r < this.collisionLayerSize; r++) {
             for (c = 0; c < this.collisionLayerSize; c++) {
                 this.collisionLayer[collisionRow + r][collisionCol + c].collision = el.collision[collisionNr];
-                this.collisionLayer[collisionRow + r][collisionCol + c].type = el.type || "default";
+                this.collisionLayer[collisionRow + r][collisionCol + c].type = el.type || 'default';
                 this.collisionLayer[collisionRow + r][collisionCol + c].factor = el.collision == 1 ? 0 : el.factor;
                 if (el.collision.length > 1) {
                     collisionNr++;
@@ -225,36 +225,18 @@ function Floor(ctx, allTiles, floorSettings) {
                 this.partW,
                 this.partH
             );
-            if (this.floorSettings.tiles[r][c].item) {
+            if (this.floorSettings.tiles[r][c].overlay) {
                 ctx.drawImage(
-                    this.allTiles[this.floorSettings.tiles[r][c].item.uid].image,
+                    this.allTiles[this.floorSettings.tiles[r][c].overlay].image,
                     this.floorSettings.tiles[r][c].x,
                     this.floorSettings.tiles[r][c].y,
                     this.partW,
                     this.partH
                 );
-                if (this.allTiles[this.floorSettings.tiles[r][c].item.uid].settings.name == "lock") {
+                if (this.allTiles[this.floorSettings.tiles[r][c].overlay].settings.name == 'lock') {
                     this.floorSettings.tiles[r][c].collision = [0, 1, 0, 1];
                     this.changeCollisionLayer(r, c, this.floorSettings.tiles[r][c]);
                 }
-            }
-            if (this.floorSettings.tiles[r][c].trap) {
-                ctx.drawImage(
-                    this.allTiles[this.floorSettings.tiles[r][c].trap.uid].image,
-                    this.floorSettings.tiles[r][c].x,
-                    this.floorSettings.tiles[r][c].y,
-                    this.partW,
-                    this.partH
-                );
-            }
-            if (this.floorSettings.tiles[r][c].enemy) {
-                ctx.drawImage(
-                    this.allTiles[this.floorSettings.tiles[r][c].enemy.uid].image,
-                    this.floorSettings.tiles[r][c].x,
-                    this.floorSettings.tiles[r][c].y,
-                    this.partW,
-                    this.partH
-                );
             }
         }
         if (showHitBox) {
@@ -265,7 +247,7 @@ function Floor(ctx, allTiles, floorSettings) {
                         this.floorSettings.tiles[r][c].collision.length > 1 &&
                         this.floorSettings.tiles[r][c].collision[hitBoxCounter] == 1
                     ) {
-                        ctx.fillStyle = "rgb(0,255,0)";
+                        ctx.fillStyle = 'rgb(0,255,0)';
                         ctx.fillRect(
                             this.collisionLayer[r * this.collisionLayerSize + a][c * this.collisionLayerSize + b].x + 0.5,
                             this.collisionLayer[r * this.collisionLayerSize + a][c * this.collisionLayerSize + b].y + 0.5,
@@ -290,6 +272,50 @@ function Floor(ctx, allTiles, floorSettings) {
         this.oldStageOffsetX = stageOffsetXInt;
         this.oldStageOffsetY = stageOffsetYInt;
     }
+    this.handleOverlay = function(elementTileLayer) {
+        var overlay = elementTileLayer.overlay;
+        var itemWasUsed = false;
+        if (this.allTiles[overlay].settings.name == 'hp' || this.allTiles[overlay].settings.name == 'es') {
+            itemWasUsed = game.player.addStat(this.allTiles[overlay].settings.name);
+        }
+        if (this.allTiles[overlay].settings.name == 'key') {
+            if (!game.player.items['key']) {
+                game.player.addItem('key', overlay);
+                itemWasUsed = true;
+            }
+        }
+        if (this.allTiles[overlay].settings.name == 'lock') {
+            if (game.player.items['key']) {
+                elementTileLayer.collision = [0];
+                this.changeCollisionLayer(elementTileLayer.posY, elementTileLayer.posX, elementTileLayer);
+                game.player.removeItem('key');
+                itemWasUsed = true;
+            }
+        }
+        if (this.allTiles[overlay].settings.name == 'trap') {
+            itemWasUsed = game.player.removeStat('es');
+            if (itemWasUsed == false) {
+                itemWasUsed = game.player.removeStat('hp');
+            }
+
+        }
+        if (this.allTiles[overlay].settings.name == 'enemy') {
+            console.log("start fight screen");
+            var loseHp = Math.round(Math.random());
+            if (loseHp == 1) {
+                itemWasUsed = game.player.removeStat('es');
+                if (itemWasUsed == false) {
+                    itemWasUsed = game.player.removeStat('hp');
+                }
+            }
+            game.player.addStat('exp');
+            itemWasUsed = true;
+        }
+        // remove overlay
+        if (itemWasUsed == true) {
+            elementTileLayer.overlay = '';
+        }
+    }
     this.collision = function() {
         // Player Center
         var playerY = Math.floor((this.stageOffsetY) / (this.partH / 2)),
@@ -298,7 +324,7 @@ function Floor(ctx, allTiles, floorSettings) {
             oldPlayerBottom = this.playerBottom,
             oldPlayerLeft = this.playerLeft,
             oldPlayerRight = this.playerRight,
-            type = this.collisionLayer[playerY][playerX].type || "default",
+            type = this.collisionLayer[playerY][playerX].type || 'default',
             factor = this.collisionLayer[playerY][playerX].factor || 1,
             dx = 0,
             dy = 0,
@@ -307,71 +333,24 @@ function Floor(ctx, allTiles, floorSettings) {
 
         if (type == 'portal') {
             if (elementTileLayer.level) {
+                game.player.savePlayer();
                 game.newFloor(elementTileLayer.level);
             }
         }
-        if (elementTileLayer.item || elementTileLayer.trap || elementTileLayer.enemy) {
-            var itemWasUsed = false;
-            if (elementTileLayer.item && this.allTiles[elementTileLayer.item.uid].settings.name == "hp") {
-                if (game.player.stats.hp.current < game.player.stats.hp.max) {
-                    game.player.stats.hp.current++;
-                    itemWasUsed = true;
-                }
-            }
-            if (elementTileLayer.item && this.allTiles[elementTileLayer.item.uid].settings.name == "key") {
-                if (game.player.items.key == false) {
-                    game.player.items.key = true;
-                    game.player.items.keyImg = this.allTiles[elementTileLayer.item.uid].image;
-                    itemWasUsed = true;
-                }
-            }
-            if (elementTileLayer.item && this.allTiles[elementTileLayer.item.uid].settings.name == "lock") {
-                if (game.player.items.key == true) {
-                    elementTileLayer.collision = [0];
-                    this.changeCollisionLayer(elementTileLayer.posY, elementTileLayer.posX, elementTileLayer);
-                    game.player.items.key = false;
-                    itemWasUsed = true;
-                }
-            }
-            if (elementTileLayer.trap && this.allTiles[elementTileLayer.trap.uid].settings.name == "trap") {
-                if (game.player.stats.hp.current > 0) {
-                    game.player.stats.hp.current--;
-                    itemWasUsed = true;
-                }
-            }
-            if (elementTileLayer.enemy && this.allTiles[elementTileLayer.enemy.uid].settings.name == "enemy") {
-                var loseHp = Math.round(Math.random());
-                if (game.player.stats.hp.current > 0 && loseHp == 1) {
-                    game.player.stats.hp.current--;
-                    itemWasUsed = true;
-                } else {
-                    itemWasUsed = true;
-                }
-            }
-            // remove item
-            if (itemWasUsed == true) {
-                elementTileLayer.item = "";
-                elementTileLayer.enemy = "";
-                elementTileLayer.trap = "";
-            }
-            if (game.player.stats.hp.current == 0) {
-                game.player.resetStat("hp");
-                game.newFloor(floorSettings.level);
-            }
-
+        if (elementTileLayer.overlay) {
+            this.handleOverlay(elementTileLayer);
         }
-
         if (keyPressed.up && !keyPressed.down) {
-            dy = -step;
+            dy = Math.floor(-step * game.delta * 100) / 100;
         } else if (!keyPressed.up && keyPressed.down) {
-            dy = step;
+            dy = Math.floor(step * game.delta * 100) / 100;
         } else {
             dy = 0;
         }
         if (keyPressed.left && !keyPressed.right) {
-            dx = -step;
+            dx = Math.floor(-step * game.delta * 100) / 100;
         } else if (!keyPressed.left && keyPressed.right) {
-            dx = step;
+            dx = Math.floor(step * game.delta * 100) / 100;
         } else {
             dx = 0;
         }
@@ -396,10 +375,10 @@ function Floor(ctx, allTiles, floorSettings) {
                 //console.log('Field Right');
                 this.setStageOffsetX(this.partW * this.floorSettings.width - game.player.offsetRight);
             }
-            //console.log('topBox='+this.playerTop + ",topX="+(this.stageOffsetY + game.player.offsetTop)+" playerY="+ this.stageOffsetY);
-            //console.log('bottomBox='+this.playerBottom + ",bottomX="+(this.stageOffsetY + game.player.offsetBottom)+",fiedl="+ (this.floorSettings.height * this.partH-1) + ", playerY="+ this.stageOffsetY);
+            //console.log('topBox='+this.playerTop + ',topX='+(this.stageOffsetY + game.player.offsetTop)+' playerY='+ this.stageOffsetY);
+            //console.log('bottomBox='+this.playerBottom + ',bottomX='+(this.stageOffsetY + game.player.offsetBottom)+',fiedl='+ (this.floorSettings.height * this.partH-1) + ', playerY='+ this.stageOffsetY);
         }
-        //console.log('bottomBox='+this.playerBottom + ",bottomX="+(this.stageOffsetY + game.player.offsetBottom)+",field="+ (this.floorSettings.height * this.partH-1) + ", playerY="+ this.stageOffsetY);
+        //console.log('bottomBox='+this.playerBottom + ',bottomX='+(this.stageOffsetY + game.player.offsetBottom)+',field='+ (this.floorSettings.height * this.partH-1) + ', playerY='+ this.stageOffsetY);
         //console.log(this.playerTop,this.playerBottom,this.playerLeft,this.playerRight);
 
         if (dx > 0) {
@@ -438,11 +417,11 @@ function Floor(ctx, allTiles, floorSettings) {
             this.setStageOffsetY(this.oldStageOffsetY);
         }
     }
-    this.collisionBox = function(oldBoxX, oldBoxY, newBoxX, newBoxY, playerCornerLeft, playerCornerTop, side) {
+    this.collisionBox = function(oldBoxX, oldBoxY, newBoxX, newBoxY, playerCornerLeft, playerCornerTop) {
         if (!this.collisionLayer[newBoxY][newBoxX].collision) {
             return;
         }
-        //console.log('collisionBox kolidierter Ecken:' + (playerCornerLeft ? 'Links' : 'Rechts') + ", " + (playerCornerTop ? 'Oben' : 'Unten'));
+        //console.log('collisionBox kolidierter Ecken:' + (playerCornerLeft ? 'Links' : 'Rechts') + ', ' + (playerCornerTop ? 'Oben' : 'Unten'));
         var playerOffsetX = (game.player.w / 2) * (playerCornerLeft ? 1 : -1),
             playerOffsetY = (game.player.h / 2) * (playerCornerTop ? 1 : -1),
 
@@ -455,13 +434,13 @@ function Floor(ctx, allTiles, floorSettings) {
 
         if (oldBoxY == newBoxY) {
             this.setStageOffsetX(kanteX + playerOffsetX);
-            //console.log('collisionBox Korrektur X: playerOffsetX=' + playerOffsetX + ", addBoxXPixel=" + addBoxXPixel + ", kanteX=" + kanteX);
+            //console.log('collisionBox Korrektur X: playerOffsetX=' + playerOffsetX + ', addBoxXPixel=' + addBoxXPixel + ', kanteX=' + kanteX);
         } else if (oldBoxX == newBoxX) {
             this.setStageOffsetY(kanteY + playerOffsetY);
             //console.log('collisionBox Korrektur Y: ');
         } else {
             //Kollision untere Kante?
-            //console.log("oldBoxX=" + oldBoxX + ", oldBoxY=" + oldBoxY);
+            //console.log('oldBoxX=' + oldBoxX + ', oldBoxY=' + oldBoxY);
             if (!this.collisionLayer[oldBoxY][newBoxX].collision && this.collisionLayer[newBoxY][oldBoxX].collision) {
                 this.setStageOffsetY(kanteY + playerOffsetY);
                 //console.log('collisionBox Korrektur Y: ');
@@ -481,102 +460,159 @@ function Player(ctx) {
     this.ctx = ctx;
     this.w = 50;
     this.h = 50
-
     this.offsetTop = Math.round(this.h / 2);
     this.offsetBottom = Math.round(this.h / 2);;
     this.offsetLeft = Math.round(this.w / 2);
     this.offsetRight = Math.round(this.w / 2);
-
     this.x = 0;
     this.y = 0;
+    this.repaint = false;
+    this.items = [];
+    this.level = 1;
 
-    this.stats = {
-        hp: {
-            max: 4,
-            current: 4
-        },
-        mp: {
-            max: 4,
-            current: 1
-        },
-        exp: {
-            max: 3000,
-            current: 2000
-        }
+    this.getPlayer = function(name) {
+        ajaxHandler(getPlayer,
+            data = {
+                type: 'getPlayer',
+                name: name
+            });
     }
-    this.items = {
-        key: false
-    };
-    this.items.keyImg = '';
+    this.savePlayer = function() {
+        ajaxHandler('',
+            data = {
+                type: 'savePlayer',
+                name: this.name,
+                level: this.level,
+                stats: JSON.stringify(this.stats)
+            });
+    }
+
     this.draw = function() {
+        // used to removed old translate
+        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        this.ctx.restore();
         this.drawPlayer();
-        this.drawStat("hp", 0, "rgb(255,0,0)");
-        if (this.items.key == true) {
-            this.drawItem(this.items.keyImg);
+        this.drawStat('hp', 0, 20, 'rgb(255,0,0)');
+        if (this.stats.es.current > 0) {
+            this.drawStat('es', 10, 10, 'rgb(0,0,255)');
         }
-        //this.drawStat("mp", 30, "rgb(0,0,255)");
-        //this.drawStat("exp", 60, "rgb(0,255,0)");
+        if (this.stats.exp.current > 0) {
+            this.drawStat('exp', 20, 5, 'rgb(0,255,0)');
+        }
+        this.drawItem(this.items);
+        this.repaint = false;
     }
     this.resize = function() {
         this.x = Math.floor(this.ctx.canvas.width / 2 - this.w / 2);
         this.y = Math.floor(this.ctx.canvas.height / 2 - this.h / 2);
     }
     this.drawPlayer = function() {
-        // save already rendered ctx to only change following obj
+        // save already rendered ctx to only translate player
         this.ctx.save();
-        this.ctx.fillStyle = "rgb(255,0,0)";
         this.ctx.translate(this.x + this.w / 2, this.y + this.h / 2);
-        if (keyPressed.up && keyPressed.right) {
-            this.ctx.rotate(45 * Math.PI / 180);
-        }
-        if (keyPressed.up && keyPressed.left) {
-            this.ctx.rotate(315 * Math.PI / 180);
-        }
-        if (keyPressed.down && keyPressed.right) {
-            this.ctx.rotate(135 * Math.PI / 180);
-        }
-        if (keyPressed.down && keyPressed.left) {
-            this.ctx.rotate(225 * Math.PI / 180);
-        }
-        this.ctx.fillRect(-this.h / 2, -this.w / 2, this.w, this.h);
+        this.ctx.arc(0, 0, this.w / 2, 0, Math.PI * 2, true);
+        this.ctx.fillStyle = 'rgb(255,0,0)';
+        this.ctx.fill();
         // restore all saved ctx with new object
         this.ctx.restore();
     }
+    this.deathCheck = function() {
+        if (this.stats.hp.current == 0) {
+            this.resetStat('hp');
+            this.resetStat('es');
+            game.newFloor(floorLevel, true);
+        }
+    }
+    this.levelUp = function() {
+        this.level += 1;
+        this.stats.hp.max += 1;
+        this.stats.hp.current = this.stats.hp.max;
+        this.stats.exp.max += 1;
+        this.stats.exp.current = 0;
+    }
+    this.addStat = function(stat) {
+        this.repaint = true;
+        if (this.stats[stat].max) {
+            if (this.stats[stat].current < this.stats[stat].max) {
+                this.stats[stat].current++;
+                if (stat == 'exp' && this.stats[stat].max == this.stats[stat].current) {
+                    this.levelUp();
+                }
+                return true;
+            }
+        } else {
+            this.stats[stat].current++;
+            return true;
+        }
+        return false;
+    }
+    this.removeStat = function(stat) {
+        this.repaint = true;
+        if (this.stats[stat].current > 0) {
+            this.stats[stat].current--;
+            this.deathCheck();
+            return true;
+        }
+        return false;
+    }
+    this.addItem = function(type, uid) {
+        this.repaint = true;
+        var item = allTiles[uid];
+        this.items[type] = item;
+    }
+    this.removeItem = function(type, uid) {
+        this.repaint = true;
+        delete this.items[type];
+    }
     this.resetStat = function(stat) {
+        this.repaint = true;
         this.stats[stat].current = this.stats[stat].max;
     }
     this.drawItem = function() {
-        ctx.drawImage(
-            this.items.keyImg,
-            20,
-            30,
-            50,
-            50
-        );
+        var items = this.items;
+        var ctx = this.ctx;
+        var count = 0;
+        var size = 50;
+        ctx.save();
+        $.each(Object.keys(items), function(index, type) {
+            if (type) {
+                ctx.fillStyle = 'rgb(255,255,255)';
+                ctx.globalAlpha = 0.8;
+                ctx.fillRect(size * count, 25, 50, 50);
+                ctx.globalAlpha = 1;
+                ctx.drawImage(items[type].image, size * count, 25, size, size);
+                count++;
+            }
+        });
+        ctx.restore();
     }
-
-    this.drawStat = function(stat, y, color) {
-        var barSize = Math.floor(this.ctx.canvas.width / 2) / this.stats[stat].max;
-        for (i = 0; i < this.stats[stat].max; i++) {
+    this.drawStat = function(stat, y, h, color) {
+        var barSize = 0;
+        var max = this.stats[stat].max || this.stats[stat].current;
+        barSize = Math.floor(this.ctx.canvas.width / 2) / max;
+        this.ctx.fillStyle = 'rgb(10,10,10)';
+        this.ctx.fillRect(0, y, Math.floor(this.ctx.canvas.width / 2) - 2, h);
+        for (i = 0; i < max; i++) {
             if (this.stats[stat].current >= i + 1) {
                 this.ctx.fillStyle = color;
-            } else {
-                this.ctx.fillStyle = "rgb(10,10,10)";
+                this.ctx.fillRect(barSize * i, y, barSize - 2, h);
             }
-            this.ctx.fillRect(barSize * i, y, barSize, 20);
         }
     }
 }
 
 
-function Game(ctx, ctx2) {
+function Game(ctx, ctx2, playerName) {
     this.ctx = ctx;
     this.ctx2 = ctx2;
+    this.playerName = playerName;
     this.allowedKeys = [38, 87, 40, 83, 37, 65, 39, 68, 13, 70];
 
     this.delta = 0;
     this.raF = 0;
     this.stopGame = false;
+    this.gameIsRunnging = false;
     var lastTimestamp = 0,
         myself = this;
     this.animate = function() {
@@ -590,11 +626,6 @@ function Game(ctx, ctx2) {
         myself.ctx.setTransform(1, 0, 0, 1, 0, 0);
         myself.ctx.clearRect(0, 0, myself.ctx.canvas.width, myself.ctx.canvas.height);
         myself.ctx.restore();
-        myself.ctx2.save();
-        // used to removed old translate
-        myself.ctx2.setTransform(1, 0, 0, 1, 0, 0);
-        myself.ctx2.clearRect(0, 0, myself.ctx2.canvas.width, myself.ctx2.canvas.height);
-        myself.ctx2.restore();
 
         lastTimestamp = now;
         myself.draw();
@@ -608,30 +639,45 @@ function Game(ctx, ctx2) {
         this.stopGame = false;
         game.run(allTiles, floorSettings);
     }
-    this.newFloor = function(newFloor) {
-        $('body').removeClass('loading-done');
-        this.stopGame = true;
-        ajaxHandler(getFloor,
-            data = {
-                type: 'getFloor',
-                level: newFloor
-            });
-    }
     this.run = function(allTiles, floorSettings) {
+        var hasPlayer = false;
         this.allTiles = allTiles;
         this.floorSettings = floorSettings;
-        if (typeof this.player != "undefined") {
+        if (typeof this.player != 'undefined') {
             this.player = this.player;
+            hasPlayer = true;
         } else {
             this.player = new Player(this.ctx2);
+            this.player.getPlayer(playerName);
+            this.player.repaint = true;
         }
         this.floor = new Floor(this.ctx, this.allTiles, this.floorSettings);
         this.resize(true);
-        this.animate();
+        if (hasPlayer == true) {
+            this.animate();
+        }
+    }
+    this.newFloor = function(newFloor, reset = false) {
+        $('body').removeClass('loading-done');
+        this.stopGame = true;
+        if (!floorSettings[newFloor] || reset == true) {
+            ajaxHandler(getFloor,
+                data = {
+                    type: 'getFloor',
+                    level: newFloor
+                });
+        } else {
+            // set delay higher if it doesn't work
+            setTimeout(() => {
+                this.init(floorSettings[newFloor], allTiles);
+            }, 1);
+        }
     }
     this.draw = function() {
         this.floor.draw();
-        this.player.draw();
+        if (this.player.repaint == true) {
+            this.player.draw();
+        }
     }
     this.resize = function() {
         canvasBeforH = this.ctx.canvas.height;
@@ -640,6 +686,7 @@ function Game(ctx, ctx2) {
         this.ctx.canvas.height = $('body').height();
         this.ctx2.canvas.width = $('body').width();
         this.ctx2.canvas.height = $('body').height();
+        this.player.repaint = true;
         this.floor.resize(canvasBeforH, canvasBeforW);
         this.player.resize();
     }
@@ -700,7 +747,7 @@ var joystickOffset = 25,
         mouseSupport: true,
         limitStickTravel: true,
         stickRadius: joystickOffset * 2,
-        strokeStyle: "#868686"
+        strokeStyle: '#868686'
     }),
     joystickInterval = null,
     isTouched = false;
@@ -766,37 +813,29 @@ function virtualJoystickInterval() {
     }, 1000 / 60);
 }
 
-function getAllTiles(result, params = "") {
+function getAllTiles(result, params = '') {
     var tileAmount = result.length;
     for (i = 0; i < result.length; i++) {
         var image = new Image(100, 100);
-        image.src = gameBaseUrl + result[i].type + "/" + result[i].source;
+        image.src = gameBaseUrl + result[i].type + '/' + result[i].source;
         image.onload = function() {
             tileAmount--;
-            $('.loaderbar').css('width', (100 / tileAmount) + "%");
+            $('.loaderbar').css('width', (100 / tileAmount) + '%');
             if (!tileAmount) {
                 params.type = 'getFloor';
                 ajaxHandler(getFloor, params);
             }
         };
-        // FSFSFS
         allTiles[result[i].uid] = {
             image: image,
             settings: result[i]
         };
-        // if (!allTiles[result[i].type]) {
-        //     allTiles[result[i].type] = [];
-        // }
-        // allTiles[result[i].type][result[i].name] = {
-        //     image: image,
-        //     settings: result[i]
-        // };
     }
 }
 
-function getFloor(result, params = "") {
+function getFloor(result, params = '') {
     if (result.result) {
-        floorSettings = {
+        floorSettings[result.result.level] = {
             level: result.result.level,
             startX: result.result.startX,
             startY: result.result.startY,
@@ -807,11 +846,44 @@ function getFloor(result, params = "") {
         }
     }
     if (game == null) {
-        game = new Game(ctx, ctx2);
+        var player = prompt("Please enter your name");
+        //var player = "fs";
+        game = new Game(ctx, ctx2, player);
     }
-    game.init(floorSettings, allTiles);
+    game.init(floorSettings[result.result.level], allTiles);
 }
 
+function getPlayer(result, params = '') {
+    // no db result = default player
+    if (result == null) {
+        game.player.name = params.name;
+        game.player.stats = {
+            hp: {
+                max: 4,
+                current: 4
+            },
+            es: {
+                current: 0
+            },
+            mp: {
+                max: 4,
+                current: 1
+            },
+            exp: {
+                max: 3,
+                current: 0
+            }
+        }
+    } else {
+        game.player.name = result.name;
+        game.player.level = parseInt(result.level);
+        game.player.stats = JSON.parse(result.stats);
+        game.player.stats.hp.current = game.player.stats.hp.max;
+        game.player.stats.es.current = 0;
+    }
+    // start the game when player is loaded / set
+    game.animate();
+}
 // preloading data + start the game
 ajaxHandler(getAllTiles,
     data = {

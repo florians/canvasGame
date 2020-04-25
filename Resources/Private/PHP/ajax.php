@@ -2,9 +2,6 @@
 
 include_once 'db.php';
 
-// '[>]joinTable' => ['selectCol.col' => 'col'] | LEFT JOIN joinTable ON selectCol.col = joinTable.col
-// 'table.name(name2)' | table.name AS name2
-
 switch ($_POST['type']) {
     // load
     case 'getFloor':
@@ -22,11 +19,14 @@ switch ($_POST['type']) {
     case 'getTileType':
         getTileType($database);
         break;
-    case 'getTileSubtype':
-        getTileSubtype($database);
+    case 'getPlayer':
+        getPlayer($database, $_POST['name']);
         break;
-    case 'getTileDirection':
-        getTileDirection($database);
+    case 'getPlayer':
+        getPlayer($database, $_POST['name']);
+        break;
+    case 'savePlayer':
+        savePlayer($database, $_POST['name'], $_POST['level'], $_POST['stats']);
         break;
 
     // save
@@ -36,6 +36,7 @@ switch ($_POST['type']) {
     case 'saveTile':
         saveTile($database, $_POST['json'], $_FILES['file']);
         break;
+    // delete
     case 'delTile':
         delTile($database, $_POST['name']);
         break;
@@ -43,22 +44,6 @@ switch ($_POST['type']) {
         print_r($_POST);
         // code...
         break;
-}
-
-function getTileType($db)
-{
-    $result = $db->select('tile_type', '*', ['deleted' => 0]);
-    echo json_encode($result);
-}
-function getTileSubtype($db)
-{
-    $result = $db->select('tile_subtype', '*', ['deleted' => 0]);
-    echo json_encode($result);
-}
-function getTileDirection($db)
-{
-    $result = $db->select('tile_direction', '*', ['deleted' => 0]);
-    echo json_encode($result);
 }
 
 function getFloor($db, $level)
@@ -73,144 +58,6 @@ function getFloor($db, $level)
     $msg = 'Floor Level ' . $level . ' successfully loaded';
     echo json_encode(['type' => $type, 'msg' => $msg, 'result' => $result[0]]);
 }
-function getAllFloorLevels($db)
-{
-    echo json_encode($db->select('floor', 'level', ['deleted' => 0, 'ORDER' => 'level']));
-}
-
-function saveFloor($db, $json)
-{
-    $jsonObj = json_decode($json);
-    $isLoaded = $_POST['isLoaded'];
-    $level = $jsonObj->{'level'};
-    $endLink = $jsonObj->{'endLink'} ?? '';
-    $startX = $jsonObj->{'startX'};
-    $startY = $jsonObj->{'startY'};
-    $height = $jsonObj->{'height'};
-    $width = $jsonObj->{'width'};
-    $tile_json = json_encode($jsonObj->{'tiles'});
-    $enemy_json = ''; //json_encode($jsonObj->{'enemies'}) ?? '';
-
-    $freeLevelCheck = $db->select('floor', 'uid', ['deleted' => 0, 'level' => $level]);
-    // update
-    if (count($freeLevelCheck) > 0 && $isLoaded == 1) {
-        $db->update('floor', [
-            'level' => $level,
-            'startX' => $startX,
-            'startY' => $startY,
-            'height' => $height,
-            'width' => $width,
-            //'endLink' => $endLink,
-            //'tile_json' => $tile_json,
-            //'enemy_json' => $enemy_json,
-        ], [
-            'uid' => $freeLevelCheck[0],
-        ]);
-        if ($freeLevelCheck[0]) {
-            $target_file = '../../Private/Floor/level_uid_' . $freeLevelCheck[0] . '.json';
-            $file = fopen($target_file, "w");
-            fwrite($file, $tile_json);
-            fclose($file);
-        }
-        $type = 'success';
-        $msg = 'Floor Level ' . $level . ' updated!';
-        //echo $db->id().' updated!';
-    } else if (count($freeLevelCheck) > 0 && $isLoaded == 0) {
-        //echo 'floorUsed';
-        $type = 'error';
-        $msg = 'Floor ' . $level . ' is already in use!';
-    } else if ($isLoaded == 0) {
-        // insert
-        if (isset($level) && isset($startX) && isset($startY) && isset($height) && isset($width) && isset($tile_json)) {
-            $db->insert('floor', [
-                'level' => $level,
-                'startX' => $startX,
-                'startY' => $startY,
-                'height' => $height,
-                'width' => $width,
-                //'endLink' => $endLink,
-                //'tile_json' => $tile_json,
-                //'enemy_json' => $enemy_json,
-            ]);
-            if ($db->id()) {
-                $target_file = '../../Private/Floor/level_uid_' . $db->id() . '.json';
-                $file = fopen($target_file, "w");
-                fwrite($file, $tile_json);
-                fclose($file);
-            }
-            //echo $db->id().' is a new entry!';
-            $type = 'success';
-            $msg = 'Floor Level ' . $level . ' was saved!';
-        } else {
-            // echo $level;
-            // echo 'smt failed';
-            $type = 'info';
-            $msg = 'smt failed';
-        }
-    }
-    echo json_encode(['type' => $type, 'msg' => $msg]);
-}
-
-function saveTile($db, $json, $file)
-{
-    $allowedTypes = array(IMAGETYPE_PNG, IMAGETYPE_JPEG, IMAGETYPE_GIF);
-    $jsonObj = json_decode($json);
-
-    $name = $jsonObj->{'name'};
-    $source = $jsonObj->{'source'};
-    $collision = $jsonObj->{'collision'};
-    $type = $jsonObj->{'type'};
-
-    $dbTypeUid = $db->select('tile_type', 'uid', ['deleted' => 0, 'name' => $type]);
-
-    $selectByNameUid = $db->select('tile', '*', ['deleted' => 0, 'name' => $name]);
-
-    if ($dbTypeUid[0] && $selectByNameUid[0] == '') {
-        $sorting = $db->select('tile', 'sorting', ['type' => $dbTypeUid[0], 'ORDER' => ['sorting' => 'DESC'], 'LIMIT' => 1]);
-        $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-        $target_file = '../../Public/Images/Floor/' . $type . '/' . $source . '.' . $ext;
-        if (!in_array(exif_imagetype($file['tmp_name']), $allowedTypes)) {
-            $type = 'error';
-            $msg = mime_content_type($file['tmp_name']) . ' format is not allowed';
-        } else {
-            $db->insert('tile', [
-                'name' => $name,
-                'source' => $source . '.' . $ext,
-                'collision' => $collision,
-                'sorting' => $sorting[0] + 1,
-                'type' => $dbTypeUid[0],
-            ]);
-            move_uploaded_file($file["tmp_name"], $target_file);
-            $type = 'success';
-            $msg = 'Tile ' . $name . ' was saved!';
-        }
-    }
-    // if already in db
-    if ($dbTypeUid[0] && $selectByNameUid[0] != '') {
-        if ($file && in_array(exif_imagetype($file['tmp_name']), $allowedTypes)) {
-            $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-            $target_file = '../../Public/Images/Floor/' . $type . '/' . $source . '.' . $ext;
-            move_uploaded_file($file["tmp_name"], $target_file);
-        }
-        if ($ext) {
-            $source = $name . '.' . $ext;
-        } else {
-            $source = $selectByNameUid[0]['source'];
-        }
-        $db->update('tile', [
-            'name' => $name,
-            'source' => $source,
-            'collision' => $collision,
-            'type' => $dbTypeUid[0],
-        ], [
-            'uid' => $selectByNameUid[0]['uid'],
-        ]);
-        $type = 'success';
-        $msg = 'Tile ' . $name . ' was saved!';
-    }
-    echo json_encode(['type' => $type, 'msg' => $msg]);
-}
-
 function getAllTiles($db)
 {
     $allTiles = $db->select('tile',
@@ -259,6 +106,167 @@ function getTile($db, $name)
     );
     echo json_encode($tile);
 }
+function getAllFloorLevels($db)
+{
+    echo json_encode($db->select('floor', 'level', ['deleted' => 0, 'ORDER' => 'level']));
+}
+function getTileType($db)
+{
+    $result = $db->select('tile_type', '*', ['deleted' => 0]);
+    echo json_encode($result);
+}
+function getPlayer($db, $name)
+{
+    $result = $db->select('player', '*', ['AND' => ['deleted' => 0, 'name' => $name]]);
+    echo json_encode($result[0]);
+}
+
+function savePlayer($db, $name, $level, $stats)
+{
+
+    $resultUid = $db->select('player', 'uid', ['AND' => ['deleted' => 0, 'name' => $name]]);
+    if ($resultUid[0]) {
+        $db->update('player', [
+            'level' => $level,
+            'stats' => $stats
+        ], [
+            'uid' => $resultUid[0],
+        ]);
+        $type = 'success';
+        $msg = 'Player: '. $name.' updated!';
+    } else {
+        $db->insert('player', [
+            'name' => $name,
+            'level' => $level,
+            'stats' => $stats
+        ]);
+        $type = 'success';
+        $msg = 'Player: '. $name.' added!';
+    }
+    echo json_encode(['type' => $type, 'msg' => $msg]);
+}
+
+function saveFloor($db, $json)
+{
+    $jsonObj = json_decode($json);
+    $isLoaded = $_POST['isLoaded'];
+    $level = $jsonObj->{'level'};
+    $startX = $jsonObj->{'startX'};
+    $startY = $jsonObj->{'startY'};
+    $height = $jsonObj->{'height'};
+    $width = $jsonObj->{'width'};
+    $tile_json = json_encode($jsonObj->{'tiles'});
+
+    $freeLevelCheck = $db->select('floor', 'uid', ['deleted' => 0, 'level' => $level]);
+    // update
+    if (count($freeLevelCheck) > 0 && $isLoaded == 1) {
+        $db->update('floor', [
+            'level' => $level,
+            'startX' => $startX,
+            'startY' => $startY,
+            'height' => $height,
+            'width' => $width,
+        ], [
+            'uid' => $freeLevelCheck[0],
+        ]);
+        if ($freeLevelCheck[0]) {
+            $target_file = '../../Private/Floor/level_uid_' . $freeLevelCheck[0] . '.json';
+            $file = fopen($target_file, "w");
+            fwrite($file, $tile_json);
+            fclose($file);
+        }
+        $type = 'success';
+        $msg = 'Floor Level ' . $level . ' updated!';
+        //echo $db->id().' updated!';
+    } else if (count($freeLevelCheck) > 0 && $isLoaded == 0) {
+        $type = 'error';
+        $msg = 'Floor ' . $level . ' is already in use!';
+    } else if ($isLoaded == 0) {
+        // insert
+        if (isset($level) && isset($startX) && isset($startY) && isset($height) && isset($width)) {
+            $db->insert('floor', [
+                'level' => $level,
+                'startX' => $startX,
+                'startY' => $startY,
+                'height' => $height,
+                'width' => $width,
+            ]);
+            if ($db->id()) {
+                $target_file = '../../Private/Floor/level_uid_' . $db->id() . '.json';
+                $file = fopen($target_file, "w");
+                fwrite($file, $tile_json);
+                fclose($file);
+            }
+            //echo $db->id().' is a new entry!';
+            $type = 'success';
+            $msg = 'Floor Level ' . $level . ' was saved!';
+        } else {
+            $type = 'info';
+            $msg = 'smt failed';
+        }
+    }
+    echo json_encode(['type' => $type, 'msg' => $msg]);
+}
+
+function saveTile($db, $json, $file)
+{
+    $allowedTypes = array(IMAGETYPE_PNG, IMAGETYPE_JPEG, IMAGETYPE_GIF);
+    $jsonObj = json_decode($json);
+
+    $name = $jsonObj->{'name'};
+    $source = $jsonObj->{'source'};
+    $collision = $jsonObj->{'collision'};
+    $type = $jsonObj->{'type'};
+
+    $dbTypeUid = $db->select('tile_type', 'uid', ['deleted' => 0, 'name' => $type]);
+    $selectByNameUid = $db->select('tile', '*', ['deleted' => 0, 'name' => $name]);
+
+    if ($dbTypeUid[0] && $selectByNameUid[0] == '') {
+        $sorting = $db->select('tile', 'sorting', ['type' => $dbTypeUid[0], 'ORDER' => ['sorting' => 'DESC'], 'LIMIT' => 1]);
+        $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $target_file = '../../Public/Images/Floor/' . $type . '/' . $source . '.' . $ext;
+        if (!in_array(exif_imagetype($file['tmp_name']), $allowedTypes)) {
+            $type = 'error';
+            $msg = mime_content_type($file['tmp_name']) . ' format is not allowed';
+        } else {
+            $db->insert('tile', [
+                'name' => $name,
+                'source' => $source . '.' . $ext,
+                'collision' => $collision,
+                'sorting' => $sorting[0] + 1,
+                'type' => $dbTypeUid[0],
+            ]);
+            move_uploaded_file($file["tmp_name"], $target_file);
+            $type = 'success';
+            $msg = 'Tile ' . $name . ' was saved!';
+        }
+    }
+    // if already in db
+    if ($dbTypeUid[0] && $selectByNameUid[0] != '') {
+        if ($file && in_array(exif_imagetype($file['tmp_name']), $allowedTypes)) {
+            $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $target_file = '../../Public/Images/Floor/' . $type . '/' . $source . '.' . $ext;
+            move_uploaded_file($file["tmp_name"], $target_file);
+        }
+        if ($ext) {
+            $source = $name . '.' . $ext;
+        } else {
+            $source = $selectByNameUid[0]['source'];
+        }
+        $db->update('tile', [
+            'name' => $name,
+            'source' => $source,
+            'collision' => $collision,
+            'type' => $dbTypeUid[0],
+        ], [
+            'uid' => $selectByNameUid[0]['uid'],
+        ]);
+        $type = 'success';
+        $msg = 'Tile ' . $name . ' was saved!';
+    }
+    echo json_encode(['type' => $type, 'msg' => $msg]);
+}
+
 function delTile($db, $name)
 {
     $db->update('tile',

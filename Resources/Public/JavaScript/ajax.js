@@ -7,13 +7,16 @@ function ajaxHandler(callback, params) {
         data: params,
         success: function(result) {
             var result = JSON.parse(result)
-            callback(result, params);
+            if (callback) {
+                callback(result, params);
+            }
         },
         error: function(err) {
             console.log(err);
         }
     });
 }
+
 function ajaxHandlerFile(callback, params) {
     return $.ajax({
         method: 'POST',
@@ -23,7 +26,9 @@ function ajaxHandlerFile(callback, params) {
         contentType: false,
         success: function(result) {
             var result = JSON.parse(result)
-            callback(result, params);
+            if (callback) {
+                callback(result, params);
+            }
         },
         error: function(err) {
             console.log(err);

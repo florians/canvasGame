@@ -78,9 +78,9 @@ aside .custom {
   background-repeat: no-repeat;
   background-size: 50%;
   background-position: center;
-  background-image: url("../Images/Icons/left.svg"); }
+  background-image: url("/Resources/Public/Images/Icons/left.svg"); }
   body.open .tilesButton {
-    background-image: url("../Images/Icons/right.svg");
+    background-image: url("/Resources/Public/Images/Icons/right.svg");
     right: 40%; }
 
 .smallbtn {

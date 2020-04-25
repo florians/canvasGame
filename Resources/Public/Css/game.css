@@ -125,7 +125,7 @@ body {
   background-repeat: no-repeat;
   background-size: 50%;
   background-position: center;
-  background-image: url("../Images/Icons/fullscreen.svg");
+  background-image: url("/Resources/Public/Images/Icons/fullscreen.svg");
   z-index: 1; }
   body.isFullscreen .fullscreen {
-    background-image: url("../Images/Icons/fullscreen_off.svg"); }
+    background-image: url("/Resources/Public/Images/Icons/fullscreen_off.svg"); }

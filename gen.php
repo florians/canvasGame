@@ -1,9 +1,21 @@
 <?php
+include_once 'Resources/Private/PHP/Lib/combine_my_files.php';
+
+$debug = true; //$_GET['debug'];
+
 if ($_GET && $_GET['p']) {
     $page = $_GET['p'];
 } else {
     $page = 'floor';
 }
+$jsFiles = [
+    'Resources/Public/JavaScript/' . $page . '.js',
+];
+$cssFiles = [
+    'Resources/Public/Css/basic.css',
+    'Resources/Public/Css/gen.css',
+    'Resources/Public/Css/' . $page . '.css',
+];
 
 $pages = ['floor', 'tile']//, 'enemies', 'skills', 'passives'];
 ?>
@@ -12,14 +24,10 @@ $pages = ['floor', 'tile']//, 'enemies', 'skills', 'passives'];
 
 <head>
     <title>IDK Generator</title>
-    <link rel="stylesheet" type="text/css" href="Resources/Public/Css/basic.css" />
-    <link rel="stylesheet" type="text/css" href="Resources/Public/Css/gen.css" />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, user-scalable=no'>
     <?php
-        if ($page) {
-            echo '<link rel="stylesheet" type="text/css" href="Resources/Public/Css/' . $page . '.css" />';
-        }
+        echo combine_my_files($cssFiles, 'Temp/Css/', $page . '.min.css', 'css', $debug);
     ?>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 </head>
 
 <body>
@@ -34,24 +42,22 @@ $pages = ['floor', 'tile']//, 'enemies', 'skills', 'passives'];
         }
     ?>
     </nav>
-    <div class="infoBox">
-        <span class="error"></span>
-        <span class="success"></span>
-        <span class="info"></span>
+    <div class='infoBox'>
+        <span class='error'></span>
+        <span class='success'></span>
+        <span class='info'></span>
     </div>
     <?php
         if ($page) {
-            include_once "Resources/Private/PHP/Includes/".$page . ".php";
+            include_once 'Resources/Private/PHP/Includes/' . $page . '.php';
         }
     ?>
 </body>
 
-<script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
-<script src="Resources/Public/JavaScript/ajax.js"></script>
+<script src='https://code.jquery.com/jquery-3.5.0.min.js'></script>
+<script src='Resources/Public/JavaScript/ajax.js'></script>
 <?php
-if ($page) {
-    echo '<script src="Resources/Public/JavaScript/' . $page . '.js"></script>';
-}
+    echo combine_my_files($jsFiles, 'Temp/JavaScript/', $page . '.min.js', 'js', $debug);
 ?>
 
 </html>

@@ -1,7 +1,6 @@
 function Battle() {
     this.ctx = ctx2;
     this.enemy = new Enemy(this.ctx);
-
     this.drawBackground = function() {
         this.ctx.globalAlpha = 0.8;
         this.ctx.fillStyle = 'rgb(0,0,0)';

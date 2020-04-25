@@ -1,4 +1,4 @@
-var ajaxUrl = 'Resources/Private/PHP/ajax.php';
+var ajaxUrl = 'Resources/Private/PHP/Ajax.php';
 
 function ajaxHandler(callback, params) {
     return $.ajax({

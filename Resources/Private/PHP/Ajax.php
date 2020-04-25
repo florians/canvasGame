@@ -1,6 +1,6 @@
 <?php
 
-include_once 'db.php';
+include_once 'Db.php';
 
 switch ($_POST['type']) {
     // load
@@ -24,6 +24,9 @@ switch ($_POST['type']) {
         break;
     case 'getPlayer':
         getPlayer($database, $_POST['name']);
+        break;
+    case 'getSkills':
+        getSkills($database, $_POST['name']);
         break;
     case 'savePlayer':
         savePlayer($database, $_POST['name'], $_POST['level'], $_POST['stats']);
@@ -120,7 +123,32 @@ function getPlayer($db, $name)
     $result = $db->select('player', '*', ['AND' => ['deleted' => 0, 'name' => $name]]);
     echo json_encode($result[0]);
 }
-
+function getSkills($db, $name)
+{
+    $result = $db->select('player',
+        [
+            '[>]player_skills' => ['player.uid' => 'player_uid'],
+            '[>]skills' => ['player_skills.skills_uid' => 'uid'],
+        ],
+        [
+            'skills.name',
+            'skills.text',
+            'skills.level',
+            'skills.type ',
+            'skills.cost',
+            'skills.value',
+            'skills.turns',
+        ],
+        [
+            'AND' => [
+                'player.name' => $name,
+                'player.deleted' => 0,
+                'skills.deleted' => 0,
+            ],
+        ]
+    );
+    echo json_encode($result);
+}
 function savePlayer($db, $name, $level, $stats)
 {
 
@@ -128,20 +156,20 @@ function savePlayer($db, $name, $level, $stats)
     if ($resultUid[0]) {
         $db->update('player', [
             'level' => $level,
-            'stats' => $stats
+            'stats' => $stats,
         ], [
             'uid' => $resultUid[0],
         ]);
         $type = 'success';
-        $msg = 'Player: '. $name.' updated!';
+        $msg = 'Player: ' . $name . ' updated!';
     } else {
         $db->insert('player', [
             'name' => $name,
             'level' => $level,
-            'stats' => $stats
+            'stats' => $stats,
         ]);
         $type = 'success';
-        $msg = 'Player: '. $name.' added!';
+        $msg = 'Player: ' . $name . ' added!';
     }
     echo json_encode(['type' => $type, 'msg' => $msg]);
 }

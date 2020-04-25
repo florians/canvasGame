@@ -1,14 +1,23 @@
 <?php
 $debug = true; //$_GET['debug'];
-include_once 'Resources/Private/PHP/Lib/combine_my_files.php';
+include_once 'Resources/Private/PHP/Util.php';
 $jsFiles = [
     'Resources/Public/JavaScript/Lib/virtualjoystick.js',
-    'Resources/Public/JavaScript/ajax.js',
-    'Resources/Public/JavaScript/game.js',
+    'Resources/Public/JavaScript/Util/Ajax.js',
+    'Resources/Public/JavaScript/Game/Init.js',
+    'Resources/Public/JavaScript/Game/Ui.js',
+    'Resources/Public/JavaScript/Game/Fullscreen.js',
+    'Resources/Public/JavaScript/Game/Joystick.js',
+    'Resources/Public/JavaScript/Game/Keyboard.js',
+    'Resources/Public/JavaScript/Game/Floor.js',
+    'Resources/Public/JavaScript/Game/Player.js',
+    'Resources/Public/JavaScript/Game/Enemy.js',
+    'Resources/Public/JavaScript/Game/Battle.js',
+    'Resources/Public/JavaScript/Game/Game.js',
 ];
 $cssFiles = [
-    'Resources/Public/Css/basic.css',
-    'Resources/Public/Css/game.css',
+    'Resources/Public/Css/Basic.css',
+    'Resources/Public/Css/Game.css',
 ];
 ?>
 <!doctype html>
@@ -18,7 +27,7 @@ $cssFiles = [
 	<title>IDK</title>
 	<meta name='viewport' content='width=device-width, initial-scale=1.0, user-scalable=no'>
 	<?php
-		echo combine_my_files($cssFiles, 'Temp/Css/', 'game.min' . '.css', 'css', $debug);
+		echo combine_my_files($cssFiles, 'Temp/Css/', 'Game.min' . '.css', 'css', $debug);
 	?>
 </head>
 
@@ -40,7 +49,10 @@ $cssFiles = [
 	</div>
 </body>
 <script src='https://code.jquery.com/jquery-3.5.0.min.js'></script>
+<script>
+    var playerGet = '<?php echo $_GET['player']?>';
+</script>
 <?php
-	echo combine_my_files($jsFiles, 'Temp/JavaScript/', 'game.min' . '.js', 'js', $debug);
+	echo combine_my_files($jsFiles, 'Temp/JavaScript/', 'Game.min' . '.js', 'js', $debug);
 ?>
 </html>

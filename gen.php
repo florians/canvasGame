@@ -1,5 +1,5 @@
 <?php
-include_once 'Resources/Private/PHP/Lib/combine_my_files.php';
+include_once 'Resources/Private/PHP/Util.php';
 
 $debug = true; //$_GET['debug'];
 
@@ -9,12 +9,13 @@ if ($_GET && $_GET['p']) {
     $page = 'floor';
 }
 $jsFiles = [
-    'Resources/Public/JavaScript/' . $page . '.js',
+    'Resources/Public/JavaScript/Util/Ajax.js',
+    'Resources/Public/JavaScript/Gen/' . ucFirst($page) . '.js'
 ];
 $cssFiles = [
-    'Resources/Public/Css/basic.css',
-    'Resources/Public/Css/gen.css',
-    'Resources/Public/Css/' . $page . '.css',
+    'Resources/Public/Css/Basic.css',
+    'Resources/Public/Css/Gen.css',
+    'Resources/Public/Css/' . ucFirst($page) . '.css',
 ];
 
 $pages = ['floor', 'tile']//, 'enemies', 'skills', 'passives'];
@@ -26,7 +27,7 @@ $pages = ['floor', 'tile']//, 'enemies', 'skills', 'passives'];
     <title>IDK Generator</title>
     <meta name='viewport' content='width=device-width, initial-scale=1.0, user-scalable=no'>
     <?php
-        echo combine_my_files($cssFiles, 'Temp/Css/', $page . '.min.css', 'css', $debug);
+        echo combine_my_files($cssFiles, 'Temp/Css/', ucFirst($page) . '.min.css', 'css', $debug);
     ?>
 </head>
 
@@ -49,15 +50,14 @@ $pages = ['floor', 'tile']//, 'enemies', 'skills', 'passives'];
     </div>
     <?php
         if ($page) {
-            include_once 'Resources/Private/PHP/Includes/' . $page . '.php';
+            include_once 'Resources/Private/PHP/Includes/' . ucFirst($page) . '.php';
         }
     ?>
 </body>
 
 <script src='https://code.jquery.com/jquery-3.5.0.min.js'></script>
-<script src='Resources/Public/JavaScript/ajax.js'></script>
 <?php
-    echo combine_my_files($jsFiles, 'Temp/JavaScript/', $page . '.min.js', 'js', $debug);
+    echo combine_my_files($jsFiles, 'Temp/JavaScript/', ucFirst($page) . '.min.js', 'js', $debug);
 ?>
 
 </html>

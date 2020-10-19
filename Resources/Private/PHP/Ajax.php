@@ -141,11 +141,16 @@ function getPlayer($db, $name)
     $result = $db->select('player', '*', ['AND' => ['deleted' => 0, 'name' => $name]]);
     if (count($result)) {
         $msg = 'Player loaded';
+        $r = $result[0];
     } else {
-        $success = false;
-        $msg = 'Player not found';
+        // new player
+        $target_file = '../../Private/Player/DefaultPlayer.json';
+        if (file_exists($target_file)) {
+            $r = json_decode(file_get_contents($target_file));
+        }
+        $msg = 'New Player';
     }
-    returnJson($msg, $result[0], $success);
+    returnJson($msg, $r, $success);
     //echo json_encode($result[0]);
 }
 function getSkills($db, $name)
@@ -175,8 +180,11 @@ function getSkills($db, $name)
     if (count($result)) {
         $msg = 'Skills loaded';
     } else {
-        $success = false;
-        $msg = 'No Skill found';
+        $target_file = '../../Private/Player/DefaultSkill.json';
+        if (file_exists($target_file)) {
+            $result = json_decode(file_get_contents($target_file));
+        }
+        $msg = 'Default Skill for new Player';
     }
     returnJson($msg, $result, $success);
     //echo json_encode($result);

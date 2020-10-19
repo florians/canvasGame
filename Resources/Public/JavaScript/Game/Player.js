@@ -10,17 +10,84 @@ class Player {
         this.y = 0;
         this.items = [];
         this.skills = [];
+        this.name = '';
+        this.level = 0;
         this.stats = {};
-        this.init(player);
-
     }
-    init(player) {
-        this.name = player.name;
-        this.level = parseInt(player.level);
-        this.stats = JSON.parse(player.stats);
-        this.stats.hp.current = this.stats.hp.max;
-        this.stats.es.current = 0;
-        return this;
+    add(result) {
+        this.setName(result.name);
+        this.setLevel(result.level);
+        this.setStats(result.stats);
+        this.setStat('hp.current', this.getStat('hp.max'));
+        this.setStat('es.current', 0);
+    }
+    setName(name) {
+        this.name = name;
+    }
+    getName() {
+        return this.name
+    }
+    setLevel(level) {
+        this.level = parseInt(level);
+    }
+    getLevel() {
+        return this.level
+    }
+    setStats(stats) {
+        this.stats = JSON.parse(stats);;
+    }
+    getStats() {
+        return this.stats
+    }
+    setStat(stat, val, dir = '') {
+        if (stat.includes('.')) {
+            let splitStat = stat.split('.');
+            if (dir == '+') {
+                this.stats[splitStat[0]][splitStat[1]] += val;
+            } else if (dir == '-') {
+                this.stats[splitStat[0]][splitStat[1]] += val;
+            } else {
+                this.stats[splitStat[0]][splitStat[1]] = val;
+            }
+
+        } else {
+            if (dir == '+') {
+                this.stats[stat] += val;
+            } else if (dir == '-') {
+                this.stats[stat] -= val;
+            } else {
+                this.stats[stat] = val;
+            }
+        }
+    }
+    getStat(stat) {
+        if (stat.includes('.')) {
+            let splitStat = stat.split('.');
+            return this.stats[splitStat[0]][splitStat[1]];
+        } else {
+            return this.stats[stat];
+        }
+    }
+    addStat(stat, val = 1) {
+        this.setStat(stat, val, '+');
+    }
+    removeStat(stat, val = 1) {
+        this.setStat(stat, val, '-');
+    }
+
+    load(game, playerName) {
+        game.loader.add('data', 'player', {
+            type: 'getPlayer',
+            name: playerName
+        });
+
+        this.loadSkills(game, playerName);
+    }
+    loadSkills(game, playerName) {
+        game.loader.add('data', 'skills', {
+            type: 'getSkills',
+            name: playerName
+        });
     }
     // save player tp DB
     savePlayer() {
@@ -54,7 +121,6 @@ class Player {
         this.y = Math.floor(_ctxUi.canvas.height / 2 - this.h / 2);
     }
     drawPlayer() {
-        //this.drawPlayer = function() {
         // save already rendered ctx to only translate player
         _ctxUi.save();
         _ctxUi.translate(this.x + this.w / 2, this.y + this.h / 2);
@@ -65,70 +131,10 @@ class Player {
         _ctxUi.restore();
     }
     levelUp() {
-        //this.levelUp = function() {
-        this.level += 1;
-        this.stats.hp.max += 1;
-        this.stats.hp.current = this.stats.hp.max;
-        this.stats.exp.max += 1;
-        this.stats.exp.current = 0;
+        this.setLevel(this.getLevel() + 1);
+        this.addStat('hp.max');
+        this.setStat('hp.current', this.getStat('hp.max'));
+        this.addStat('exp.max');
+        this.setStat('exp.current', 0);
     }
 }
-
-// function getPlayer(r, params = '') {
-//     let result = r.result;
-//     // no db result = default player
-//     let name = 'No name';
-//     if (result == null) {
-//         _game._player.name = params.name;
-//         _game._player.level = 1;
-//         _game._player.stats = {
-//             hp: {
-//                 max: 4,
-//                 current: 4
-//             },
-//             es: {
-//                 current: 0
-//             },
-//             mp: {
-//                 max: 4,
-//                 current: 1
-//             },
-//             exp: {
-//                 max: 3,
-//                 current: 0
-//             }
-//         }
-//
-//         name = params.name;
-//     } else {
-//         _game._player.name = result.name;
-//         _game._player.level = parseInt(result.level);
-//         _game._player.stats = JSON.parse(result.stats);
-//         _game._player.stats.hp.current = _game._player.stats.hp.max;
-//         _game._player.stats.es.current = 0;
-//         name = result.name;
-//     }
-//     ajaxHandler(getSkills,
-//         data = {
-//             type: 'getSkills',
-//             name: name
-//         });
-// }
-//
-// function getSkills(result, params = '') {
-//     if (result.length > 0) {
-//         _game._player.skills = result;
-//     } else {
-//         _game._player.skills[0] = {
-//             cost: '3',
-//             level: '2',
-//             name: 'Hit',
-//             text: 'hit text',
-//             turns: '0',
-//             type: '4',
-//             value: '2',
-//         };
-//     }
-//     // start the game when player is loaded / set
-//     _game.animate();
-// }

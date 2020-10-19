@@ -2,7 +2,7 @@ class Game {
     constructor() {
         this._tiles = new Tiles();
         this._floorSettings = new FloorSettings();
-        this._player = [];
+        this._player = new Player();
         this._player.skills = [];
         this.floor = null;
         this.enemy = [];
@@ -17,16 +17,12 @@ class Game {
     preloader() {
         this._tiles.load(this);
         this._floorSettings.load(this, 1);
+        this._player.load(this, playerName);
 
-
-        this.loader.add('data', 'player', {
-            type: 'getPlayer',
-            name: playerName
-        });
-        this.loader.add('data', 'skills', {
-            type: 'getSkills',
-            name: playerName
-        });
+        // this.loader.add('data', 'skills', {
+        //     type: 'getSkills',
+        //     name: playerName
+        // });
         // give loader an object for calling functions
         this.loader.setObj(this);
         // calls _game.preloaderResult
@@ -43,7 +39,7 @@ class Game {
                 this.floor = new Floor(this._floorSettings.get(this.floorLevel));
             }
             if (result[i].name == "player") {
-                this.player(result[i].data.result);
+                this._player.add(result[i].data.result);
             }
             if (result[i].name == "skills") {
                 this.skills(result[i].data.result);
@@ -51,40 +47,6 @@ class Game {
         }
         this.init();
     }
-    
-    player(result) {
-        //this.loader.reset();
-        // no db result = default player
-        let name = 'No name';
-        let player = {};
-        if (result == null) {
-            player.name = params.name;
-            player.level = 1;
-            player.stats = {
-                hp: {
-                    max: 4,
-                    current: 4
-                },
-                es: {
-                    current: 0
-                },
-                mp: {
-                    max: 4,
-                    current: 1
-                },
-                exp: {
-                    max: 3,
-                    current: 0
-                }
-            }
-            name = params.name;
-        } else {
-            player = new Player(result);
-        }
-        //this.loader.progressBar(100, 100);
-        this._player = player;
-    }
-
     skills(result) {
         //this.loader.reset();
         let skills = [];

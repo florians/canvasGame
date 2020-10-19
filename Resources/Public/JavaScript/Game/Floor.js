@@ -303,16 +303,16 @@ class Floor {
         if (elementTileLayer.overlay) {
             this.handleOverlay(elementTileLayer);
         }
-        if (keyPressed.up && !keyPressed.down) {
+        if (keyboardHandler.get('up') && !keyboardHandler.get('down')) {
             dy = Math.floor(-step * _game.delta * 100) / 100;
-        } else if (!keyPressed.up && keyPressed.down) {
+        } else if (!keyboardHandler.get('up') && keyboardHandler.get('down')) {
             dy = Math.floor(step * _game.delta * 100) / 100;
         } else {
             dy = 0;
         }
-        if (keyPressed.left && !keyPressed.right) {
+        if (keyboardHandler.get('left') && !keyboardHandler.get('right')) {
             dx = Math.floor(-step * _game.delta * 100) / 100;
-        } else if (!keyPressed.left && keyPressed.right) {
+        } else if (!keyboardHandler.get('left') && keyboardHandler.get('right')) {
             dx = Math.floor(step * _game.delta * 100) / 100;
         } else {
             dx = 0;

@@ -1,47 +1,69 @@
-const allowedKeys = [38, 87, 40, 83, 37, 65, 39, 68, 13, 70];
+class KeyboardHandler {
+    constructor() {
+        this.allowedKeys = [38, 87, 40, 83, 37, 65, 39, 68, 13, 70];
+        this.keyPressed = {
+            up: false,
+            down: false,
+            left: false,
+            right: false
+        }
+    }
+    get(direction) {
+        return this.keyPressed[direction]
+    }
+
+    set(direction, state = true) {
+        this.keyPressed[direction] = state;
+    }
+    reset() {
+        this.keyPressed.up = false;
+        this.keyPressed.down = false;
+        this.keyPressed.left = false;
+        this.keyPressed.right = false;
+    }
+
+}
+let keyboardHandler = new KeyboardHandler();
 
 $(document).keydown(function(e) {
-    if ($.inArray(e.keyCode, allowedKeys) !== -1 && !$('body').hasClass('battle')) {
+    if ($.inArray(e.keyCode, keyboardHandler.allowedKeys) !== -1 && !$('body').hasClass('battle')) {
         e.preventDefault();
         // w / up
         if (e.keyCode == 38 || e.keyCode == 87) {
-            keyPressed.up = true;
+            keyboardHandler.set('up');
         }
         // s / down
         if (e.keyCode == 40 || e.keyCode == 83) {
-            keyPressed.down = true;
+            keyboardHandler.set('down');
         }
         // a / left
         if (e.keyCode == 37 || e.keyCode == 65) {
-            keyPressed.left = true;
+            keyboardHandler.set('left');
         }
         // d / right
         if (e.keyCode == 39 || e.keyCode == 68) {
-            keyPressed.right = true;
+            keyboardHandler.set('right');
         }
         if (e.keyCode == 70) {
-            handleFullscreen();
+            fullscreen.toggle();
         }
     } else {
-        keyPressed.up = false;
-        keyPressed.down = false;
-        keyPressed.left = false
-        keyPressed.right = false;
+        keyboardHandler.reset();
     }
 }).keyup(function(e) {
     if (e.keyCode == 38 || e.keyCode == 87) {
-        keyPressed.up = false;
+        keyboardHandler.set('up', false);
     }
     // s / down
     if (e.keyCode == 40 || e.keyCode == 83) {
-        keyPressed.down = false;
+        keyboardHandler.set('down', false);
     }
     // a / left
     if (e.keyCode == 37 || e.keyCode == 65) {
-        keyPressed.left = false;
+        keyboardHandler.set('left', false);
     }
     // d / right
     if (e.keyCode == 39 || e.keyCode == 68) {
-        keyPressed.right = false;
+        keyboardHandler.set('right', false);
     }
 });

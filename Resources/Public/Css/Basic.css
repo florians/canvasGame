@@ -1,5 +1,4 @@
 /*
-sass --sourcemap=none -C --watch /var/www/CanvasGame/Resources/SCSS:/var/www/CanvasGame/Resources/CSS
 sassc /var/www/florian/www/Resources/Public/Scss/Basic.scss > /var/www/florian/www/Resources/Public/Css/Basic.css;sassc /var/www/florian/www/Resources/Public/Scss/Floor.scss > /var/www/florian/www/Resources/Public/Css/Floor.css;sassc /var/www/florian/www/Resources/Public/Scss/Game.scss > /var/www/florian/www/Resources/Public/Css/Game.css;sassc /var/www/florian/www/Resources/Public/Scss/Gen.scss > /var/www/florian/www/Resources/Public/Css/Gen.css;sassc /var/www/florian/www/Resources/Public/Scss/Tile.scss > /var/www/florian/www/Resources/Public/Css/Tile.css
 */
 /***********************************

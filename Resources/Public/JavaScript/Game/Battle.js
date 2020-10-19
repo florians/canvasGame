@@ -2,8 +2,6 @@ class Battle {
     constructor() {
         this.turn = 'player';
         _game.enemy = new Enemy();
-        // show on battle end
-        $('#mobileControls').hide();
         $('body').addClass('battle');
     }
 

@@ -8,8 +8,8 @@ var joystickOffset = 25,
         strokeStyle: '#868686'
     }),
     joystickInterval = null,
-    isTouched = false;
-
+    isTouched = false,
+    disableJoystick = false;
 
 $('#mobileControls').on('touchstart mousedown', function(e) {
     e.preventDefault();
@@ -19,33 +19,31 @@ $('#mobileControls').on('touchstart mousedown', function(e) {
     e.preventDefault();
     clearInterval(joystickInterval);
     isTouched = false;
-    keyPressed.up = false;
-    keyPressed.down = false;
-    keyPressed.right = false;
-    keyPressed.left = false;
+    keyboardHandler.reset();
 });
+
 
 function virtualJoystickInterval() {
     return setInterval(function() {
         if (isTouched) {
             if (joystick.deltaY() < -joystickOffset && (joystick.deltaX() > -joystickOffset || joystick.deltaX() < joystickOffset)) {
-                keyPressed.up = true;
+                keyboardHandler.set('up');
             } else if (joystick.deltaY() > joystickOffset && (joystick.deltaX() > -joystickOffset || joystick.deltaX() < joystickOffset)) {
-                keyPressed.down = true;
-                keyPressed.up = false;
+                keyboardHandler.set('down');
+                keyboardHandler.set('up', false);
             } else {
-                keyPressed.up = false;
-                keyPressed.down = false;
+                keyboardHandler.set('up', false);
+                keyboardHandler.set('down', false);
             }
             if (joystick.deltaX() < -joystickOffset && (joystick.deltaY() > -joystickOffset || joystick.deltaY() < joystickOffset)) {
-                keyPressed.left = true;
-                keyPressed.right = false;
+                keyboardHandler.set('left');
+                keyboardHandler.set('right', false);
             } else if (joystick.deltaX() > joystickOffset && (joystick.deltaY() > -joystickOffset || joystick.deltaY() < joystickOffset)) {
-                keyPressed.right = true;
-                keyPressed.left = false;
+                keyboardHandler.set('right');
+                keyboardHandler.set('left', false);
             } else {
-                keyPressed.right = false;
-                keyPressed.left = false;
+                keyboardHandler.set('right', false);
+                keyboardHandler.set('left', false);
             }
         }
     }, 1000 / 60);

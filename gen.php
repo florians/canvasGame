@@ -50,7 +50,11 @@ $pages = ['floor', 'tile', 'skills']//, 'enemies', 'passives'];
     </div>
     <?php
         if ($page) {
-            include_once 'Resources/Private/PHP/Includes/' . ucFirst($page) . '.php';
+            //include_once 'Resources/Private/PHP/Includes/' . ucFirst($page) . '.php';
+            $file = 'Resources/Private/PHP/Includes/' . ucFirst($page) . '.html';
+            if(is_file($file)){
+                echo file_get_contents($file);
+            }
         }
     ?>
 </body>

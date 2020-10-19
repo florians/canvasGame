@@ -4,7 +4,7 @@ include_once "Lib/Medoo.php";
 
 $host = "web9.internetgalerie.ch";
 $username = "florian";
-$password = "####";
+$password = "";
 $db = "florian_game";
 
 // Using Medoo namespace

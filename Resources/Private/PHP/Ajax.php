@@ -28,6 +28,12 @@ switch ($_POST['type']) {
     case 'getSkills':
         getSkills($database, $_POST['name']);
         break;
+    case 'getAllSkills':
+        getAllSkills($database);
+        break;
+    case 'getSkillTypes':
+        getSkillTypes($database);
+        break;
     case 'savePlayer':
         savePlayer($database, $_POST['name'], $_POST['level'], $_POST['stats']);
         break;
@@ -56,14 +62,18 @@ function getFloor($db, $level)
     if (file_exists($target_file)) {
         $file = file_get_contents($target_file);
         $result[0]['tile_json'] = $file;
+        $msg = 'Floor Level ' . $level . ' successfully loaded';
+    } else {
+        $type = false;
+        $msg = 'Floor Level ' . $level . ' not available';
     }
-    $type = 'success';
-    $msg = 'Floor Level ' . $level . ' successfully loaded';
-    echo json_encode(['type' => $type, 'msg' => $msg, 'result' => $result[0]]);
+    returnJson($msg, $result[0], $type);
+
+    //echo json_encode(['type' => $type, 'msg' => $msg, 'result' => $result[0]]);
 }
 function getAllTiles($db)
 {
-    $allTiles = $db->select('tile',
+    $result = $db->select('tile',
         [
             '[>]tile_type' => ['tile.type' => 'uid'],
         ],
@@ -84,12 +94,19 @@ function getAllTiles($db)
             ],
         ]
     );
-    echo json_encode($allTiles);
+    if (count($result)) {
+        $msg = 'Tiles loaded';
+    } else {
+        $success = false;
+        $msg = 'no Tiles found';
+    }
+    returnJson($msg, $result, $success);
+    //echo json_encode(['type' => $success, 'msg' => $msg, 'result' => $result]);
 
 }
 function getTile($db, $name)
 {
-    $tile = $db->select('tile',
+    $result = $db->select('tile',
         [
             '[>]tile_type' => ['tile.type' => 'uid'],
         ],
@@ -107,7 +124,8 @@ function getTile($db, $name)
             ],
         ]
     );
-    echo json_encode($tile);
+    //returnJson($msg, $result,$type);
+    echo json_encode($result);
 }
 function getAllFloorLevels($db)
 {
@@ -121,7 +139,14 @@ function getTileType($db)
 function getPlayer($db, $name)
 {
     $result = $db->select('player', '*', ['AND' => ['deleted' => 0, 'name' => $name]]);
-    echo json_encode($result[0]);
+    if (count($result)) {
+        $msg = 'Player loaded';
+    } else {
+        $success = false;
+        $msg = 'Player not found';
+    }
+    returnJson($msg, $result[0], $success);
+    //echo json_encode($result[0]);
 }
 function getSkills($db, $name)
 {
@@ -147,6 +172,29 @@ function getSkills($db, $name)
             ],
         ]
     );
+    if (count($result)) {
+        $msg = 'Skills loaded';
+    } else {
+        $success = false;
+        $msg = 'No Skill found';
+    }
+    returnJson($msg, $result, $success);
+    //echo json_encode($result);
+}
+function getAllSkills($db)
+{
+    $result = $db->select('skills', '*', ['deleted' => 0]);
+    if (count($result)) {
+        $msg = 'Skills loaded';
+    } else {
+        $success = false;
+        $msg = 'No Skill found';
+    }
+    returnJson($msg, $result, $success);
+}
+function getSkillTypes($db)
+{
+    $result = $db->select('skills_type', '*', ['deleted' => 0]);
     echo json_encode($result);
 }
 function savePlayer($db, $name, $level, $stats)
@@ -306,4 +354,14 @@ function delTile($db, $name)
     $type = 'success';
     $msg = 'Tile removed';
     echo json_encode(['type' => $type, 'msg' => $msg]);
+}
+
+function returnJson($msg, $result, $success)
+{
+    if ($success !== false) {
+        $type = 'success';
+    } else {
+        $type = 'error';
+    }
+    echo json_encode(['type' => $type, 'msg' => $msg, 'result' => $result]);
 }

@@ -1,5 +1,7 @@
+const allowedKeys = [38, 87, 40, 83, 37, 65, 39, 68, 13, 70];
+
 $(document).keydown(function(e) {
-    if ($.inArray(e.keyCode, allowedKeys) !== -1) {
+    if ($.inArray(e.keyCode, allowedKeys) !== -1 && !$('body').hasClass('battle')) {
         e.preventDefault();
         // w / up
         if (e.keyCode == 38 || e.keyCode == 87) {

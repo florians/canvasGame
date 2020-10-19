@@ -1,11 +1,35 @@
 // get game container and start game
-var c = document.getElementById('gameCanvas'),
-    ctx = c.getContext('2d');
+let ctx = document.getElementById('gameCanvas').getContext('2d'),
+    _floor = new Floor(ctx);
 
 var floor = new Floor(ctx);
 
 floor.setCanvasSize();
 floor.setFloorSettingsDimensions();
+
+
+// class Floor() {
+//     constructor() {
+//         this.floorSettings = {
+//             startX: 0,
+//             startY: 0,
+//             endX: 0,
+//             endY: 0,
+//             height: 0,
+//             width: 0,
+//             tiles: [],
+//         }
+//         this.canvasOffsetX = 0;
+//         this.canvasOffsetY = 0;
+//         this.brushSize = 1;
+//         this.zoom = 1;
+//         this.blockSize = 30 * this.zoom;
+//         this.mouseDown = false;
+//         this.allTilesGrouped = [];
+//         this.allTiles = [];
+//         this.selectedEl = '';
+//     }
+// }
 
 function Floor(ctx) {
     this.floorSettings = {

@@ -1,131 +1,169 @@
-function Game(ctx, ctx2, playerName) {
-    this.ctx = ctx;
-    this.ctx2 = ctx2;
-    this.playerName = playerName;
+class Game {
+    constructor() {
+        this._tiles = new Tiles();
+        this._floorSettings = new FloorSettings();
+        this._player = [];
+        this._player.skills = [];
+        this.floor = null;
+        this.enemy = [];
+        this.delta = 0;
+        this.raF = 0;
+        this.stopGame = false;
+        this.lastTimestamp = 0;
+        this.floorLevel = floorLevel;
+        this.loader = new Loader();
+        this.preloader();
+    }
+    preloader() {
+        this._tiles.load(this);
+        this._floorSettings.load(this, 1);
 
-    this.delta = 0;
-    this.raF = 0;
-    this.stopGame = false;
 
-    this.lastTimestamp = 0;
+        this.loader.add('data', 'player', {
+            type: 'getPlayer',
+            name: playerName
+        });
+        this.loader.add('data', 'skills', {
+            type: 'getSkills',
+            name: playerName
+        });
+        // give loader an object for calling functions
+        this.loader.setObj(this);
+        // calls _game.preloaderResult
+        this.loader.run();
+    }
+    // calls init afterwards
+    preloaderResult(result) {
+        for (let i = 0; i < result.length; i++) {
+            if (result[i].name == "tiles") {
+                this._tiles.generateTiles(result[i].data.result);
+            }
+            if (result[i].name == "floorSettings") {
+                this._floorSettings.add(result[i].data.result);
+                this.floor = new Floor(this._floorSettings.get(this.floorLevel));
+            }
+            if (result[i].name == "player") {
+                this.player(result[i].data.result);
+            }
+            if (result[i].name == "skills") {
+                this.skills(result[i].data.result);
+            }
+        }
+        this.init();
+    }
+    
+    player(result) {
+        //this.loader.reset();
+        // no db result = default player
+        let name = 'No name';
+        let player = {};
+        if (result == null) {
+            player.name = params.name;
+            player.level = 1;
+            player.stats = {
+                hp: {
+                    max: 4,
+                    current: 4
+                },
+                es: {
+                    current: 0
+                },
+                mp: {
+                    max: 4,
+                    current: 1
+                },
+                exp: {
+                    max: 3,
+                    current: 0
+                }
+            }
+            name = params.name;
+        } else {
+            player = new Player(result);
+        }
+        //this.loader.progressBar(100, 100);
+        this._player = player;
+    }
+
+    skills(result) {
+        //this.loader.reset();
+        let skills = [];
+        if (result.length > 0) {
+            skills = result;
+        } else {
+            skills[0] = {
+                cost: '3',
+                level: '2',
+                name: 'Hit',
+                text: 'hit text',
+                turns: '0',
+                type: '4',
+                value: '2',
+            };
+        }
+        //this.loader.progressBar(100, 100);
+        this._player.skills = skills;
+    }
 
     // this.animate freaks out otherwise
-    var myself = this;
-    this.animate = function() {
-        var now = Date.now(),
+    animate() {
+        let now = Date.now(),
             timeDelta = (now - (this.lastTimestamp || now)) / 1000; // in seconds
-        myself.delta = timeDelta * 30; // meaning: 30px per second
+        this.delta = timeDelta * 30; // meaning: 30px per second
 
         // clear both canvas
-        myself.ctx.save();
+        _ctxWorld.save();
         // used to removed old translate
-        myself.ctx.setTransform(1, 0, 0, 1, 0, 0);
-        myself.ctx.clearRect(0, 0, myself.ctx.canvas.width, myself.ctx.canvas.height);
-        myself.ctx.restore();
+        _ctxWorld.setTransform(1, 0, 0, 1, 0, 0);
+        _ctxWorld.clearRect(0, 0, _ctxWorld.canvas.width, _ctxWorld.canvas.height);
+        _ctxWorld.restore();
 
         this.lastTimestamp = now;
-        myself.draw();
+        this.draw();
 
-        if (!myself.stopGame == true) {
-            myself.raF = requestAnimationFrame(myself.animate);
+        if (!this.stopGame == true) {
+            this.raF = requestAnimationFrame(() => this.animate());
         }
     }
-    this.init = function(floorSettings, allTiles) {
+    init() {
         $('body').addClass('loading-done');
         this.stopGame = false;
-        game.run(allTiles, floorSettings);
+        this.setCanvasSize();
+        // create ui, floor
+        this.ui = new Ui();
+        this.ui.repaint = true;
+        this.resize();
+        this.animate();
     }
-    this.run = function(allTiles, floorSettings) {
-        var hasPlayer = false;
-        this.ui = new Ui(this.ctx2);
-        if (typeof this.player != 'undefined') {
-            this.player = this.player;
-            hasPlayer = true;
-        } else {
-            this.player = new Player(this.ctx2);
-            this.player.getPlayer(playerName);
-            this.ui.repaint = true;
-        }
-        this.floor = new Floor(this.ctx, floorSettings);
-        this.resize(true);
-        if (hasPlayer == true) {
-            this.animate();
-        }
-    }
-    this.newFloor = function(newFloor, reset = false) {
+    newFloor(newFloor, reset = false) {
+        this.floorLevel = newFloor;
         $('body').removeClass('loading-done');
         this.stopGame = true;
-        if (!floorSettings[newFloor] || reset == true) {
-            ajaxHandler(getFloor,
-                data = {
-                    type: 'getFloor',
-                    level: newFloor
-                });
+        if (!this._floorSettings.get(this.floorLevel)) {
+            this._floorSettings.load(this, this.floorLevel);
         } else {
-            // set delay higher if it doesn't work
-            setTimeout(() => {
-                this.init(floorSettings[newFloor], allTiles);
-            }, 1);
+            this.floor = new Floor(this._floorSettings.get(this.floorLevel));
         }
     }
-    this.draw = function() {
+    draw() {
         this.floor.draw();
-        if (game.ui.repaint == true) {
+        if (this.ui.repaint == true) {
             this.ui.draw();
         }
     }
-    this.resize = function() {
-        canvasBeforH = this.ctx.canvas.height;
-        canvasBeforW = this.ctx.canvas.width;
-        this.ctx.canvas.width = $('body').width();
-        this.ctx.canvas.height = $('body').height();
-        this.ctx2.canvas.width = $('body').width();
-        this.ctx2.canvas.height = $('body').height();
+    setCanvasSize() {
+        _ctxWorld.canvas.width = $('body').width();
+        _ctxWorld.canvas.height = $('body').height();
+        _ctxUi.canvas.width = $('body').width();
+        _ctxUi.canvas.height = $('body').height();
+    }
+    resize() {
+        this.setCanvasSize();
         this.ui.repaint = true;
-        this.floor.resize(canvasBeforH, canvasBeforW);
-        this.player.resize();
+        this.floor.resize();
+        this._player.resize();
         if (this.stopGame == true) {
             this.draw();
         }
     }
-}
-
-function getAllTiles(result, params = '') {
-    var tileAmount = result.length;
-    for (i = 0; i < result.length; i++) {
-        var image = new Image(100, 100);
-        image.src = gameBaseUrl + result[i].type + '/' + result[i].source;
-        image.onload = function() {
-            tileAmount--;
-            $('.loaderbar').css('width', (100 / tileAmount) + '%');
-            if (!tileAmount) {
-                params.type = 'getFloor';
-                ajaxHandler(getFloor, params);
-            }
-        };
-        allTiles[result[i].uid] = {
-            image: image,
-            settings: result[i]
-        };
-    }
-}
-
-function getFloor(result, params = '') {
-    if (result.result) {
-        floorSettings[result.result.level] = {
-            level: result.result.level,
-            startX: result.result.startX,
-            startY: result.result.startY,
-            endLink: result.result.endLink,
-            height: result.result.height,
-            width: result.result.width,
-            tiles: JSON.parse(result.result.tile_json)
-        }
-    }
-    if (game == null) {
-        var player = playerGet || prompt("Please enter your name");
-        //var player = "fs";
-        game = new Game(ctx, ctx2, player);
-    }
-    game.init(floorSettings[result.result.level], allTiles);
 }

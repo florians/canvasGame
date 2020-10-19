@@ -18,7 +18,7 @@ $cssFiles = [
     'Resources/Public/Css/' . ucFirst($page) . '.css',
 ];
 
-$pages = ['floor', 'tile']//, 'enemies', 'skills', 'passives'];
+$pages = ['floor', 'tile', 'skills']//, 'enemies', 'passives'];
 ?>
 <!doctype html>
 <html>

@@ -1,25 +1,23 @@
-var showHitBox = false,
-    // get game container and start game
-    c = document.getElementById('gameCanvas'),
-    ctx = c.getContext('2d'),
-    // static game container
-    c2 = document.getElementById('gameCanvas2'),
-    ctx2 = c2.getContext('2d'),
-
+const _storage = [], // stores everything fetched with ajax
     gameBaseUrl = 'Resources/Public/Images/Floor/',
+    _ctxWorld = document.getElementById('world').getContext('2d'),
+    _ctxUi = document.getElementById('ui').getContext('2d'),
+    playerName = playerGet || prompt("Please enter your name");
+
+let showHitBox = false,
     // default start level
     floorLevel = 1,
-    allowedKeys = [38, 87, 40, 83, 37, 65, 39, 68, 13, 70];
-
+    _game = new Game();
     keyPressed = {
         up: false,
         down: false,
         left: false,
         right: false
     },
+    // del after moving to promise
     allTiles = [],
     floorSettings = [],
-    game = null,
+    //game = null,
     // animationframe fallbacks for diff browser
     myRequestAnimationFrame = window.requestAnimationFrame ||
     window.webkitRequestAnimationFrame ||
@@ -34,14 +32,6 @@ var showHitBox = false,
 // set fallback
 window.requestAnimationFrame = myRequestAnimationFrame;
 
-
-// preloading data + start the game
-ajaxHandler(getAllTiles,
-    data = {
-        type: 'getAllTiles',
-        level: floorLevel
-    });
-
 $(window).resize(function() {
-    game.resize();
+    _game.resize();
 });

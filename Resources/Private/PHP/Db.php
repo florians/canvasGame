@@ -2,10 +2,10 @@
 
 include_once "Lib/Medoo.php";
 
-$host = "**";
-$username = "**";
-$password = "**";
-$db = "**";
+$host = "web9.internetgalerie.ch";
+$username = "florian";
+$password = "";
+$db = "florian_game";
 
 // Using Medoo namespace
 use Medoo\Medoo;

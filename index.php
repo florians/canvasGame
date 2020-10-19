@@ -4,16 +4,20 @@ include_once 'Resources/Private/PHP/Util.php';
 $jsFiles = [
     'Resources/Public/JavaScript/Lib/virtualjoystick.js',
     'Resources/Public/JavaScript/Util/Ajax.js',
-    'Resources/Public/JavaScript/Game/Init.js',
-    'Resources/Public/JavaScript/Game/Ui.js',
-    'Resources/Public/JavaScript/Game/Fullscreen.js',
-    'Resources/Public/JavaScript/Game/Joystick.js',
-    'Resources/Public/JavaScript/Game/Keyboard.js',
+    'Resources/Public/JavaScript/Util/Loader.js',
+    'Resources/Public/JavaScript/Ui/Ui.js',
+    'Resources/Public/JavaScript/Control/Fullscreen.js',
+    'Resources/Public/JavaScript/Control/Joystick.js',
+    'Resources/Public/JavaScript/Control/Keyboard.js',
     'Resources/Public/JavaScript/Game/Floor.js',
     'Resources/Public/JavaScript/Game/Player.js',
     'Resources/Public/JavaScript/Game/Enemy.js',
     'Resources/Public/JavaScript/Game/Battle.js',
+    'Resources/Public/JavaScript/Game/Tiles.js',
+    'Resources/Public/JavaScript/Game/Tile.js',
+    'Resources/Public/JavaScript/Game/FloorSettings.js',
     'Resources/Public/JavaScript/Game/Game.js',
+    'Resources/Public/JavaScript/Game/Init.js',
 ];
 $cssFiles = [
     'Resources/Public/Css/Basic.css',
@@ -27,12 +31,15 @@ $cssFiles = [
 	<title>IDK</title>
 	<meta name='viewport' content='width=device-width, initial-scale=1.0, user-scalable=no'>
 	<?php
-		echo combine_my_files($cssFiles, 'Temp/Css/', 'Game.min' . '.css', 'css', $debug);
-	?>
+        echo combine_my_files($cssFiles, 'Temp/Css/', 'Game.min' . '.css', 'css', $debug);
+    ?>
 </head>
 
 <body>
-	<!-- <div class='loaderbar'></div> -->
+	<div class='loaderBar'>
+        <div class="bar"></div>
+        <div class="text"></span></div>
+    </div>
 	<div class='loader'>
 		<div class='rect1'></div>
 		<div class='rect2'></div>
@@ -44,15 +51,16 @@ $cssFiles = [
 
 	<div class='fullscreen'></div>
 	<div class='game'>
-		<canvas id='gameCanvas'></canvas>
-		<canvas id='gameCanvas2'></canvas>
+		<canvas id='world'></canvas>
+		<canvas id='ui'></canvas>
 	</div>
+    <script src='Resources/Public/JavaScript/Lib/jquery-3.5.0.min.js'></script>
+    <script>
+        var playerGet = '<?php echo $_GET['player'] ?>';
+    </script>
+    <?php
+        echo combine_my_files($jsFiles, 'Temp/JavaScript/', 'Game.min' . '.js', 'js', $debug);
+    ?>
 </body>
-<script src='https://code.jquery.com/jquery-3.5.0.min.js'></script>
-<script>
-    var playerGet = '<?php echo $_GET['player']?>';
-</script>
-<?php
-	echo combine_my_files($jsFiles, 'Temp/JavaScript/', 'Game.min' . '.js', 'js', $debug);
-?>
+
 </html>

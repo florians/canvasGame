@@ -7,6 +7,9 @@ function combine_my_files($array_files, $destination_dir, $dest_file_name, $type
         foreach ($array_files as $file) {
             $content .= file_get_contents($file);
         }
+        if(!is_dir($destination_dir)){
+            mkdir($destination_dir, 0755, true);
+        }
         $new_file = fopen($destination_dir . $dest_file_name, "w");
         if ($type == 'js') {
             $content = '(function($) {' . $content . '})(jQuery)';
@@ -14,6 +17,7 @@ function combine_my_files($array_files, $destination_dir, $dest_file_name, $type
         if ($type == 'css') {
             $content = str_replace('; ', ';', str_replace(' }', '}', str_replace('{ ', '{', str_replace(array("\r\n", "\r", "\n", "\t", '  ', '    ', '    '), "", preg_replace('!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', $content)))));
         }
+
         fwrite($new_file, $content);
         fclose($new_file);
         return return_type($type, $destination_dir, $dest_file_name);

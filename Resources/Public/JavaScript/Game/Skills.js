@@ -2,16 +2,16 @@ class Skills{
     constructor(){
         this.skills = [];
     }
-    generate(result) {
+    set(result) {
         _game.loader.reset();
         _game.loader.addMax(result.length);
         _game.loader.addText('Loading skills...');
         for (let i = 0; i < result.length; i++) {
-            this.skills[result[i].uid] = this.set(result[i]);
+            this.skills[result[i].uid] = this.add(result[i]);
         }
         return this;
     }
-    set(result){
+    add(result){
         return new Skill(result);
     }
     get(id) {

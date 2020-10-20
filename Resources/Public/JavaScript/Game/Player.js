@@ -15,7 +15,7 @@ class Player {
         this.level = 0;
         this.stats = {};
     }
-    add(result) {
+    set(result) {
         this.setUid(result.uid);
         this.setName(result.name);
         this.setLevel(result.level);

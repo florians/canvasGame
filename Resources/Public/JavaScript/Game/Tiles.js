@@ -2,16 +2,16 @@ class Tiles {
     constructor(result) {
         this.tiles = [];
     }
-    generate(result) {
+    set(result) {
         _game.loader.reset();
         _game.loader.addMax(result.length);
         _game.loader.addText('Loading tiles...');
         for (let i = 0; i < result.length; i++) {
-            this.tiles[result[i].uid] = this.set(result[i]);
+            this.tiles[result[i].uid] = this.add(result[i]);
         }
         return this;
     }
-    set(result){
+    add(result){
         return new Tile(result);
     }
     get(id) {

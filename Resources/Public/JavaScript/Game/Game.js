@@ -1,10 +1,11 @@
 class Game {
     constructor() {
         this._tiles = new Tiles();
-        this._floorSettings = new FloorSettings();
+        // this._floorSettings = new FloorSettings();
+        this._floors = new Floors();
         this._skills = new Skills();
         this._player = new Player();
-        this.floor = null;
+
         this.enemy = [];
         this.delta = 0;
         this.raF = 0;
@@ -16,7 +17,7 @@ class Game {
     }
     preloader() {
         this._tiles.load(this);
-        this._floorSettings.load(this, 1);
+        this._floors.load(this, 1);
         this._skills.load(this);
         this._player.load(this, playerName);
         this._player.loadSkills(this, playerName);
@@ -30,17 +31,16 @@ class Game {
     preloaderResult(result) {
         for (let i = 0; i < result.length; i++) {
             if (result[i].name == "tiles") {
-                this._tiles.generate(result[i].data.result);
+                this._tiles.set(result[i].data.result);
             }
-            if (result[i].name == "floorSettings") {
-                this._floorSettings.add(result[i].data.result);
-                this.floor = new Floor(this._floorSettings.get(this.floorLevel));
+            if (result[i].name == "floors") {
+                this._floors.add(result[i].data.result);
             }
             if (result[i].name == "skills") {
-                this._skills.generate(result[i].data.result);
+                this._skills.set(result[i].data.result);
             }
             if (result[i].name == "player") {
-                this._player.add(result[i].data.result);
+                this._player.set(result[i].data.result);
             }
             if (result[i].name == "playerSkills") {
                 this._player.addSkills(this,result[i].data.result);
@@ -73,7 +73,7 @@ class Game {
         $('body').addClass('loading-done');
         this.stopGame = false;
         this.setCanvasSize();
-        // create ui, floor
+        // create ui
         this.ui = new Ui();
         this.ui.repaint = true;
         this.resize();
@@ -83,14 +83,14 @@ class Game {
         this.floorLevel = newFloor;
         $('body').removeClass('loading-done');
         this.stopGame = true;
-        if (!this._floorSettings.get(this.floorLevel)) {
-            this._floorSettings.load(this, this.floorLevel);
+        if (!this._floors.get(this.floorLevel)) {
+            this._floors.load(this, this.floorLevel);
         } else {
-            this.floor = new Floor(this._floorSettings.get(this.floorLevel));
+            this._floors.get(this.floorLevel).resetStart();
         }
     }
     draw() {
-        this.floor.draw();
+        this._floors.get(this.floorLevel).draw();
         if (this.ui.repaint == true) {
             this.ui.draw();
         }
@@ -104,7 +104,7 @@ class Game {
     resize() {
         this.setCanvasSize();
         this.ui.repaint = true;
-        this.floor.resize();
+        this._floors.get(this.floorLevel).resize();
         this._player.resize();
         if (this.stopGame == true) {
             this.draw();

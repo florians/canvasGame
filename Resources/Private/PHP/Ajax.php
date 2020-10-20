@@ -58,11 +58,11 @@ function getFloor($db, $level)
     $target_file = '../../Private/Floor/level_uid_' . $result[0]['uid'] . '.json';
     if (file_exists($target_file)) {
         $file = file_get_contents($target_file);
-        $result[0]['tile_json'] = $file;
+        $result[0]['tileJson'] = $file;
         $msg = 'Floor Level ' . $level . ' successfully loaded';
     } else {
-        $type = false;
-        $msg = 'Floor Level ' . $level . ' not available';
+        getFloor($db, 1);
+        exit;
     }
     returnJson($msg, $result[0], $type);
 

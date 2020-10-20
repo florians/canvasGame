@@ -12,9 +12,7 @@
 --   `startY` INT(10) NULL DEFAULT 0,
 --   `height` INT(10) NULL DEFAULT 0,
 --   `width` INT(10) NULL DEFAULT 0,
---   `endLink` INT(10) NULL DEFAULT NULL,
---   `tile_json` LONGTEXT NULL DEFAULT NULL,
---   `enemy_json` LONGTEXT NULL DEFAULT NULL,
+--   `tileJson` LONGTEXT NULL DEFAULT NULL,
 --   `deleted` TINYINT(1) NULL DEFAULT 0
 -- );
 

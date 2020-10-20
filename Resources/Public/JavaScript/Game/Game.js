@@ -2,8 +2,8 @@ class Game {
     constructor() {
         this._tiles = new Tiles();
         this._floorSettings = new FloorSettings();
+        this._skills = new Skills();
         this._player = new Player();
-        this._player.skills = [];
         this.floor = null;
         this.enemy = [];
         this.delta = 0;
@@ -17,12 +17,10 @@ class Game {
     preloader() {
         this._tiles.load(this);
         this._floorSettings.load(this, 1);
+        this._skills.load(this);
         this._player.load(this, playerName);
+        this._player.loadSkills(this, playerName);
 
-        // this.loader.add('data', 'skills', {
-        //     type: 'getSkills',
-        //     name: playerName
-        // });
         // give loader an object for calling functions
         this.loader.setObj(this);
         // calls _game.preloaderResult
@@ -32,39 +30,23 @@ class Game {
     preloaderResult(result) {
         for (let i = 0; i < result.length; i++) {
             if (result[i].name == "tiles") {
-                this._tiles.generateTiles(result[i].data.result);
+                this._tiles.generate(result[i].data.result);
             }
             if (result[i].name == "floorSettings") {
                 this._floorSettings.add(result[i].data.result);
                 this.floor = new Floor(this._floorSettings.get(this.floorLevel));
             }
+            if (result[i].name == "skills") {
+                this._skills.generate(result[i].data.result);
+            }
             if (result[i].name == "player") {
                 this._player.add(result[i].data.result);
             }
-            if (result[i].name == "skills") {
-                this.skills(result[i].data.result);
+            if (result[i].name == "playerSkills") {
+                this._player.addSkills(this,result[i].data.result);
             }
         }
         this.init();
-    }
-    skills(result) {
-        //this.loader.reset();
-        let skills = [];
-        if (result.length > 0) {
-            skills = result;
-        } else {
-            skills[0] = {
-                cost: '3',
-                level: '2',
-                name: 'Hit',
-                text: 'hit text',
-                turns: '0',
-                type: '4',
-                value: '2',
-            };
-        }
-        //this.loader.progressBar(100, 100);
-        this._player.skills = skills;
     }
 
     // this.animate freaks out otherwise

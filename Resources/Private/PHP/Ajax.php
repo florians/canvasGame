@@ -22,11 +22,8 @@ switch ($_POST['type']) {
     case 'getPlayer':
         getPlayer($database, $_POST['name']);
         break;
-    case 'getPlayer':
-        getPlayer($database, $_POST['name']);
-        break;
-    case 'getSkills':
-        getSkills($database, $_POST['name']);
+    case 'getPlayerSkills':
+        getPlayerSkills($database, $_POST['name']);
         break;
     case 'getAllSkills':
         getAllSkills($database);
@@ -153,27 +150,22 @@ function getPlayer($db, $name)
     returnJson($msg, $r, $success);
     //echo json_encode($result[0]);
 }
-function getSkills($db, $name)
+function getPlayerSkills($db, $name)
 {
-    $result = $db->select('player',
+    $result = $db->select('player_skills',
         [
-            '[>]player_skills' => ['player.uid' => 'player_uid'],
-            '[>]skills' => ['player_skills.skills_uid' => 'uid'],
+            '[>]player' => ['player_skills.player_uid' => 'uid'],
         ],
         [
-            'skills.name',
-            'skills.text',
-            'skills.level',
-            'skills.type ',
-            'skills.cost',
-            'skills.value',
-            'skills.turns',
+            'player_skills.player_uid',
+            'player_skills.skills_uid',
+            'player_skills.level',
+            'player_skills.exp ',
         ],
         [
             'AND' => [
                 'player.name' => $name,
                 'player.deleted' => 0,
-                'skills.deleted' => 0,
             ],
         ]
     );
@@ -187,7 +179,6 @@ function getSkills($db, $name)
         $msg = 'Default Skill for new Player';
     }
     returnJson($msg, $result, $success);
-    //echo json_encode($result);
 }
 function getAllSkills($db)
 {

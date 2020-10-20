@@ -73,7 +73,6 @@ CREATE TABLE IF NOT EXISTS `florian_game`.`skills` (
   `uid` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `name` VARCHAR(255) NOT NULL,
   `text` TEXT NOT NULL,
-  `level` INT(10) NULL DEFAULT 0,
   `type` INT(10) UNSIGNED NOT NULL,
   `cost` INT(10) NULL DEFAULT 0,
   `value` INT(10) NULL DEFAULT 0,
@@ -104,7 +103,9 @@ CREATE TABLE IF NOT EXISTS `florian_game`.`enemy_skills` (
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `florian_game`.`player_skills` (
   `player_uid` INT(10) UNSIGNED NOT NULL,
-  `skills_uid` INT(10) UNSIGNED NOT NULL
+  `skills_uid` INT(10) UNSIGNED NOT NULL,
+  `level` INT(10) UNSIGNED NOT NULL,
+  `exp` INT(10) UNSIGNED NOT NULL
 );
 
 -- -----------------------------------------------------

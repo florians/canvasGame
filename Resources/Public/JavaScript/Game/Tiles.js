@@ -2,7 +2,7 @@ class Tiles {
     constructor(result) {
         this.tiles = [];
     }
-    generateTiles(result) {
+    generate(result) {
         _game.loader.reset();
         _game.loader.addMax(result.length);
         _game.loader.addText('Loading tiles...');
@@ -17,7 +17,7 @@ class Tiles {
     get(id) {
         return this.tiles[id];
     }
-    load(game, level) {
+    load(game) {
         game.loader.add('data', 'tiles', {
             type: 'getAllTiles'
         });

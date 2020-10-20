@@ -10,16 +10,21 @@ class Player {
         this.y = 0;
         this.items = [];
         this.skills = [];
+        this.uid = 0;
         this.name = '';
         this.level = 0;
         this.stats = {};
     }
     add(result) {
+        this.setUid(result.uid);
         this.setName(result.name);
         this.setLevel(result.level);
         this.setStats(result.stats);
         this.setStat('hp.current', this.getStat('hp.max'));
         this.setStat('es.current', 0);
+    }
+    setUid(uid) {
+        this.uid = parseInt(uid);
     }
     setName(name) {
         this.name = name;
@@ -80,14 +85,17 @@ class Player {
             type: 'getPlayer',
             name: playerName
         });
-
-        this.loadSkills(game, playerName);
     }
     loadSkills(game, playerName) {
-        game.loader.add('data', 'skills', {
-            type: 'getSkills',
+        game.loader.add('data', 'playerSkills', {
+            type: 'getPlayerSkills',
             name: playerName
         });
+    }
+    addSkills(game,result){
+        for (let i = 0; i < result.length; i++) {
+            this.skills.push(game._skills.get(result[i]['skills_uid']));
+        }
     }
     // save player tp DB
     savePlayer() {

@@ -1,5 +1,4 @@
-const _storage = [], // stores everything fetched with ajax
-    gameBaseUrl = 'Resources/Public/Images/Floor/',
+const gameBaseUrl = 'Resources/Public/Images/Floor/',
     _ctxWorld = document.getElementById('world').getContext('2d'),
     _ctxUi = document.getElementById('ui').getContext('2d'),
     playerName = playerGet || prompt("Please enter your name");
@@ -7,17 +6,14 @@ const _storage = [], // stores everything fetched with ajax
 let showHitBox = false,
     // default start level
     floorLevel = 1,
-    _game = new Game();
+    _game = new Game(),
+
     keyPressed = {
         up: false,
         down: false,
         left: false,
         right: false
     },
-    // del after moving to promise
-    allTiles = [],
-    floorSettings = [],
-    //game = null,
     // animationframe fallbacks for diff browser
     myRequestAnimationFrame = window.requestAnimationFrame ||
     window.webkitRequestAnimationFrame ||

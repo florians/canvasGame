@@ -54,17 +54,17 @@ switch ($_POST['type']) {
 
 function getFloor($db, $level)
 {
-    $result = $db->select('floor', '*', ['deleted' => 0, 'level' => $level]);
-    $target_file = '../../Private/Floor/level_uid_' . $result[0]['uid'] . '.json';
+    $result = $db->select('floor', '*', ['deleted' => 0, 'level' => $level])[0];
+    $target_file = '../../Private/Floor/level_' . $result['uid'] . '.json';
     if (file_exists($target_file)) {
         $file = file_get_contents($target_file);
-        $result[0]['tileJson'] = $file;
+        $result['tileJson'] = $file;
         $msg = 'Floor Level ' . $level . ' successfully loaded';
     } else {
-        getFloor($db, 1);
-        exit;
+        $result = false;
+        $msg = 'Fallback Floor Level loaded';
     }
-    returnJson($msg, $result[0], $type);
+    returnJson($msg, $result, $success);
 
     //echo json_encode(['type' => $type, 'msg' => $msg, 'result' => $result[0]]);
 }
@@ -245,7 +245,7 @@ function saveFloor($db, $json)
             'uid' => $freeLevelCheck[0],
         ]);
         if ($freeLevelCheck[0]) {
-            $target_file = '../../Private/Floor/level_uid_' . $freeLevelCheck[0] . '.json';
+            $target_file = '../../Private/Floor/level_' . $freeLevelCheck[0] . '.json';
             $file = fopen($target_file, "w");
             fwrite($file, $tile_json);
             fclose($file);
@@ -267,7 +267,7 @@ function saveFloor($db, $json)
                 'width' => $width,
             ]);
             if ($db->id()) {
-                $target_file = '../../Private/Floor/level_uid_' . $db->id() . '.json';
+                $target_file = '../../Private/Floor/level_' . $db->id() . '.json';
                 $file = fopen($target_file, "w");
                 fwrite($file, $tile_json);
                 fclose($file);

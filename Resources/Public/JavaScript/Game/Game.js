@@ -1,26 +1,25 @@
 class Game {
     constructor() {
-        this._tiles = new Tiles();
-        // this._floorSettings = new FloorSettings();
-        this._floors = new Floors();
-        this._skills = new Skills();
-        this._player = new Player();
+        this._tiles = new Tiles(this);
+        this._floors = new Floors(this);
+        this._skills = new Skills(this);
+        this._player = new Player(this);
 
         this.enemy = [];
         this.delta = 0;
         this.raF = 0;
         this.stopGame = false;
         this.lastTimestamp = 0;
-        this.floorLevel = floorLevel;
+        //this.floorLevel = floorLevel;
         this.loader = new Loader();
         this.preloader();
     }
     preloader() {
-        this._tiles.load(this);
-        this._floors.load(this, 1);
-        this._skills.load(this);
-        this._player.load(this, playerName);
-        this._player.loadSkills(this, playerName);
+        this._tiles.load();
+        this._floors.load(1);
+        this._skills.load();
+        this._player.load(playerName);
+        this._player.loadSkills(playerName);
 
         // give loader an object for calling functions
         this.loader.setObj(this);
@@ -31,19 +30,19 @@ class Game {
     preloaderResult(result) {
         for (let i = 0; i < result.length; i++) {
             if (result[i].name == "tiles") {
-                this._tiles.set(result[i].data.result);
+                this._tiles.init(result[i].data.result);
             }
             if (result[i].name == "floors") {
-                this._floors.add(result[i].data.result);
+                this._floors.init(result[i].data.result);
             }
             if (result[i].name == "skills") {
-                this._skills.set(result[i].data.result);
+                this._skills.init(result[i].data.result);
             }
             if (result[i].name == "player") {
-                this._player.set(result[i].data.result);
+                this._player.init(result[i].data.result);
             }
             if (result[i].name == "playerSkills") {
-                this._player.addSkills(this,result[i].data.result);
+                this._player.initSkills(result[i].data.result);
             }
         }
         this.init();
@@ -79,18 +78,8 @@ class Game {
         this.resize();
         this.animate();
     }
-    newFloor(newFloor, reset = false) {
-        this.floorLevel = newFloor;
-        $('body').removeClass('loading-done');
-        this.stopGame = true;
-        if (!this._floors.get(this.floorLevel)) {
-            this._floors.load(this, this.floorLevel);
-        } else {
-            this._floors.get(this.floorLevel).resetStart();
-        }
-    }
     draw() {
-        this._floors.get(this.floorLevel).draw();
+        this._floors.draw();
         if (this.ui.repaint == true) {
             this.ui.draw();
         }
@@ -104,7 +93,7 @@ class Game {
     resize() {
         this.setCanvasSize();
         this.ui.repaint = true;
-        this._floors.get(this.floorLevel).resize();
+        this._floors.resize();
         this._player.resize();
         if (this.stopGame == true) {
             this.draw();

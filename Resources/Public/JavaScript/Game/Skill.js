@@ -10,59 +10,64 @@ class Skill {
         this.setUid(result.uid);
         this.setValue(result.value);
     }
-    setCost(cost) {
-        this.cost = cost;
+    /************************
+     ******** Getter ********
+     ************************/
+    getUid() {
+        return this.uid;
     }
     getCost() {
         return this.cost;
     }
-    setDeleted(deleted) {
-        this.deleted = deleted;
-    }
     getDeleted() {
         return this.deleted;
-    }
-    setLevel(level) {
-        this.level = level;
     }
     getLevel() {
         return this.level;
     }
-    setName(name) {
-        this.name = name;
-    }
     getName() {
         return this.name;
-    }
-    setText(text) {
-        this.text = text;
     }
     getText() {
         return this.text;
     }
-    setTurns(turns) {
-        this.turns = turns;
-    }
     getTurns() {
         return this.turns;
-    }
-    setType(type) {
-        this.type = type;
     }
     getType() {
         return this.type;
     }
+    getValue() {
+        return this.value;
+    }
+    /************************
+     ******** Setter ********
+     ************************/
     setUid(uid) {
         this.uid = uid;
     }
-    getUid() {
-        return this.uid;
+    setCost(cost) {
+        this.cost = cost;
+    }
+    setDeleted(deleted) {
+        this.deleted = deleted;
+    }
+    setLevel(level) {
+        this.level = level;
+    }
+    setName(name) {
+        this.name = name;
+    }
+    setText(text) {
+        this.text = text;
+    }
+    setTurns(turns) {
+        this.turns = turns;
+    }
+    setType(type) {
+        this.type = type;
     }
     setValue(value) {
         this.value = value;
     }
-    getValue() {
-        return this.value;
-    }
-
 }

@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS `florian_game`.`enemy_skills` (
 CREATE TABLE IF NOT EXISTS `florian_game`.`player_skills` (
   `player_uid` INT(10) UNSIGNED NOT NULL,
   `skills_uid` INT(10) UNSIGNED NOT NULL,
-  `level` INT(10) UNSIGNED NOT NULL,
+  `level` INT(10) UNSIGNED DEFAULT 1,
   `exp` INT(10) UNSIGNED NOT NULL
 );
 

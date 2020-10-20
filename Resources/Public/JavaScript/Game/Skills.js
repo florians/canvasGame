@@ -1,27 +1,41 @@
-class Skills{
-    constructor(){
+class Skills {
+    constructor(game) {
+        this.game = game;
         this.skills = [];
     }
-    set(result) {
-        _game.loader.reset();
-        _game.loader.addMax(result.length);
-        _game.loader.addText('Loading skills...');
+    /************************
+     **** Setup Loader ******
+     ************************/
+    load() {
+        this.game.loader.add('data', 'skills', {
+            type: 'getAllSkills'
+        });
+    }
+    /************************
+     ***** Loader init ******
+     ************************/
+    init(result) {
+        this.game.loader.reset();
+        this.game.loader.addMax(result.length);
+        this.game.loader.addText('Loading skills...');
         for (let i = 0; i < result.length; i++) {
             this.skills[result[i].uid] = this.add(result[i]);
         }
         return this;
     }
-    add(result){
-        return new Skill(result);
-    }
+    /************************
+     ******** Getter ********
+     ************************/
     get(id) {
         return this.skills[id];
     }
-    load(game) {
-        game.loader.add('data', 'skills', {
-            type: 'getAllSkills'
-        });
+    /************************
+     ***** Add Skill ********
+     ************************/
+    add(result) {
+        return new Skill(result);
     }
+
     // garbage collection
     // remove(id){
     // }

@@ -18,7 +18,6 @@ $jsFiles = [
     'Resources/Public/JavaScript/Game/Tile.js',
     'Resources/Public/JavaScript/Game/Skills.js',
     'Resources/Public/JavaScript/Game/Skill.js',
-    // 'Resources/Public/JavaScript/Game/FloorSettings.js',
     'Resources/Public/JavaScript/Game/Game.js',
     'Resources/Public/JavaScript/Game/Init.js',
 ];

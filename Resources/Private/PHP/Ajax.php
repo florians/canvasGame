@@ -7,17 +7,17 @@ switch ($_POST['type']) {
     case 'getFloor':
         getFloor($database, $_POST['level']);
         break;
-    case 'getAllTiles':
-        getAllTiles($database);
+    case 'getAllAssets':
+        getAllAssets($database);
         break;
-    case 'getTile':
-        getTile($database, $_POST['name']);
+    case 'getAssets':
+        getAssets($database, $_POST['name']);
         break;
     case 'getAllFloorLevels':
         getAllFloorLevels($database);
         break;
-    case 'getTileType':
-        getTileType($database);
+    case 'getAssetsType':
+        getAssetsType($database);
         break;
     case 'getPlayer':
         getPlayer($database, $_POST['name']);
@@ -39,12 +39,12 @@ switch ($_POST['type']) {
     case 'saveFloor':
         saveFloor($database, $_POST['json']);
         break;
-    case 'saveTile':
-        saveTile($database, $_POST['json'], $_FILES['file']);
+    case 'saveAssets':
+        saveAssets($database, $_POST['json'], $_FILES['file']);
         break;
     // delete
-    case 'delTile':
-        delTile($database, $_POST['name']);
+    case 'delAssets':
+        delAssets($database, $_POST['name']);
         break;
     default:
         print_r($_POST);
@@ -58,7 +58,7 @@ function getFloor($db, $level)
     $target_file = '../../Private/Floor/level_' . $result['uid'] . '.json';
     if (file_exists($target_file)) {
         $file = file_get_contents($target_file);
-        $result['tileJson'] = $file;
+        $result['assetsJson'] = $file;
         $msg = 'Floor Level ' . $level . ' successfully loaded';
     } else {
         $result = false;
@@ -68,56 +68,56 @@ function getFloor($db, $level)
 
     //echo json_encode(['type' => $type, 'msg' => $msg, 'result' => $result[0]]);
 }
-function getAllTiles($db)
+function getAllAssets($db)
 {
-    $result = $db->select('tile',
+    $result = $db->select('assets',
         [
-            '[>]tile_type' => ['tile.type' => 'uid'],
+            '[>]assets_type' => ['assets.type' => 'uid'],
         ],
         [
-            'tile.uid',
-            'tile.sorting',
-            'tile.name',
-            'tile.source',
-            'tile.collision',
-            'tile_type.name(type)',
-            'tile_type.factor(factor)',
+            'assets.uid',
+            'assets.sorting',
+            'assets.name',
+            'assets.source',
+            'assets.collision',
+            'assets_type.name(type)',
+            'assets_type.factor(factor)',
         ],
         [
-            'tile.deleted' => 0,
+            'assets.deleted' => 0,
             'ORDER' => [
-                'tile.sorting',
-                'tile_type.name',
+                'assets.sorting',
+                'assets_type.name',
             ],
         ]
     );
     if (count($result)) {
-        $msg = 'Tiles loaded';
+        $msg = 'Assets loaded';
     } else {
         $success = false;
-        $msg = 'no Tiles found';
+        $msg = 'no Assets found';
     }
     returnJson($msg, $result, $success);
     //echo json_encode(['type' => $success, 'msg' => $msg, 'result' => $result]);
 
 }
-function getTile($db, $name)
+function getAsset($db, $name)
 {
-    $result = $db->select('tile',
+    $result = $db->select('assets',
         [
-            '[>]tile_type' => ['tile.type' => 'uid'],
+            '[>]assets_type' => ['assets.type' => 'uid'],
         ],
         [
-            'tile.name',
-            'tile.source',
-            'tile.collision',
-            'tile_type.name(type)',
-            'tile_type.factor(factor)',
+            'assets.name',
+            'assets.source',
+            'assets.collision',
+            'assets_type.name(type)',
+            'assets_type.factor(factor)',
         ],
         [
             'AND' => [
-                'tile.name' => $name,
-                'tile.deleted' => 0,
+                'assets.name' => $name,
+                'assets.deleted' => 0,
             ],
         ]
     );
@@ -130,9 +130,9 @@ function getAllFloorLevels($db)
     $msg = 'Floors loaded';
     returnJson($msg, $result, $success);
 }
-function getTileType($db)
+function getAssetsType($db)
 {
-    $result = $db->select('tile_type', '*', ['deleted' => 0]);
+    $result = $db->select('assets_type', '*', ['deleted' => 0]);
     echo json_encode($result);
 }
 function getPlayer($db, $name)
@@ -232,7 +232,7 @@ function saveFloor($db, $json)
     $startY = $jsonObj->{'startY'};
     $height = $jsonObj->{'height'};
     $width = $jsonObj->{'width'};
-    $tile_json = json_encode($jsonObj->{'tiles'});
+    $assetsJson = json_encode($jsonObj->{'assets'});
 
     $freeLevelCheck = $db->select('floor', 'uid', ['deleted' => 0, 'level' => $level]);
     // update
@@ -249,7 +249,7 @@ function saveFloor($db, $json)
         if ($freeLevelCheck[0]) {
             $target_file = '../../Private/Floor/level_' . $freeLevelCheck[0] . '.json';
             $file = fopen($target_file, "w");
-            fwrite($file, $tile_json);
+            fwrite($file, $assetsJson);
             fclose($file);
         }
         $type = 'success';
@@ -271,7 +271,7 @@ function saveFloor($db, $json)
             if ($db->id()) {
                 $target_file = '../../Private/Floor/level_' . $db->id() . '.json';
                 $file = fopen($target_file, "w");
-                fwrite($file, $tile_json);
+                fwrite($file, $assetsJson);
                 fclose($file);
             }
             //echo $db->id().' is a new entry!';
@@ -285,7 +285,7 @@ function saveFloor($db, $json)
     echo json_encode(['type' => $type, 'msg' => $msg]);
 }
 
-function saveTile($db, $json, $file)
+function saveAssets($db, $json, $file)
 {
     $allowedTypes = array(IMAGETYPE_PNG, IMAGETYPE_JPEG, IMAGETYPE_GIF);
     $jsonObj = json_decode($json);
@@ -295,18 +295,18 @@ function saveTile($db, $json, $file)
     $collision = $jsonObj->{'collision'};
     $type = $jsonObj->{'type'};
 
-    $dbTypeUid = $db->select('tile_type', 'uid', ['deleted' => 0, 'name' => $type]);
-    $selectByNameUid = $db->select('tile', '*', ['deleted' => 0, 'name' => $name]);
+    $dbTypeUid = $db->select('assets_type', 'uid', ['deleted' => 0, 'name' => $type]);
+    $selectByNameUid = $db->select('assets', '*', ['deleted' => 0, 'name' => $name]);
 
     if ($dbTypeUid[0] && $selectByNameUid[0] == '') {
-        $sorting = $db->select('tile', 'sorting', ['type' => $dbTypeUid[0], 'ORDER' => ['sorting' => 'DESC'], 'LIMIT' => 1]);
+        $sorting = $db->select('assets', 'sorting', ['type' => $dbTypeUid[0], 'ORDER' => ['sorting' => 'DESC'], 'LIMIT' => 1]);
         $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
         $target_file = '../../Public/Images/Floor/' . $type . '/' . $source . '.' . $ext;
         if (!in_array(exif_imagetype($file['tmp_name']), $allowedTypes)) {
             $type = 'error';
             $msg = mime_content_type($file['tmp_name']) . ' format is not allowed';
         } else {
-            $db->insert('tile', [
+            $db->insert('assets', [
                 'name' => $name,
                 'source' => $source . '.' . $ext,
                 'collision' => $collision,
@@ -315,7 +315,7 @@ function saveTile($db, $json, $file)
             ]);
             move_uploaded_file($file["tmp_name"], $target_file);
             $type = 'success';
-            $msg = 'Tile ' . $name . ' was saved!';
+            $msg = 'Assets ' . $name . ' was saved!';
         }
     }
     // if already in db
@@ -330,7 +330,7 @@ function saveTile($db, $json, $file)
         } else {
             $source = $selectByNameUid[0]['source'];
         }
-        $db->update('tile', [
+        $db->update('assets', [
             'name' => $name,
             'source' => $source,
             'collision' => $collision,
@@ -339,21 +339,21 @@ function saveTile($db, $json, $file)
             'uid' => $selectByNameUid[0]['uid'],
         ]);
         $type = 'success';
-        $msg = 'Tile ' . $name . ' was saved!';
+        $msg = 'Assets ' . $name . ' was saved!';
     }
     echo json_encode(['type' => $type, 'msg' => $msg]);
 }
 
-function delTile($db, $name)
+function delAssets($db, $name)
 {
-    $db->update('tile',
+    $db->update('assets',
         ['deleted' => 1],
         [
             'name' => $name,
         ]
     );
     $type = 'success';
-    $msg = 'Tile removed';
+    $msg = 'Assets removed';
     echo json_encode(['type' => $type, 'msg' => $msg]);
 }
 

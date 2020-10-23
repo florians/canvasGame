@@ -1,25 +1,24 @@
--- DROP DATABASE `Game`;
+assets-- DROP DATABASE `Game`;
 -- CREATE DATABASE IF NOT EXISTS `Game`;
 -- USE `Game`;
 
 -- -----------------------------------------------------
 -- Table `game`.`floor`
 -- -----------------------------------------------------
--- CREATE TABLE IF NOT EXISTS `Game`.`floor` (
---   `uid` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
---   `level` INT(10) NULL DEFAULT 0,
---   `startX` INT(10) NULL DEFAULT 0,
---   `startY` INT(10) NULL DEFAULT 0,
---   `height` INT(10) NULL DEFAULT 0,
---   `width` INT(10) NULL DEFAULT 0,
---   `tileJson` LONGTEXT NULL DEFAULT NULL,
---   `deleted` TINYINT(1) NULL DEFAULT 0
--- );
+CREATE TABLE IF NOT EXISTS `Game`.`floor` (
+  `uid` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `level` INT(10) NULL DEFAULT 0,
+  `startX` INT(10) NULL DEFAULT 0,
+  `startY` INT(10) NULL DEFAULT 0,
+  `height` INT(10) NULL DEFAULT 0,
+  `width` INT(10) NULL DEFAULT 0,
+  `deleted` TINYINT(1) NULL DEFAULT 0
+);
 
 -- -----------------------------------------------------
--- Table `game`.`tile`
+-- Table `game`.`assets`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `florian_game`.`tile` (
+CREATE TABLE IF NOT EXISTS `florian_game`.`assets` (
   `uid` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `sorting` INT(10) NULL DEFAULT 0,
   `name` VARCHAR(255) NOT NULL,
@@ -30,9 +29,9 @@ CREATE TABLE IF NOT EXISTS `florian_game`.`tile` (
   );
 
 -- -----------------------------------------------------
--- Table `florian_game`.`tile_type`
+-- Table `florian_game`.`assets_type`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `florian_game`.`tile_type` (
+CREATE TABLE IF NOT EXISTS `florian_game`.`assets_type` (
   `uid` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `name` VARCHAR(255) NOT NULL,
   `factor` FLOAT(2) NOT NULL,
@@ -122,7 +121,7 @@ CREATE TABLE IF NOT EXISTS `florian_game`.`passives` (
 -- -----------------------------------------------------
 -- set FOREIGN KEY
 -- -----------------------------------------------------
-ALTER TABLE `tile` ADD FOREIGN KEY (`type`) REFERENCES `florian_game`.`tile_type` (`uid`);
+ALTER TABLE `assets` ADD FOREIGN KEY (`type`) REFERENCES `florian_game`.`assets_type` (`uid`);
 
 ALTER TABLE `skills` ADD FOREIGN KEY (`type`) REFERENCES `florian_game`.`skills_type` (`uid`);
 
@@ -137,54 +136,8 @@ ALTER TABLE `player_skills` ADD FOREIGN KEY (`skills_uid`) REFERENCES `florian_g
 -- -----------------------------------------------------
 -- Fill DB with basic info
 -- -----------------------------------------------------
-INSERT INTO `tile_type` (`name`,`factor`)
-VALUES
-("start",1),
-("end",1),
-("water",0),
-("gras",1),
-("forest",0.8),
-("snow",0.5),
-("sand",0.6),
-("mountain",0.6),
-("item",1),
-("trap",1),
-("enemy",1);
+INSERT INTO `tile_type` VALUES (1,'start',1,0),(2,'portal',1,0),(3,'water',0,0),(4,'grass',1,0),(5,'forest',0.8,0),(6,'snow',0.5,0),(7,'sand',0.6,0),(8,'mountain',0.6,0),(9,'item',1,0),(10,'trap',1,0),(11,'enemy',1,0);
 
-INSERT INTO `skills_type` (`name`, `description`)
-VALUES
-("dot","Damage over Time"),
-("hot","Heal over Time"),
-("heal","Heal"),
-("dmg","Damage"),
-("buff","Buff"),
-("debuff","Debuff"),
-("sacrifice ","Sacrifice");
+INSERT INTO `skills_type` VALUES (1,'dot','Damage over Time',0),(2,'hot','Heal over Time',0),(3,'heal','Heal',0),(4,'dmg','Damage',0),(5,'buff','Buff',0),(6,'debuff','Debuff',0),(7,'sacrifice ','Sacrifice',0);
 
-INSERT INTO `tile` (`sorting`,`name`,`type`,`source`,`collision`,`deleted`)
-VALUES
-(1,'start',1,'start.jpg','0',0),
-(50,'end',2,'end.jpg','0',0),
-(100,'water',3,'water.jpg','1',0),
-(200,'gras',4,'gras.jpg','0',0),
-(210,'gras_wlb',4,'gras_wlb.jpg','0,0,1,0',0),
-(211,'gras_wlt',4,'gras_wlt.jpg','1,0,0,0',0),
-(212,'gras_wrb',4,'gras_wrb.jpg','0,0,0,1',0),
-(213,'gras_wrt',4,'gras_wrt.jpg','0,1,0,0',0),
-(220,'gras_gl',4,'gras_l.jpg','0,1,0,1',0),
-(221,'gras_gr',4,'gras_r.jpg','1,0,1,0',0),
-(230,'gras_gt',4,'gras_t.jpg','0,0,1,1',0),
-(231,'gras_gb',4,'gras_b.jpg','1,1,0,0',0),
-(240,'gras_glb',4,'gras_lb.jpg','1,1,0,1',0),
-(241,'gras_glt',4,'gras_lt.jpg','0,1,1,1',0),
-(242,'gras_grb',4,'gras_rb.jpg','1,1,1,0',0),
-(243,'gras_grt',4,'gras_rt.jpg','1,0,1,1',0),
-(300,'forest',5,'forest.jpg','0',0),
-(400,'snow',6,'snow.jpg','0',0),
-(401,'snow2',6,'snow2.jpg','0',0),
-(500,'sand',7,'sand.jpg','0',0),
-(600,'mountain',8,'mountain.jpg','0',0),
-(1000,'hp',9,'hp.png','0',0),
-(1010,'mp',9,'mp.png','0',1),
-(2000,'trap',10,'trap.png','0',0),
-(3000,'enemy',11,'enemy.png','0',0);
+INSERT INTO `assets` VALUES (1,1,'start','start.jpg','0',1,0),(2,50,'portal','portal.jpg','0',2,0),(3,100,'water','water.jpg','1,1,1,1',3,0),(4,200,'grass','grass.jpg','0',4,0),(5,210,'grass_wlb','grass_wlb','0,0,1,0',4,0),(6,211,'grass_wlt','grass_wlt.jpg','1,0,0,0',4,0),(7,212,'grass_wrb','grass_wrb.jpg','0,0,0,1',4,0),(8,213,'grass_wrt','grass_wrt.jpg','0,1,0,0',4,0),(9,220,'grass_gl','grass_l.jpg','0,1,0,1',4,0),(10,221,'grass_gr','grass_r.jpg','1,0,1,0',4,0),(11,230,'grass_gt','grass_t.jpg','0,0,1,1',4,0),(12,231,'grass_gb','grass_b.jpg','1,1,0,0',4,0),(13,240,'grass_lb','grass_lb.jpg','1,1,0,1',4,0),(14,241,'grass_lt','grass_lt.jpg','0,1,1,1',4,0),(15,242,'grass_rb','grass_rb.jpg','1,1,1,0',4,0),(16,243,'grass_rt','grass_rt.jpg','1,0,1,1',4,0),(17,300,'forest','forest.jpg','0',5,0),(18,400,'snow','snow.jpg','0',6,0),(19,401,'snow2','snow2.jpg','0',6,0),(20,500,'sand','sand.jpg','0',7,0),(21,600,'mountain','mountain.jpg','0',8,0),(22,1000,'hp','hp.png','0',9,0),(24,2000,'trap','trap.png','0',10,0),(25,3000,'enemy','enemy.png','0',11,0),(30,1001,'key','key.png','0',9,0),(31,1002,'lock','lock.png','0',9,0),(37,1003,'es','es.png','0',9,0);

@@ -1,4 +1,4 @@
-class Tile {
+class Asset {
     constructor(result) {
         this.setUid(result.uid);
         this.setCollision(result.collision);

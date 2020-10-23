@@ -41,8 +41,8 @@ class Floor {
         this.setLevel(result.level);
         this.setStart('x', result.startX);
         this.setStart('y', result.startY);
-        this.setTileJson(result.tileJson);
-        this.tilesLayer = this.getTileJson();
+        this.setAssetsJson(result.assetsJson);
+        this.assetsLayer = this.getAssetsJson();
 
         // reset the val of stageX/Y
         this.resetStageX();
@@ -61,8 +61,8 @@ class Floor {
     getLevel() {
         return this.level;
     }
-    getTileJson() {
-        return this.tileJson;
+    getAssetsJson() {
+        return this.assetsJson;
     }
     getStart(dir) {
         return this.start[dir];
@@ -91,8 +91,8 @@ class Floor {
     setLevel(level) {
         this.level = parseInt(level);
     }
-    setTileJson(tileJson) {
-        this.tileJson = JSON.parse(tileJson);
+    setAssetsJson(assetsJson) {
+        this.assetsJson = JSON.parse(assetsJson);
     }
     setStart(dir, val) {
         this.start[dir] = parseInt(val);
@@ -221,28 +221,28 @@ class Floor {
                     }
                 }
             }
-            // prepare tiles layer
+            // prepare assets layer
             for (let r = 0; r < this.getHeight(); r++) {
                 b = Math.floor(this.stageY + (this.partH * r));
                 for (let c = 0; c < this.getWidth(); c++) {
                     a = Math.floor(this.stageX + (this.partW * c));
-                    if (this.tilesLayer[r][c].uid) {
-                        this.tilesLayer[r][c].x = a;
-                        this.tilesLayer[r][c].y = b;
-                        this.tilesLayer[r][c].render = true;
-                        let tile = _game._tiles.get(this.tilesLayer[r][c].uid);
-                        //let settings = _game._allTiles[this.tilesLayer[r][c].uid].settings;
-                        // this.tilesLayer[r][c].collision = settings.collision.split(',').map(Number);
-                        // this.tilesLayer[r][c].type = settings.type;
-                        // this.tilesLayer[r][c].factor = settings.factor;
-                        this.tilesLayer[r][c].collision = tile.getCollision();
-                        this.tilesLayer[r][c].type = tile.getType();
-                        this.tilesLayer[r][c].factor = tile.getFactor();
-                        this.tilesLayer[r][c].posX = c;
-                        this.tilesLayer[r][c].posY = r;
-                        this.changeCollisionLayer(r, c, this.tilesLayer[r][c]);
+                    if (this.assetsLayer[r][c].uid) {
+                        this.assetsLayer[r][c].x = a;
+                        this.assetsLayer[r][c].y = b;
+                        this.assetsLayer[r][c].render = true;
+                        let asset = _game._assets.get(this.assetsLayer[r][c].uid);
+                        //let settings = _game._allAssets[this.assetsLayer[r][c].uid].settings;
+                        // this.assetsLayer[r][c].collision = settings.collision.split(',').map(Number);
+                        // this.assetsLayer[r][c].type = settings.type;
+                        // this.assetsLayer[r][c].factor = settings.factor;
+                        this.assetsLayer[r][c].collision = asset.getCollision();
+                        this.assetsLayer[r][c].type = asset.getType();
+                        this.assetsLayer[r][c].factor = asset.getFactor();
+                        this.assetsLayer[r][c].posX = c;
+                        this.assetsLayer[r][c].posY = r;
+                        this.changeCollisionLayer(r, c, this.assetsLayer[r][c]);
                     } else {
-                        this.tilesLayer[r][c] = {
+                        this.assetsLayer[r][c] = {
                             x: a,
                             y: b,
                             collision: [1],
@@ -250,7 +250,7 @@ class Floor {
                             posX: c,
                             posY: r
                         }
-                        this.changeCollisionLayer(r, c, this.tilesLayer[r][c]);
+                        this.changeCollisionLayer(r, c, this.assetsLayer[r][c]);
                     }
                     if (this.isInView(a, b)) {
                         this.createBlocks(r, c);
@@ -305,25 +305,25 @@ class Floor {
         }
     }
     createBlocks(r, c) {
-        if (this.tilesLayer[r][c].render) {
+        if (this.assetsLayer[r][c].render) {
             _ctxWorld.drawImage(
-                _game._tiles.get(this.tilesLayer[r][c].uid).getImage(),
-                this.tilesLayer[r][c].x,
-                this.tilesLayer[r][c].y,
+                _game._assets.get(this.assetsLayer[r][c].uid).getImage(),
+                this.assetsLayer[r][c].x,
+                this.assetsLayer[r][c].y,
                 this.partW,
                 this.partH
             );
-            if (this.tilesLayer[r][c].overlay) {
+            if (this.assetsLayer[r][c].overlay) {
                 _ctxWorld.drawImage(
-                    _game._tiles.get(this.tilesLayer[r][c].overlay).getImage(),
-                    this.tilesLayer[r][c].x,
-                    this.tilesLayer[r][c].y,
+                    _game._assets.get(this.assetsLayer[r][c].overlay).getImage(),
+                    this.assetsLayer[r][c].x,
+                    this.assetsLayer[r][c].y,
                     this.partW,
                     this.partH
                 );
-                if (_game._tiles.get(this.tilesLayer[r][c].overlay).getName() == 'lock') {
-                    this.tilesLayer[r][c].collision = [0, 1, 0, 1];
-                    this.changeCollisionLayer(r, c, this.tilesLayer[r][c]);
+                if (_game._assets.get(this.assetsLayer[r][c].overlay).getName() == 'lock') {
+                    this.assetsLayer[r][c].collision = [0, 1, 0, 1];
+                    this.changeCollisionLayer(r, c, this.assetsLayer[r][c]);
                 }
             }
         }
@@ -332,8 +332,8 @@ class Floor {
             for (let a = 0; a < this.collisionLayerSize; a++) {
                 for (let b = 0; b < this.collisionLayerSize; b++) {
                     if (
-                        this.tilesLayer[r][c].collision.length > 1 &&
-                        this.tilesLayer[r][c].collision[hitBoxCounter] == 1
+                        this.assetsLayer[r][c].collision.length > 1 &&
+                        this.assetsLayer[r][c].collision[hitBoxCounter] == 1
                     ) {
                         _ctxWorld.fillStyle = 'rgb(0,255,0)';
                         _ctxWorld.fillRect(
@@ -349,31 +349,31 @@ class Floor {
         }
     }
 
-    handleOverlay(elementTileLayer) {
-        let overlay = elementTileLayer.overlay;
+    handleOverlay(elementAssetsLayer) {
+        let overlay = elementAssetsLayer.overlay;
         let itemWasUsed = false;
-        if (_game._tiles.get(overlay).getName() == 'hp' || _game._tiles.get(overlay).getName() == 'es') {
-            itemWasUsed = _game.ui.addStat('_player', _game._tiles.get(overlay).getName());
+        if (_game._assets.get(overlay).getName() == 'hp' || _game._assets.get(overlay).getName() == 'es') {
+            itemWasUsed = _game.ui.addStat('_player', _game._assets.get(overlay).getName());
         }
-        if (_game._tiles.get(overlay).getName() == 'key') {
+        if (_game._assets.get(overlay).getName() == 'key') {
             if (!_game._player.items['key']) {
                 _game.ui.addItem('_player', 'key', overlay);
                 itemWasUsed = true;
             }
         }
-        if (_game._tiles.get(overlay).getName() == 'lock') {
+        if (_game._assets.get(overlay).getName() == 'lock') {
             if (_game._player.items['key']) {
-                elementTileLayer.collision = [0];
-                this.changeCollisionLayer(elementTileLayer.posY, elementTileLayer.posX, elementTileLayer);
+                elementAssetsLayer.collision = [0];
+                this.changeCollisionLayer(elementAssetsLayer.posY, elementAssetsLayer.posX, elementAssetsLayer);
                 //_game.ui.removeItem('_player', 'key');
                 itemWasUsed = true;
             }
         }
-        if (_game._tiles.get(overlay).getName() == 'trap') {
+        if (_game._assets.get(overlay).getName() == 'trap') {
             _game.ui.removeStat('_player', 'hp');
             itemWasUsed = true;
         }
-        if (_game._tiles.get(overlay).getName() == 'enemy') {
+        if (_game._assets.get(overlay).getName() == 'enemy') {
             _game.stopGame = true;
             _game.battle = new Battle();
             _game.ui.draw();
@@ -381,7 +381,7 @@ class Floor {
         }
         // remove overlay
         if (itemWasUsed == true) {
-            elementTileLayer.overlay = '';
+            elementAssetsLayer.overlay = '';
         }
     }
     collision() {
@@ -397,17 +397,17 @@ class Floor {
             dx = 0,
             dy = 0,
             step = this.steps * factor,
-            elementTileLayer = this.tilesLayer[Math.floor(playerY / this.collisionLayerSize)][Math.floor(playerX / this.collisionLayerSize)];
+            elementAssetsLayer = this.assetsLayer[Math.floor(playerY / this.collisionLayerSize)][Math.floor(playerX / this.collisionLayerSize)];
 
         if (type == 'portal') {
-            if (elementTileLayer.level) {
+            if (elementAssetsLayer.level) {
                 _game._player.savePlayer();
-                _game._floors.newFloor(elementTileLayer.level);
+                _game._floors.newFloor(elementAssetsLayer.level);
                 _game.loader.run();
             }
         }
-        if (elementTileLayer.overlay) {
-            this.handleOverlay(elementTileLayer);
+        if (elementAssetsLayer.overlay) {
+            this.handleOverlay(elementAssetsLayer);
         }
         if (keyboardHandler.get('up') && !keyboardHandler.get('down')) {
             dy = Math.floor(-step * _game.delta * 100) / 100;

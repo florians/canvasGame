@@ -1,7 +1,7 @@
 class Game {
     constructor() {
         this.loader = new Loader(this);
-        this._tiles = new Tiles(this);
+        this._assets = new Assets(this);
         this._floors = new Floors(this);
         this._skills = new Skills(this);
         this._player = new Player(this);
@@ -18,7 +18,7 @@ class Game {
      **** Setup Loader ******
      ************************/
     preloader() {
-        this._tiles.load();
+        this._assets.load();
         this._floors.load(1);
         this._skills.load();
         this._player.load(playerName);
@@ -33,8 +33,8 @@ class Game {
      ************************/
     preloaderResult(result) {
         for (let i = 0; i < result.length; i++) {
-            if (result[i].name == "tiles") {
-                this._tiles.init(result[i].data.result);
+            if (result[i].name == "assets") {
+                this._assets.init(result[i].data.result);
             }
             if (result[i].name == "floors") {
                 this._floors.init(result[i].data.result);

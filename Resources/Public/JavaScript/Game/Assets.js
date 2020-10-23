@@ -1,14 +1,14 @@
-class Tiles {
+class Assets {
     constructor(game) {
         this.game = game;
-        this.tiles = [];
+        this.assets = [];
     }
     /************************
      **** Setup Loader ******
      ************************/
     load() {
-        this.game.loader.add('data', 'tiles', {
-            type: 'getAllTiles'
+        this.game.loader.add('data', 'assets', {
+            type: 'getAllAssets'
         });
     }
     /************************
@@ -17,9 +17,9 @@ class Tiles {
     init(result) {
         this.game.loader.reset();
         this.game.loader.addMax(result.length);
-        this.game.loader.addText('Loading tiles...');
+        this.game.loader.addText('Loading assets...');
         for (let i = 0; i < result.length; i++) {
-            this.tiles[result[i].uid] = this.add(result[i]);
+            this.assets[result[i].uid] = this.add(result[i]);
         }
         return this;
     }
@@ -27,13 +27,13 @@ class Tiles {
      ******** Getter ********
      ************************/
     get(id) {
-        return this.tiles[id];
+        return this.assets[id];
     }
     /************************
      ****** Add Tile ********
      ************************/
     add(result) {
-        return new Tile(result);
+        return new Asset(result);
     }
 
     // garbage collection

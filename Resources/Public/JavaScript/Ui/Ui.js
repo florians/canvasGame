@@ -71,7 +71,7 @@ class Ui{
     }
     addItem(target, type, uid) {
         this.repaint = true;
-        let item = _game._tiles.get(uid);
+        let item = _game._assets.get(uid);
         _game[target].items[type] = item;
     }
     removeItem(target, type, uid) {

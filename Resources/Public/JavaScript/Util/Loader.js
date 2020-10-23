@@ -1,12 +1,12 @@
 class Loader {
-    constructor() {
+    constructor(obj) {
         this.promises = [];
         this.progress = 0;
         this.max = 0;
         this.step = 0;
         this.txt = '';
         this.ajaxHandler = new AjaxHandler();
-        this.obj = {};
+        this.obj = obj;
     }
     clear() {
         this.promises = [];
@@ -19,13 +19,16 @@ class Loader {
             this.promises.push(this.ajaxHandler.getFile(name, params));
         }
     }
+    getObj() {
+        return this.obj;
+    }
     setObj(obj) {
         this.obj = obj;
     }
     run() {
         if (this.promises) {
             Promise.all(this.promises).then((result) => {
-                this.obj.preloaderResult(result);
+                this.getObj().preloaderResult(result);
             }).then((result) => {
                 this.clear();
             }).catch((error) => {

@@ -167,12 +167,12 @@ class Floor {
         if (this.getOldStageOffset('x') == 0) {
             this.resetStageX();
         } else {
-            this.setSage('x', this.getOldStageOffset('x'));
+            this.setStage('x', this.getOldStageOffset('x'));
         }
         if (this.getOldStageOffset('y') == 0) {
             this.resetStageY();
         } else {
-            this.setSage('y', this.getOldStageOffset('y'));
+            this.setStage('y', this.getOldStageOffset('y'));
         }
         this.setStageCenter();
         this.resetOffset()

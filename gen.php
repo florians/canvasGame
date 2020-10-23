@@ -9,8 +9,8 @@ if ($_GET && $_GET['p']) {
     $page = 'floor';
 }
 $jsFiles = [
-    'Resources/Public/JavaScript/Util/Ajax.js',
-    'Resources/Public/JavaScript/Gen/' . ucFirst($page) . '.js'
+    'Resources/Public/JavaScript/Util',
+    'Resources/Public/JavaScript/Gen/' . ucFirst($page)
 ];
 $cssFiles = [
     'Resources/Public/Css/Basic.css',

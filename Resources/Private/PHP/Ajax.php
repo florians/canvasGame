@@ -126,7 +126,9 @@ function getTile($db, $name)
 }
 function getAllFloorLevels($db)
 {
-    echo json_encode($db->select('floor', 'level', ['deleted' => 0, 'ORDER' => 'level']));
+    $result = $db->select('floor', 'level', ['deleted' => 0, 'ORDER' => 'level']);
+    $msg = 'Floors loaded';
+    returnJson($msg, $result, $success);
 }
 function getTileType($db)
 {

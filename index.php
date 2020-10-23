@@ -2,9 +2,7 @@
 $debug = true; //$_GET['debug'];
 include_once 'Resources/Private/PHP/Util.php';
 $jsFiles = [
-    'Resources/Public/JavaScript/Lib/virtualjoystick.js',
-    'Resources/Public/JavaScript/Util/AjaxHandler.js',
-    'Resources/Public/JavaScript/Util/Loader.js',
+    'Resources/Public/JavaScript/Util/',
     'Resources/Public/JavaScript/Ui/Ui.js',
     'Resources/Public/JavaScript/Control/Fullscreen.js',
     'Resources/Public/JavaScript/Control/Joystick.js',
@@ -12,6 +10,7 @@ $jsFiles = [
     'Resources/Public/JavaScript/Game/Floors.js',
     'Resources/Public/JavaScript/Game/Floor.js',
     'Resources/Public/JavaScript/Game/Player.js',
+    'Resources/Public/JavaScript/Game/Enemies.js',
     'Resources/Public/JavaScript/Game/Enemy.js',
     'Resources/Public/JavaScript/Game/Battle.js',
     'Resources/Public/JavaScript/Game/Tiles.js',
@@ -57,6 +56,7 @@ $cssFiles = [
 		<canvas id='ui'></canvas>
 	</div>
     <script src='Resources/Public/JavaScript/Lib/jquery-3.5.0.min.js'></script>
+    <script src='Resources/Public/JavaScript/Lib/virtualjoystick.js'></script>
     <script>
         var playerGet = '<?php echo $_GET['player'] ?>';
     </script>

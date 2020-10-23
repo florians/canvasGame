@@ -1,5 +1,6 @@
 class Game {
     constructor() {
+        this.loader = new Loader(this);
         this._tiles = new Tiles(this);
         this._floors = new Floors(this);
         this._skills = new Skills(this);
@@ -10,23 +11,26 @@ class Game {
         this.raF = 0;
         this.stopGame = false;
         this.lastTimestamp = 0;
-        //this.floorLevel = floorLevel;
-        this.loader = new Loader();
+
         this.preloader();
     }
+    /************************
+     **** Setup Loader ******
+     ************************/
     preloader() {
         this._tiles.load();
         this._floors.load(1);
         this._skills.load();
         this._player.load(playerName);
         this._player.loadSkills(playerName);
-
         // give loader an object for calling functions
         this.loader.setObj(this);
         // calls _game.preloaderResult
         this.loader.run();
     }
-    // calls init afterwards
+    /************************
+     ***** Loader init ******
+     ************************/
     preloaderResult(result) {
         for (let i = 0; i < result.length; i++) {
             if (result[i].name == "tiles") {
@@ -47,8 +51,20 @@ class Game {
         }
         this.init();
     }
+    init() {
+        $('body').addClass('loading-done');
+        this.stopGame = false;
+        this.setCanvasSize();
+        // create ui
+        this.ui = new Ui();
+        this.ui.repaint = true;
+        this.resize();
+        this.animate();
+    }
 
-    // this.animate freaks out otherwise
+    /************************
+     **** Canvas changes ****
+     ************************/
     animate() {
         let now = Date.now(),
             timeDelta = (now - (this.lastTimestamp || now)) / 1000; // in seconds
@@ -67,16 +83,6 @@ class Game {
         if (!this.stopGame == true) {
             this.raF = requestAnimationFrame(() => this.animate());
         }
-    }
-    init() {
-        $('body').addClass('loading-done');
-        this.stopGame = false;
-        this.setCanvasSize();
-        // create ui
-        this.ui = new Ui();
-        this.ui.repaint = true;
-        this.resize();
-        this.animate();
     }
     draw() {
         this._floors.draw();

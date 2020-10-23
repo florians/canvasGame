@@ -56,7 +56,7 @@ class Game {
         this.stopGame = false;
         this.setCanvasSize();
         // create ui
-        this.ui = new Ui();
+        this.ui = new UserInterface();
         this.ui.repaint = true;
         this.resize();
         this.animate();

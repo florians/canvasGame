@@ -9,16 +9,16 @@ if ($_GET && $_GET['p']) {
     $page = 'floor';
 }
 $jsFiles = [
-    'Resources/Public/JavaScript/Util',
-    'Resources/Public/JavaScript/Gen/' . ucFirst($page)
+    'Resources/Public/JavaScript/Utilities',
+    'Resources/Public/JavaScript/Generator/' . ucFirst($page)
 ];
 $cssFiles = [
     'Resources/Public/Css/Basic.css',
-    'Resources/Public/Css/Gen.css',
+    'Resources/Public/Css/Generator.css',
     'Resources/Public/Css/' . ucFirst($page) . '.css',
 ];
 
-$pages = ['floor', 'tile', 'skills']//, 'enemies', 'passives'];
+$pages = ['floor', 'assets', 'skills']//, 'enemies', 'passives'];
 ?>
 <!doctype html>
 <html>

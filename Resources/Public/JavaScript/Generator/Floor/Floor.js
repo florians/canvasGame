@@ -9,7 +9,7 @@ class Floor {
             endY: 0,
             height: 0,
             width: 0,
-            tiles: [],
+            assets: [],
         }
         this.canvasOffsetX = 0;
         this.canvasOffsetY = 0;
@@ -22,8 +22,8 @@ class Floor {
         this.selectedEl = '';
     }
     preloader() {
-        this.loader.add('data', 'tiles', {
-            type: 'getAllTiles'
+        this.loader.add('data', 'assets', {
+            type: 'getAllAssets'
         });
         this.loader.add('data', 'floorLevels', {
             type: 'getAllFloorLevels'
@@ -33,7 +33,7 @@ class Floor {
     }
     preloaderResult(result) {
         for (let i = 0; i < result.length; i++) {
-            if (result[i].name == "tiles") {
+            if (result[i].name == "assets") {
                 this.getAllTiles(result[i].data.result);
             }
             if (result[i].name == "floor") {
@@ -47,13 +47,13 @@ class Floor {
 
     getAllTiles(result = "", params = "") {
         let arrLength = 0;
-        let tileAmount = result.length;
+        let assetAmount = result.length;
         for (let i = 0; i < result.length; i++) {
             let image = new Image();
             image.src = 'Resources/Public/Images/Floor/' + result[i].type + '/' + result[i].source;
             image.onload = () => {
-                tileAmount--;
-                if (!tileAmount) {
+                assetAmount--;
+                if (!assetAmount) {
                     floor.generateGrid();
                     fillTilesHtml();
                 }
@@ -92,7 +92,7 @@ class Floor {
                 endY: parseInt(result.endY),
                 height: parseInt(result.height),
                 width: parseInt(result.width),
-                tiles: JSON.parse(result.tileJson)
+                assets: JSON.parse(result.assetsJson)
             };
             $('.controls input.level').val(floor.floorSettings.level).prop('disabled', true);
             $('input.isLoded').val('1');
@@ -125,46 +125,46 @@ class Floor {
             dimY = $('input.dimension-h').val(),
             ry = 0,
             cx = 0,
-            tile = '',
+            asset = '',
             oldFloorTiles = [];
         // clear it
         if (load == false) {
-            this.floorSettings.tiles = [];
+            this.floorSettings.assets = [];
         }
         if (load == true) {
 
-            oldFloorTiles = this.floorSettings.tiles;
-            this.floorSettings.tiles = [];
+            oldFloorTiles = this.floorSettings.assets;
+            this.floorSettings.assets = [];
         }
         for (let r = 0; r < dimY; r++) {
             ry = this.blockSize * r;
             for (let c = 0; c < dimX; c++) {
                 cx = this.blockSize * c;
                 if (load == true) {
-                    if (!this.floorSettings.tiles[r]) {
-                        this.floorSettings.tiles[r] = [];
+                    if (!this.floorSettings.assets[r]) {
+                        this.floorSettings.assets[r] = [];
                     }
-                    if (!this.floorSettings.tiles[r][c]) {
-                        this.floorSettings.tiles[r][c] = {};
+                    if (!this.floorSettings.assets[r][c]) {
+                        this.floorSettings.assets[r][c] = {};
                     }
                     if (oldFloorTiles && oldFloorTiles[r] && oldFloorTiles[r][c]) {
                         if (oldFloorTiles[r][c].uid) {
-                            this.floorSettings.tiles[r][c].uid = oldFloorTiles[r][c].uid;
-                            this.floorSettings.tiles[r][c].type = this.allTiles[oldFloorTiles[r][c].uid].settings.type;
+                            this.floorSettings.assets[r][c].uid = oldFloorTiles[r][c].uid;
+                            this.floorSettings.assets[r][c].type = this.allTiles[oldFloorTiles[r][c].uid].settings.type;
                         }
                         if (oldFloorTiles[r][c].level) {
-                            this.floorSettings.tiles[r][c].level = oldFloorTiles[r][c].level;
+                            this.floorSettings.assets[r][c].level = oldFloorTiles[r][c].level;
                         }
                         if (oldFloorTiles[r][c].overlay) {
-                            this.floorSettings.tiles[r][c].overlay = oldFloorTiles[r][c].overlay;
+                            this.floorSettings.assets[r][c].overlay = oldFloorTiles[r][c].overlay;
                         }
                     }
-                    this.floorSettings.tiles[r][c].x = cx;
-                    this.floorSettings.tiles[r][c].y = ry;
-                    this.floorSettings.tiles[r][c].posX = c;
-                    this.floorSettings.tiles[r][c].posY = r;
+                    this.floorSettings.assets[r][c].x = cx;
+                    this.floorSettings.assets[r][c].y = ry;
+                    this.floorSettings.assets[r][c].posX = c;
+                    this.floorSettings.assets[r][c].posY = r;
                 } else {
-                    tile = {
+                    asset = {
                         x: cx,
                         y: ry,
                         type: '',
@@ -172,16 +172,16 @@ class Floor {
                         posX: c,
                         posY: r
                     }
-                    if (!this.floorSettings.tiles[r]) {
-                        this.floorSettings.tiles[r] = [];
+                    if (!this.floorSettings.assets[r]) {
+                        this.floorSettings.assets[r] = [];
                     }
-                    this.floorSettings.tiles[r][c] = tile;
+                    this.floorSettings.assets[r][c] = asset;
                 }
             }
         }
         this.repaint();
     }
-    fillCanvas(tiles, element) {
+    fillCanvas(assets, element) {
         if (element) {
             this.genBlock(element);
         } else {
@@ -198,7 +198,7 @@ class Floor {
 
             for (let r = rStart; r < rStop; r++) {
                 for (let c = cStart; c < cStop; c++) {
-                    this.genBlock(tiles[r][c]);
+                    this.genBlock(assets[r][c]);
                 }
             }
         }
@@ -210,19 +210,19 @@ class Floor {
             _ctx.clearRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
         }
         _ctx.translate(this.canvasOffsetX, this.canvasOffsetY)
-        this.fillCanvas(this.floorSettings.tiles, element);
+        this.fillCanvas(this.floorSettings.assets, element);
         _ctx.restore();
     }
-    genBlock(tile) {
-        let x = tile.x * this.zoom,
-            y = tile.y * this.zoom,
+    genBlock(asset) {
+        let x = asset.x * this.zoom,
+            y = asset.y * this.zoom,
             h = this.blockSize,
             w = this.blockSize;
-        if (tile.uid) {
-            _ctx.drawImage(this.allTiles[tile.uid].img, x, y, h, w);
+        if (asset.uid) {
+            _ctx.drawImage(this.allTiles[asset.uid].img, x, y, h, w);
             // draw as overlay
-            if (tile.overlay) {
-                _ctx.drawImage(this.allTiles[tile.overlay].img, x, y, h, w);
+            if (asset.overlay) {
+                _ctx.drawImage(this.allTiles[asset.overlay].img, x, y, h, w);
             }
         } else {
             _ctx.fillStyle = 'rgb(255,255,255)';
@@ -276,55 +276,55 @@ class Floor {
             if (floor.brushSize > 1 && $.inArray(floor.allTiles[floor.selectedEl.attr('data-uid')].settings.type, ignoreBrushItems) === -1) {
                 for (let r = offsetY - Math.floor(this.brushSize / 2); r < offsetY + Math.ceil(this.brushSize / 2); r++) {
                     for (let c = offsetX - Math.floor(this.brushSize / 2); c < offsetX + Math.ceil(this.brushSize / 2); c++) {
-                        if (floor.floorSettings.tiles[r] && floor.floorSettings.tiles[r][c]) {
-                            this.setTileInfo(floor.floorSettings.tiles[r][c]);
+                        if (floor.floorSettings.assets[r] && floor.floorSettings.assets[r][c]) {
+                            this.setTileInfo(floor.floorSettings.assets[r][c]);
                         }
                     }
                 }
             } else {
-                if (floor.floorSettings.tiles[offsetY] && floor.floorSettings.tiles[offsetY][offsetX]) {
-                    this.setTileInfo(floor.floorSettings.tiles[offsetY][offsetX]);
+                if (floor.floorSettings.assets[offsetY] && floor.floorSettings.assets[offsetY][offsetX]) {
+                    this.setTileInfo(floor.floorSettings.assets[offsetY][offsetX]);
                 }
             }
         } else {
-            if (floor.floorSettings.tiles[offsetY] && floor.floorSettings.tiles[offsetY][offsetX]) {
-                this.showCustomBox(floor.floorSettings.tiles[offsetY][offsetX].type, floor.floorSettings.tiles[offsetY][offsetX]);
+            if (floor.floorSettings.assets[offsetY] && floor.floorSettings.assets[offsetY][offsetX]) {
+                this.showCustomBox(floor.floorSettings.assets[offsetY][offsetX].type, floor.floorSettings.assets[offsetY][offsetX]);
             }
         }
     }
-    showCustomBox(type, tile) {
+    showCustomBox(type, asset) {
         if (type == 'portal') {
             $('aside .custom').addClass('active');
-            $('aside .custom .level').val(tile.level);
-            $('aside .custom .custom-hidden').attr('data-x', tile.posX).attr('data-y', tile.posY);
+            $('aside .custom .level').val(asset.level);
+            $('aside .custom .custom-hidden').attr('data-x', asset.posX).attr('data-y', asset.posY);
         } else {
             $('aside .custom').removeClass('active');
         }
     }
-    setTileInfo(tile) {
+    setTileInfo(asset) {
         let onlyOverlay = ['trap', 'enemy', 'item'],
             newUid = floor.selectedEl.attr('data-uid'),
             newTile = {
-                uid: tile.uid || newUid,
-                x: tile.x,
-                y: tile.y,
-                posX: tile.posX,
-                posY: tile.posY,
+                uid: asset.uid || newUid,
+                x: asset.x,
+                y: asset.y,
+                posX: asset.posX,
+                posY: asset.posY,
             };
-        this.showCustomBox(floor.allTiles[newUid].settings.type, tile);
+        this.showCustomBox(floor.allTiles[newUid].settings.type, asset);
         if ($.inArray(floor.allTiles[newUid].settings.type, onlyOverlay) === -1) {
             if (floor.allTiles[newUid].settings.type == 'start') {
-                floor.floorSettings.startX = tile.posX;
-                floor.floorSettings.startY = tile.posY;
+                floor.floorSettings.startX = asset.posX;
+                floor.floorSettings.startY = asset.posY;
             }
-            floor.floorSettings.tiles[tile.posY][tile.posX] = Object.assign(newTile, floor.allTiles[newUid].settings);
+            floor.floorSettings.assets[asset.posY][asset.posX] = Object.assign(newTile, floor.allTiles[newUid].settings);
         } else {
-            if (tile.uid) {
-                floor.floorSettings.tiles[tile.posY][tile.posX] = Object.assign(newTile, floor.allTiles[tile.uid].settings);
-                floor.floorSettings.tiles[tile.posY][tile.posX].overlay = floor.allTiles[newUid].settings.uid;
+            if (asset.uid) {
+                floor.floorSettings.assets[asset.posY][asset.posX] = Object.assign(newTile, floor.allTiles[asset.uid].settings);
+                floor.floorSettings.assets[asset.posY][asset.posX].overlay = floor.allTiles[newUid].settings.uid;
             }
         }
-        this.repaint(floor.floorSettings.tiles[tile.posY][tile.posX]);
+        this.repaint(floor.floorSettings.assets[asset.posY][asset.posX]);
     }
 }
 
@@ -344,22 +344,22 @@ function cleanUpSettings(exportFloorSettings) {
             uid = 0;
             level = 0;
             overlay = "";
-            if (exportFloorSettings.tiles[r][c].type == "portal") {
-                level = exportFloorSettings.tiles[r][c].level;
+            if (exportFloorSettings.assets[r][c].type == "portal") {
+                level = exportFloorSettings.assets[r][c].level;
             }
-            if (exportFloorSettings.tiles[r][c].overlay) {
-                overlay = exportFloorSettings.tiles[r][c].overlay;
+            if (exportFloorSettings.assets[r][c].overlay) {
+                overlay = exportFloorSettings.assets[r][c].overlay;
             }
-            uid = exportFloorSettings.tiles[r][c].uid;
-            exportFloorSettings.tiles[r][c] = {};
+            uid = exportFloorSettings.assets[r][c].uid;
+            exportFloorSettings.assets[r][c] = {};
             if (level > 0) {
-                exportFloorSettings.tiles[r][c].level = level;
+                exportFloorSettings.assets[r][c].level = level;
             }
             if (overlay) {
-                exportFloorSettings.tiles[r][c].overlay = overlay;
+                exportFloorSettings.assets[r][c].overlay = overlay;
             }
             if (uid > 0) {
-                exportFloorSettings.tiles[r][c].uid = uid;
+                exportFloorSettings.assets[r][c].uid = uid;
             }
         }
     }
@@ -369,10 +369,10 @@ function cleanUpSettings(exportFloorSettings) {
 function fillTilesHtml() {
     $.each(Object.keys(floor.allTilesGrouped), function(index, type) {
         let array = [];
-        array.push('<div class="tileGroup accordion padding-lr-m padding-tb-m block flex-m">');
+        array.push('<div class="assetGroup accordion padding-lr-m padding-tb-m block flex-m">');
         array.push('<div class="title">' + type + '</div>');
         $.each(Object.keys(floor.allTilesGrouped[type]), function(index, el) {
-            array.push('<div class="tile" data-uid="' + floor.allTilesGrouped[type][el].uid + '"><img src="' + floor.allTilesGrouped[type][el].img.src + '" /></div>');
+            array.push('<div class="asset" data-uid="' + floor.allTilesGrouped[type][el].uid + '"><img src="' + floor.allTilesGrouped[type][el].img.src + '" /></div>');
         });
         array.push('</div>');
         $('aside .accordion-container').append(array.join(''));
@@ -388,7 +388,7 @@ function resetForm() {
     $('input.dimension-w').val(20);
     $('input.dimension-h').val(20);
     $('aside .custom').removeClass('active');
-    floor.floorSettings.tiles = [];
+    floor.floorSettings.assets = [];
     floor.setFloorSettingsDimensions();
     floor.generateGrid();
 }
@@ -488,31 +488,31 @@ $('aside .custom .save-to-element').click(function() {
     let y = $('aside .custom .custom-hidden').attr('data-y');
     let level = $('aside .custom .level').val();
     if (y != '' && x != '' && level != '') {
-        floor.floorSettings.tiles[y][x].level = level;
+        floor.floorSettings.assets[y][x].level = level;
         showMsg('success', 'Level has been set');
         $('aside .custom').removeClass('active');
     }
 });
 
-/* select tile  */
-$(document).on('click', 'aside .tile', function() {
+/* select asset  */
+$(document).on('click', 'aside .asset', function() {
     if (!$(this).hasClass('isSelected')) {
-        $('aside .tile').removeClass('isSelected');
+        $('aside .asset').removeClass('isSelected');
         // FS only deliver uid
         floor.selectedEl = $(this).addClass('isSelected');
         $('body').toggleClass('open');
     } else {
-        $('aside .tile').removeClass('isSelected');
+        $('aside .asset').removeClass('isSelected');
         floor.selectedEl = '';
     }
 });
-$(document).on('click', '.tileGroup', function() {
-    $('.tileGroup.show').removeClass('show');
+$(document).on('click', '.assetGroup', function() {
+    $('.assetGroup.show').removeClass('show');
     $(this).addClass('show');
 });
 
 
-$('.tilesButton').click(function() {
+$('.assetsButton').click(function() {
     $('body').toggleClass('open');
 });
 

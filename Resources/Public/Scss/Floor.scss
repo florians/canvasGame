@@ -8,7 +8,7 @@ body {
     overflow-x: hidden;
 }
 /***********************************
-************** tiles ***************
+************** assets ***************
 ***********************************/
 main {
     .canvasContainer {
@@ -18,13 +18,13 @@ main {
 }
 
 aside {
-    .tileGroup {
+    .assetGroup {
         margin-bottom: 30px;
         background: rgba(0,0,0,0.1);
         box-sizing: border-box;
         border-radius: 3px;
 
-        &.accordion > .tile {
+        &.accordion > .asset {
             display: none;
         }
 
@@ -35,7 +35,7 @@ aside {
                 padding-bottom: 10px;
             }
 
-            > .tile {
+            > .asset {
                 display: inline-block;
             }
         }
@@ -48,7 +48,7 @@ aside {
             cursor: pointer;
         }
 
-        .tile {
+        .asset {
             height: 100px;
             display: inline-block;
             width: 100px;
@@ -89,7 +89,7 @@ aside {
     }
 }
 
-.tilesButton {
+.assetsButton {
     content: "";
     position: absolute;
     height: 50px;

@@ -1,4 +1,4 @@
-class Ui{
+class UserInterface{
     constructor(){
         this.repaint = false;
     }

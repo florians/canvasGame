@@ -8,32 +8,32 @@ body {
   overflow-x: hidden; }
 
 /***********************************
-************** tiles ***************
+************** assets ***************
 ***********************************/
 main .canvasContainer {
   width: 100%;
   height: auto; }
 
-aside .tileGroup {
+aside .assetGroup {
   margin-bottom: 30px;
   background: rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
   border-radius: 3px; }
-  aside .tileGroup.accordion > .tile {
+  aside .assetGroup.accordion > .asset {
     display: none; }
-  aside .tileGroup.accordion.show {
+  aside .assetGroup.accordion.show {
     background: rgba(0, 0, 0, 0.2); }
-    aside .tileGroup.accordion.show .title {
+    aside .assetGroup.accordion.show .title {
       padding-bottom: 10px; }
-    aside .tileGroup.accordion.show > .tile {
+    aside .assetGroup.accordion.show > .asset {
       display: inline-block; }
-  aside .tileGroup .title {
+  aside .assetGroup .title {
     font-size: 20px;
     display: block;
     text-transform: capitalize;
     color: #FFF;
     cursor: pointer; }
-  aside .tileGroup .tile {
+  aside .assetGroup .asset {
     height: 100px;
     display: inline-block;
     width: 100px;
@@ -44,9 +44,9 @@ aside .tileGroup {
     margin-bottom: 5px;
     border-radius: 3px;
     overflow: hidden; }
-    aside .tileGroup .tile.isSelected {
+    aside .assetGroup .asset.isSelected {
       border: 5px solid #FFF; }
-    aside .tileGroup .tile > img {
+    aside .assetGroup .asset > img {
       position: absolute;
       width: 100%; }
 
@@ -64,7 +64,7 @@ aside .custom {
   aside .custom.active {
     display: block; }
 
-.tilesButton {
+.assetsButton {
   content: "";
   position: absolute;
   height: 50px;
@@ -79,7 +79,7 @@ aside .custom {
   background-size: 50%;
   background-position: center;
   background-image: url("/Resources/Public/Images/Icons/left.svg"); }
-  body.open .tilesButton {
+  body.open .assetsButton {
     background-image: url("/Resources/Public/Images/Icons/right.svg");
     right: 40%; }
 

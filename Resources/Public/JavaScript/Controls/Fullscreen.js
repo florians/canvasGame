@@ -20,9 +20,9 @@ class Fullscreen {
         }
     }
 }
-
-const fullscreen = new Fullscreen();
-
-$('.fullscreen').on('click', function() {
-    fullscreen.toggle();
-});
+// 
+// const fullscreen = new Fullscreen();
+//
+// $('.fullscreen').on('click', function() {
+//     fullscreen.toggle();
+// });

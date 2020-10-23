@@ -1,13 +1,13 @@
 class Skills {
-    constructor(game) {
-        this.game = game;
+    constructor(parent) {
+        this.parent = parent;
         this.skills = [];
     }
     /************************
      **** Setup Loader ******
      ************************/
     load() {
-        this.game.loader.add('data', 'skills', {
+        this.parent.loader.add('data', 'skills', {
             type: 'getAllSkills'
         });
     }
@@ -15,9 +15,9 @@ class Skills {
      ***** Loader init ******
      ************************/
     init(result) {
-        this.game.loader.reset();
-        this.game.loader.addMax(result.length);
-        this.game.loader.addText('Loading skills...');
+        this.parent.loader.reset();
+        this.parent.loader.addMax(result.length);
+        this.parent.loader.addText('Loading skills...');
         for (let i = 0; i < result.length; i++) {
             this.skills[result[i].uid] = this.add(result[i]);
         }

@@ -1,5 +1,6 @@
 class Asset {
-    constructor(result) {
+    constructor(parent, result) {
+        this.parent = parent;
         this.setUid(result.uid);
         this.setCollision(result.collision);
         this.setFactor(result.factor);
@@ -17,7 +18,7 @@ class Asset {
         let image = new Image(100, 100);
         image.src = gameBaseUrl + this.getType() + '/' + this.getSource();
         image.onload = () => {
-            _game.loader.addStep();
+            this.parent.loader.addStep();
         };
         this.image = image;
     }

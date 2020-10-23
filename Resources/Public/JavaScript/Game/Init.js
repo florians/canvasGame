@@ -4,8 +4,6 @@ const gameBaseUrl = 'Resources/Public/Images/Floor/',
     playerName = playerGet || prompt("Please enter your name");
 
 let showHitBox = false,
-    // default start level
-    floorLevel = 1,
     _game = new Game(),
 
     keyPressed = {

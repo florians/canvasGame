@@ -1,7 +1,354 @@
 class Floor {
+    constructor(parent, result) {
+        this.parent = parent;
+        this.tiles = new Tiles(this.parent);
+        this.mousehandler = new MouseHandler(this);
+        this.keyboardHandler = new KeyboardHandler(this);
+
+        this.tilesArray = [];
+        this.isDrawing = false;
+        // start position
+        this.start = {
+            x: 0,
+            y: 0
+        }
+        // stage positon offset
+        this.stageOffset = {
+            x: 0,
+            y: 0
+        }
+        this.zoom = 1;
+        this.brushSize = 1;
+        this.setSize(30);
+        this.setZoomSize(this.getSize() * this.getZoom());
+        this.setHeight(result.height);
+        this.setWidth(result.width);
+        this.setLevel(result.level);
+        this.setStart('x', result.startX);
+        this.setStart('y', result.startY);
+        this.setTileJson(result.tilesJson);
+
+        this.setCanvasSize();
+        this.generateGrid();
+        this.mousehandler.add('#world', 'click', 'addTile');
+        this.mousehandler.add('.zoom', 'click', 'doZoom');
+        this.mousehandler.add('.brush', 'click', 'changeBrush');
+        this.mousehandler.add('.reset', 'click', 'resetForm');
+        this.mousehandler.add('.dimension .sizeSubmit', 'click', 'setDimensions');
+        this.mousehandler.add('.saveFloor', 'click', 'saveFloor');
+
+        this.mousehandler.add('#world', 'mousedown', 'mousedown');
+        this.mousehandler.add('#world', 'mouseup', 'mouseup');
+        this.mousehandler.add('#world', 'mousemove', 'mousemove');
+        // mousewheel
+        this.mousehandler.add('#world', 'wheel', 'wheelZoom');
+        // keyboard
+        this.keyboardHandler.add(document, 'keydown', 'keydown');
+    }
+    /************************
+     ******** Getter ********
+     ************************/
+    getHeight() {
+        return this.height;
+    }
+    getWidth() {
+        return this.width;
+    }
+    getLevel() {
+        return this.level;
+    }
+    getStart(dir) {
+        return this.start[dir];
+    }
+    getTileJson() {
+        return this.tilesArray;
+    }
+    getStageOffset(dir) {
+        return this.stageOffset[dir];
+    }
+    getSize() {
+        return this.size;
+    }
+    getZoomSize() {
+        return this.zoomSize;
+    }
+    getZoom() {
+        return this.zoom;
+    }
+    getBrushSize() {
+        return this.brushSize;
+    }
+    /************************
+     ******** Setter ********
+     ************************/
+    setHeight(height) {
+        this.height = parseInt(height);
+        $('input.dimension-h').val(this.height);
+    }
+    setWidth(width) {
+        this.width = parseInt(width);
+        $('input.dimension-w').val(this.width);
+    }
+    setLevel(level) {
+        this.level = parseInt(level);
+    }
+    setStart(dir, val) {
+        this.start[dir] = parseInt(val);
+    }
+    setTileJson(tilesJson) {
+        this.tilesArray = JSON.parse(tilesJson);
+    }
+    setStageOffset(dir, val) {
+        this.stageOffset[dir] = val;
+    }
+    setSize(size) {
+        this.size = size;
+    }
+    setZoomSize(zoomSize) {
+        this.zoomSize = zoomSize;
+    }
+    setZoom(direction) {
+        if (this.getZoom() < 20 && direction == '+') {
+            this.zoom += 0.1;
+        }
+        if (this.getZoom() >= 0.2 && direction == '-') {
+            this.zoom -= 0.1;
+        }
+        $('.zoomLevel').html(Math.round(this.getZoom() * 100));
+    }
+    setBrushSize(direction) {
+        let brushSizes = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 49];
+        if (this.getBrushSize() <= 48 && direction == '+') {
+            this.brushSize = brushSizes[brushSizes.indexOf(this.getBrushSize()) + 1];
+        }
+        if (this.getBrushSize() > 1 && direction == '-') {
+            this.brushSize = brushSizes[brushSizes.indexOf(this.getBrushSize()) - 1];
+        }
+        $('.brushSize').html(this.getBrushSize());
+    }
+    setCanvasSize() {
+        _ctx.canvas.width = Math.floor($('.canvasContainer').width());
+        _ctx.canvas.height = Math.floor($('body').height() - $('#world').offset().top - 25);
+    }
+    /************************
+     **** Canvas changes ****
+     ************************/
+    generateGrid() {
+        let rowY = 0,
+            colX = 0;
+        for (let row = 0; row < this.getHeight(); row++) {
+            rowY = this.getZoomSize() * row;
+            for (let col = 0; col < this.getWidth(); col++) {
+                colX = this.getZoomSize() * col;
+                if (!this.tilesArray[row]) {
+                    this.tilesArray[row] = [];
+                }
+                if (!this.tilesArray[row][col]) {
+                    this.tilesArray[row][col] = [];
+                }
+                this.tiles.add(this.tilesArray[row][col], row, col, rowY, colX);
+            }
+        }
+        this.repaint();
+    }
+    repaint(element = '') {
+        _ctx.save();
+        _ctx.setTransform(1, 0, 0, 1, 0, 0);
+        if (element == '') {
+            _ctx.clearRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
+        }
+        _ctx.translate(this.getStageOffset('x'), this.getStageOffset('y'))
+        this.fillCanvas(element);
+        _ctx.restore();
+    }
+    fillCanvas(element) {
+        if (element) {
+            this.drawTile(element);
+        } else {
+            let cStart = Math.floor(this.getStageOffset('x') / this.getZoomSize());
+            let rStart = Math.floor(this.getStageOffset('y') / this.getZoomSize());
+            let cStop = Math.floor((_ctx.canvas.width + this.getZoomSize() * 2) / this.getZoomSize());
+            let rStop = Math.floor((_ctx.canvas.height + this.getZoomSize() * 2) / this.getZoomSize());
+
+            cStart = cStart > 0 ? cStart : 0;
+            rStart = rStart > 0 ? rStart : 0;
+
+            cStop = cStart + cStop < this.getWidth() ? cStart + cStop : this.getWidth();
+            rStop = rStart + rStop < this.getHeight() ? rStart + rStop : this.getHeight();
+
+            for (let row = 0; row < rStop; row++) {
+                for (let col = 0; col < cStop; col++) {
+                    this.drawTile(this.tiles.get(row, col));
+                }
+            }
+        }
+    }
+    drawTile(tile) {
+        let x = tile.getX() * this.zoom,
+            y = tile.getY() * this.zoom,
+            h = this.getZoomSize(),
+            w = this.getZoomSize();
+        if (tile.asset.image) {
+            _ctx.drawImage(tile.asset.getImage(), x, y, h, w);
+        } else {
+            _ctx.fillStyle = 'rgb(255,255,255)';
+            _ctx.beginPath();
+            _ctx.rect(x, y, h, w);
+            _ctx.stroke();
+        }
+    }
+    resize() {
+        this.setCanvasSize();
+        this.repaint();
+    }
+    addTile(event) {
+        // index of smt
+        let ignoreBrushItems = ['start', 'portal', 'trap', 'enemy', 'item'];
+        let col = Math.floor((event.offsetX - this.getStageOffset('x')) / this.getZoomSize());
+        let row = Math.floor((event.offsetY - this.getStageOffset('y')) / this.getZoomSize());
+
+        for (let r = row - Math.floor(this.brushSize / 2); r < row + Math.ceil(this.brushSize / 2); r++) {
+            for (let c = col - Math.floor(this.brushSize / 2); c < col + Math.ceil(this.brushSize / 2); c++) {
+                if (c < 0 || r < 0) {
+                    continue;
+                }
+                if (c < this.getWidth() && r < this.getHeight()) {
+                    this.tiles.get(r, c).setTile(3);
+                    // every single one
+                    this.repaint(this.tiles.get(r, c));
+                }
+
+            }
+        }
+        // once all
+        //this.repaint();
+    }
+    /************************
+     *** Mouse & Keyboard ***
+     ************************/
+    mousedown(event) {
+        this.isDrawing = true;
+    }
+    mouseup(event) {
+        this.isDrawing = false;
+    }
+    mousemove(event) {
+        if (this.isDrawing === true) {
+            this.addTile(event);
+        }
+    }
+    doZoom(event) {
+        if (event) {
+            this.setZoom(event.target.dataset.change);
+        } else {
+            this.zoom = 1;
+        }
+        this.setZoomSize(this.getSize() * this.getZoom());
+        this.repaint();
+    }
+    wheelZoom(event) {
+        if (event.deltaY > 0) {
+            this.setZoom('-');
+        } else {
+            this.setZoom('+');
+        }
+        this.setZoomSize(this.getSize() * this.getZoom());
+        this.repaint();
+
+    }
+    changeBrush(event) {
+        this.setBrushSize(event.target.dataset.change);
+    }
+    keydown() {
+        let repaint = false;
+        if (this.keyboardHandler.get('left')) {
+            this.setStageOffset('x', this.getStageOffset('x') - this.getZoomSize());
+            repaint = true;
+        }
+        if (this.keyboardHandler.get('right')) {
+            this.setStageOffset('x', this.getStageOffset('x') + this.getZoomSize());
+            repaint = true;
+        }
+        if (this.keyboardHandler.get('up')) {
+            this.setStageOffset('y', this.getStageOffset('y') - this.getZoomSize());
+            repaint = true;
+        }
+        if (this.keyboardHandler.get('down')) {
+            this.setStageOffset('y', this.getStageOffset('y') + this.getZoomSize());
+            repaint = true;
+        }
+        if (repaint) {
+            this.repaint();
+        }
+    }
+    saveFloor(event) {
+        let tileArray = [];
+        let info = '';
+        let floor = {
+            level: this.getLevel(),
+            startX: this.getStart('x'),
+            startY: this.getStart('y'),
+            height: this.getHeight(),
+            width: this.getWidth(),
+            tileJson: []
+        }
+        for (let row = 0; row < this.getHeight(); row++) {
+            for (let col = 0; col < this.getWidth(); col++) {
+                if (this.tiles.get(row, col).isBlank) {
+                    info = '';
+                } else {
+                    if (this.tiles.get(row, col).asset.getType() == 'portal') {
+                        info = this.tiles.get(row, col).level + "|" + this.tiles.get(row, col).asset.getUid();
+                    } else {
+                        info = this.tiles.get(row, col).asset.getUid();
+                    }
+                }
+                tileArray.push(info);
+            }
+        }
+        floor.tiles = tileArray.join(',');
+        console.log(JSON.stringify(floor));
+    }
+    resetForm() {
+        $('.infoBox > span').removeClass('active');
+        $('select.floorSelect').val([]);
+        $('select.floorSelect option').prop('selected', false);
+        $('.controls input.level').val('').prop('disabled', false);
+        $('input.isLoded').val('0');
+        $('input.dimension-w').val(20);
+        $('input.dimension-h').val(20);
+        $('aside .custom').removeClass('active');
+        this.zoom = 1;
+        this.setZoomSize(this.getSize() * this.getZoom());
+        this.tilesArray = [];
+        this.generateGrid();
+    }
+    setDimensions(event) {
+        this.setHeight($('input.dimension-h').val());
+        this.setWidth($('input.dimension-w').val());
+        if (this.getHeight() <= 0 || this.getWidth() <= 0) {
+            this.showMsg('error', 'Dimension can\'t be 0!');
+        } else if (this.getHeight() > 500 || this.getWidth() <= 0 > 500) {
+            this.showMsg('error', 'Dimension are limited to max 500!');
+        } else {
+            this.zoom = 1;
+            this.setZoomSize(this.getSize() * this.getZoom());
+            this.generateGrid();
+        }
+    }
+    showMsg(type, msg) {
+        this.showMsgReset();
+        $('.infoBox .' + type).html(msg).addClass('active');
+    }
+
+    showMsgReset() {
+        $('.infoBox > span').removeClass('active')
+    }
+}
+
+
+class Floor2 {
     constructor() {
-        this.loader = new Loader(this);
-        this.preloader();
         this.floorSettings = {
             startX: 0,
             startY: 0,
@@ -15,71 +362,11 @@ class Floor {
         this.canvasOffsetY = 0;
         this.brushSize = 1;
         this.zoom = 1;
-        this.blockSize = 30 * this.zoom;
+        this.getZoomSize() = 30 * this.zoom;
         this.mouseDown = false;
         this.allTilesGrouped = [];
         this.allTiles = [];
         this.selectedEl = '';
-    }
-    preloader() {
-        this.loader.add('data', 'assets', {
-            type: 'getAllAssets'
-        });
-        this.loader.add('data', 'floorLevels', {
-            type: 'getAllFloorLevels'
-        });
-        // calls floor.preloaderResult
-        this.loader.run();
-    }
-    preloaderResult(result) {
-        for (let i = 0; i < result.length; i++) {
-            if (result[i].name == "assets") {
-                this.getAllTiles(result[i].data.result);
-            }
-            if (result[i].name == "floor") {
-                this.getFloor(result[i].data.result);
-            }
-            if (result[i].name == "floorLevels") {
-                this.getAllFloorLevels(result[i].data.result);
-            }
-        }
-    }
-
-    getAllTiles(result = "", params = "") {
-        let arrLength = 0;
-        let assetAmount = result.length;
-        for (let i = 0; i < result.length; i++) {
-            let image = new Image();
-            image.src = 'Resources/Public/Images/Floor/' + result[i].type + '/' + result[i].source;
-            image.onload = () => {
-                assetAmount--;
-                if (!assetAmount) {
-                    floor.generateGrid();
-                    fillTilesHtml();
-                }
-            };
-            floor.allTiles[result[i].uid] = {
-                settings: result[i],
-                img: image
-            };
-
-            if (!floor.allTilesGrouped[result[i].type]) {
-                floor.allTilesGrouped[result[i].type] = [];
-            }
-            floor.allTilesGrouped[result[i].type][result[i].name] = {
-                uid: result[i].uid,
-                img: image
-            }
-        }
-    }
-
-    getAllFloorLevels(result = "", params = "") {
-        $('.floorSelect').html('<option></option>');
-        for (let i = 0; i < result.length; i++) {
-            $('.floorSelect').append('<option value="' + result[i] + '">Level ' + result[i] + '</option>');
-        }
-        $('select.floorSelect').val(floor.floorSettings.level);
-        $('.controls input.level').val(floor.floorSettings.level);
     }
 
     getFloor(result, params = "") {
@@ -106,12 +393,9 @@ class Floor {
     }
 
     setBlockSize() {
-        this.blockSize = 30 * this.zoom;
+        this.getZoomSize() = 30 * this.zoom;
     }
-    setCanvasSize() {
-        _ctx.canvas.width = Math.floor($('.canvasContainer').width());
-        _ctx.canvas.height = Math.floor($('body').height() - $('#world').offset().top - 25);
-    }
+
     setFloorSettings(type, val) {
         this.floorSettings[type] = val;
     }
@@ -137,9 +421,9 @@ class Floor {
             this.floorSettings.assets = [];
         }
         for (let r = 0; r < dimY; r++) {
-            ry = this.blockSize * r;
+            ry = this.getZoomSize() * r;
             for (let c = 0; c < dimX; c++) {
-                cx = this.blockSize * c;
+                cx = this.getZoomSize() * c;
                 if (load == true) {
                     if (!this.floorSettings.assets[r]) {
                         this.floorSettings.assets[r] = [];
@@ -185,10 +469,10 @@ class Floor {
         if (element) {
             this.genBlock(element);
         } else {
-            let cStart = Math.floor(-this.canvasOffsetX / this.blockSize);
-            let rStart = Math.floor(-this.canvasOffsetY / this.blockSize);
-            let cStop = Math.floor((_ctx.canvas.width + this.blockSize * 2) / this.blockSize);
-            let rStop = Math.floor((_ctx.canvas.height + this.blockSize * 2) / this.blockSize);
+            let cStart = Math.floor(-this.canvasOffsetX / this.getZoomSize());
+            let rStart = Math.floor(-this.canvasOffsetY / this.getZoomSize());
+            let cStop = Math.floor((_ctx.canvas.width + this.getZoomSize() * 2) / this.getZoomSize());
+            let rStop = Math.floor((_ctx.canvas.height + this.getZoomSize() * 2) / this.getZoomSize());
 
             cStart = cStart > 0 ? cStart : 0;
             rStart = rStart > 0 ? rStart : 0;
@@ -216,8 +500,8 @@ class Floor {
     genBlock(asset) {
         let x = asset.x * this.zoom,
             y = asset.y * this.zoom,
-            h = this.blockSize,
-            w = this.blockSize;
+            h = this.getZoomSize(),
+            w = this.getZoomSize();
         if (asset.uid) {
             _ctx.drawImage(this.allTiles[asset.uid].img, x, y, h, w);
             // draw as overlay
@@ -238,12 +522,12 @@ class Floor {
     doZoom(reset = false) {
         if (reset) {
             this.zoom = 1;
-            this.blockSize = 30 * this.zoom;
+            this.getZoomSize() = 30 * this.zoom;
             $('.zoomLevel').html(Math.round(this.zoom * 100));
             this.repaint();
         } else {
             this.zoom = Math.round(this.zoom * 100) / 100;
-            this.blockSize = 30 * this.zoom;
+            this.getZoomSize() = 30 * this.zoom;
             this.repaint();
         }
 
@@ -328,13 +612,6 @@ class Floor {
     }
 }
 
-// get game container and start game
-const _ctx = document.getElementById('world').getContext('2d');
-let floor = new Floor();
-
-floor.setCanvasSize();
-floor.setFloorSettingsDimensions();
-
 function cleanUpSettings(exportFloorSettings) {
     let uid = 0;
     let level = 0;
@@ -379,37 +656,9 @@ function fillTilesHtml() {
     });
 }
 
-function resetForm() {
-    showMsgReset();
-    $('select.floorSelect').val([]);
-    $('select.floorSelect option').prop('selected', false);
-    $('.controls input.level').val('').prop('disabled', false);
-    $('input.isLoded').val('0');
-    $('input.dimension-w').val(20);
-    $('input.dimension-h').val(20);
-    $('aside .custom').removeClass('active');
-    floor.floorSettings.assets = [];
-    floor.setFloorSettingsDimensions();
-    floor.generateGrid();
-}
 /***********************************
  ********* change events ************
  ***********************************/
-/* range slider */
-$('.dimension .sizeSubmit').click(function() {
-    let h = $('input.dimension-h').val();
-    let w = $('input.dimension-w').val();
-    if (h <= 0 || w <= 0) {
-        showMsg('error', 'Dimension can\'t be 0!');
-    } else if (h > 500 || w > 500) {
-        showMsg('error', 'Dimension are limited to max 500!');
-    } else {
-        floor.doZoom(true);
-        floor.repaint();
-        floor.setFloorSettingsDimensions();
-        floor.generateGrid(true);
-    }
-});
 /* select field for floor selection */
 $('.floorSelect').change(function() {
     showMsgReset();
@@ -426,62 +675,8 @@ $('.floorSelect').change(function() {
 });
 
 /***********************************
- ********** mouse events ***********
- ***********************************/
-$('#world').mouseup(function() {
-        floor.mouseDown = false;
-    })
-    .mousedown(function() {
-        floor.mouseDown = true;
-    });
-/***********************************
- ********** mouse painting *********
- ***********************************/
-$('#world').mousemove(function(event) {
-    if (floor.mouseDown == true) {
-        floor.addTile(event.offsetX, event.offsetY);
-    }
-});
-$('#world').click(function(event) {
-    floor.addTile(event.offsetX, event.offsetY);
-});
-
-/***********************************
- ********** key down events ********
- ***********************************/
-$(document).keydown(function(e) {
-    let repaint = false;
-    // a / left
-    if ((e.keyCode == 37 || e.keyCode == 65) && floor.canvasOffsetX < floor.blockSize) {
-        floor.canvasOffsetX += floor.blockSize;
-        repaint = true;
-    }
-    // d / right
-    if ((e.keyCode == 39 || e.keyCode == 68) && floor.canvasOffsetX > -(floor.floorSettings.width * floor.blockSize - ctx.canvas.width + floor.blockSize)) {
-        floor.canvasOffsetX -= floor.blockSize;
-        repaint = true;
-    }
-    // w / up
-    if ((e.keyCode == 38 || e.keyCode == 87) && floor.canvasOffsetY < floor.blockSize) {
-        floor.canvasOffsetY += floor.blockSize;
-        repaint = true;
-    }
-    // s / down
-    if ((e.keyCode == 40 || e.keyCode == 83) && floor.canvasOffsetY > -(floor.floorSettings.height * floor.blockSize - ctx.canvas.height + floor.blockSize)) {
-        floor.canvasOffsetY -= floor.blockSize;
-        repaint = true;
-    }
-    if (repaint) {
-        floor.repaint();
-    }
-});
-
-/***********************************
  ********* click events *************
  ***********************************/
-$('.reset').click(function(event) {
-    resetForm();
-});
 // add custom config to start / end elements
 $('aside .custom .save-to-element').click(function() {
     let x = $('aside .custom .custom-hidden').attr('data-x');
@@ -517,65 +712,29 @@ $('.assetsButton').click(function() {
 });
 
 /* save with ajax */
-$('.saveFloor').click(function() {
-    showMsgReset();
-    if ($('input.level').val()) {
-        floor.floorSettings.level = $('input.level').val();
-    }
-    exportFloorSettings = JSON.parse(JSON.stringify(floor.floorSettings));
-    exportJson = JSON.stringify(cleanUpSettings(exportFloorSettings));
-    if ($('input.level').val()) {
-        ajaxHandler(saveFloor,
-            data = {
-                type: 'saveFloor',
-                json: exportJson,
-                isLoaded: $('input.isLoded').val() || 0
-            });
-    }
-});
-
-function saveFloor(result, params = "") {
-    if (result.type && result.msg) {
-        showMsg(result.type, result.msg);
-    }
-    ajaxHandler(getAllFloorLevels,
-        data = {
-            type: 'getAllFloorLevels'
-        });
-}
-
-function showMsg(type, msg) {
-    showMsgReset();
-    $('.infoBox .' + type).html(msg).addClass('active');
-}
-
-function showMsgReset() {
-    $('.infoBox > span').removeClass('active')
-}
-
-
-/***********************************
- ********* brush size *************
- ***********************************/
-$('.brush').click(function(event) {
-    floor.setBrushSize($(this).data('change'));
-});
-/***********************************
- ********* zoom events *************
- ***********************************/
-$('.zoom').click(function(event) {
-    floor.setZoom($(this).data('change'));
-    floor.doZoom();
-});
-
-$('.canvasContainer').bind('mousewheel', function(e) {
-    floor.setZoom(e.originalEvent.wheelDelta / 120 > 0 ? '+' : '-');
-    floor.doZoom();
-});
-/***********************************
- ************* resize ***************
- ***********************************/
-$(window).resize(function() {
-    floor.setCanvasSize();
-    floor.repaint();
-});
+// $('.saveFloor').click(function() {
+//     showMsgReset();
+//     if ($('input.level').val()) {
+//         floor.floorSettings.level = $('input.level').val();
+//     }
+//     exportFloorSettings = JSON.parse(JSON.stringify(floor.floorSettings));
+//     exportJson = JSON.stringify(cleanUpSettings(exportFloorSettings));
+//     if ($('input.level').val()) {
+//         ajaxHandler(saveFloor,
+//             data = {
+//                 type: 'saveFloor',
+//                 json: exportJson,
+//                 isLoaded: $('input.isLoded').val() || 0
+//             });
+//     }
+// });
+//
+// function saveFloor(result, params = "") {
+//     if (result.type && result.msg) {
+//         showMsg(result.type, result.msg);
+//     }
+//     ajaxHandler(getAllFloorLevels,
+//         data = {
+//             type: 'getAllFloorLevels'
+//         });
+// }

@@ -10,7 +10,16 @@ if ($_GET && $_GET['p']) {
 }
 $jsFiles = [
     'Resources/Public/JavaScript/Utilities',
-    'Resources/Public/JavaScript/Generator/' . ucFirst($page)
+    'Resources/Public/JavaScript/Controls/MouseHandler.js',
+    'Resources/Public/JavaScript/Controls/KeyboardHandler.js',
+    'Resources/Public/JavaScript/Shared/Assets.js',
+    'Resources/Public/JavaScript/Shared/Asset.js',
+    'Resources/Public/JavaScript/Shared/Tiles.js',
+    'Resources/Public/JavaScript/Shared/Tile.js',
+    'Resources/Public/JavaScript/Shared/Floors.js',
+    'Resources/Public/JavaScript/Generator/'.ucFirst($page).'.js',
+    'Resources/Public/JavaScript/Generator/Generator.js',
+    'Resources/Public/JavaScript/Generator/Init.js',
 ];
 $cssFiles = [
     'Resources/Public/Css/Basic.css',
@@ -50,18 +59,18 @@ $pages = ['floor', 'assets', 'skills']//, 'enemies', 'passives'];
     </div>
     <?php
         if ($page) {
-            //include_once 'Resources/Private/PHP/Includes/' . ucFirst($page) . '.php';
-            $file = 'Resources/Private/PHP/Includes/' . ucFirst($page) . '.html';
+            $file = 'Resources/Private/Templates/Generator/' . ucFirst($page) . '.html';
             if(is_file($file)){
                 echo file_get_contents($file);
             }
         }
     ?>
+    <script src='Resources/Public/JavaScript/Library/jquery-3.5.0.min.js'></script>
+    <script>
+        let generatorType = '<?php echo ucFirst($page) ?>';
+    </script>
+    <?php
+        echo combine_my_files($jsFiles, 'Temp/JavaScript/', ucFirst($page) . '.min.js', 'js', $debug);
+    ?>
 </body>
-
-<script src='https://code.jquery.com/jquery-3.5.0.min.js'></script>
-<?php
-    echo combine_my_files($jsFiles, 'Temp/JavaScript/', ucFirst($page) . '.min.js', 'js', $debug);
-?>
-
 </html>

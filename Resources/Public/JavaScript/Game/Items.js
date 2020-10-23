@@ -1,16 +1,13 @@
 class Items {
     constructor() {
-        this.skills = [];
+        this.items = [];
     }
     /************************
      ***** Loader init ******
      ************************/
     init(result) {
-        this.game.loader.reset();
-        this.game.loader.addMax(result.length);
-        this.game.loader.addText('Loading skills...');
         for (let i = 0; i < result.length; i++) {
-            this.skills[result[i].uid] = this.add(result[i]);
+            this.items[result[i].uid] = this.add(result[i]);
         }
         return this;
     }
@@ -18,13 +15,13 @@ class Items {
      ******** Getter ********
      ************************/
     get(id) {
-        return this.skills[id];
+        return this.items[id];
     }
     /************************
-     ***** Add Skill ********
+     ***** Add Items ********
      ************************/
     add(result) {
-        return new Skill(result);
+        return new Item(result);
     }
 
     // garbage collection

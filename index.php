@@ -5,9 +5,10 @@ $jsFiles = [
     'Resources/Public/JavaScript/Utilities/',
     'Resources/Public/JavaScript/UserInterface/UserInterface.js',
     'Resources/Public/JavaScript/Controls/Fullscreen.js',
+    'Resources/Public/JavaScript/Controls/MouseHandler.js',
+    'Resources/Public/JavaScript/Controls/KeyboardHandler.js',
     'Resources/Public/JavaScript/Controls/Joystick.js',
-    'Resources/Public/JavaScript/Controls/Keyboard.js',
-    'Resources/Public/JavaScript/Game/Floors.js',
+    'Resources/Public/JavaScript/Shared/Floors.js',
     'Resources/Public/JavaScript/Game/Floor.js',
     'Resources/Public/JavaScript/Game/Player.js',
     'Resources/Public/JavaScript/Game/Enemies.js',
@@ -55,10 +56,10 @@ $cssFiles = [
 		<canvas id='world'></canvas>
 		<canvas id='ui'></canvas>
 	</div>
-    <script src='Resources/Public/JavaScript/Lib/jquery-3.5.0.min.js'></script>
-    <script src='Resources/Public/JavaScript/Lib/virtualjoystick.js'></script>
+    <script src='Resources/Public/JavaScript/Library/jquery-3.5.0.min.js'></script>
+    <script src='Resources/Public/JavaScript/Library/virtualjoystick.js'></script>
     <script>
-        var playerGet = '<?php echo $_GET['player'] ?>';
+        let playerGet = '<?php echo $_GET['player'] ?>';
     </script>
     <?php
         echo combine_my_files($jsFiles, 'Temp/JavaScript/', 'Game.min' . '.js', 'js', $debug);

@@ -13,8 +13,8 @@ switch ($_POST['type']) {
     case 'getAssets':
         getAssets($database, $_POST['name']);
         break;
-    case 'getAllFloorLevels':
-        getAllFloorLevels($database);
+    case 'getAllFloors':
+        getAllFloors($database);
         break;
     case 'getAssetsType':
         getAssetsType($database);
@@ -58,7 +58,7 @@ function getFloor($db, $level)
     $target_file = '../../Private/Floor/level_' . $result['uid'] . '.json';
     if (file_exists($target_file)) {
         $file = file_get_contents($target_file);
-        $result['assetsJson'] = $file;
+        $result['tilesJson'] = $file;
         $msg = 'Floor Level ' . $level . ' successfully loaded';
     } else {
         $result = false;
@@ -124,9 +124,9 @@ function getAsset($db, $name)
     //returnJson($msg, $result,$type);
     echo json_encode($result);
 }
-function getAllFloorLevels($db)
+function getAllFloors($db)
 {
-    $result = $db->select('floor', 'level', ['deleted' => 0, 'ORDER' => 'level']);
+    $result = $db->select('floor', '*', ['deleted' => 0, 'ORDER' => 'level']);
     $msg = 'Floors loaded';
     returnJson($msg, $result, $success);
 }
@@ -232,7 +232,7 @@ function saveFloor($db, $json)
     $startY = $jsonObj->{'startY'};
     $height = $jsonObj->{'height'};
     $width = $jsonObj->{'width'};
-    $assetsJson = json_encode($jsonObj->{'assets'});
+    $tilesJson = json_encode($jsonObj->{'tileJson'});
 
     $freeLevelCheck = $db->select('floor', 'uid', ['deleted' => 0, 'level' => $level]);
     // update
@@ -249,7 +249,7 @@ function saveFloor($db, $json)
         if ($freeLevelCheck[0]) {
             $target_file = '../../Private/Floor/level_' . $freeLevelCheck[0] . '.json';
             $file = fopen($target_file, "w");
-            fwrite($file, $assetsJson);
+            fwrite($file, $tilesJson);
             fclose($file);
         }
         $type = 'success';
@@ -271,7 +271,7 @@ function saveFloor($db, $json)
             if ($db->id()) {
                 $target_file = '../../Private/Floor/level_' . $db->id() . '.json';
                 $file = fopen($target_file, "w");
-                fwrite($file, $assetsJson);
+                fwrite($file, $tilesJson);
                 fclose($file);
             }
             //echo $db->id().' is a new entry!';

@@ -1,50 +1,59 @@
-// virtual joystick
-var joystickOffset = 25,
-    joystick = new VirtualJoystick({
-        container: document.getElementById('mobileControls'),
-        mouseSupport: true,
-        limitStickTravel: true,
-        stickRadius: joystickOffset * 2,
-        strokeStyle: '#868686'
-    }),
-    joystickInterval = null,
-    isTouched = false,
-    disableJoystick = false;
+class Joystick {
+    constructor(parent) {
+        this.parent = parent;
+        this.mousehandler = new MouseHandler(this);
 
-$('#mobileControls').on('touchstart mousedown', function(e) {
-    e.preventDefault();
-    isTouched = true;
-    joystickInterval = virtualJoystickInterval();
-}).on('touchend mouseup', function(e) {
-    e.preventDefault();
-    clearInterval(joystickInterval);
-    isTouched = false;
-    keyboardHandler.reset();
-});
+        this.joystickOffset = 25;
+        this.joystick = new VirtualJoystick({
+            container: document.getElementById('mobileControls'),
+            mouseSupport: true,
+            limitStickTravel: true,
+            stickRadius: this.joystickOffset * 2,
+            strokeStyle: '#868686'
+        });
+        this.joystickInterval = null;
+        this.isTouched = false;
+        this.disableJoystick = false;
 
-
-function virtualJoystickInterval() {
-    return setInterval(function() {
-        if (isTouched) {
-            if (joystick.deltaY() < -joystickOffset && (joystick.deltaX() > -joystickOffset || joystick.deltaX() < joystickOffset)) {
-                keyboardHandler.set('up');
-            } else if (joystick.deltaY() > joystickOffset && (joystick.deltaX() > -joystickOffset || joystick.deltaX() < joystickOffset)) {
-                keyboardHandler.set('down');
-                keyboardHandler.set('up', false);
-            } else {
-                keyboardHandler.set('up', false);
-                keyboardHandler.set('down', false);
+        this.mousehandler.add('#mobileControls', 'touchstart', 'joyDown');
+        this.mousehandler.add('#mobileControls', 'mousedown', 'joyDown');
+        this.mousehandler.add('#mobileControls', 'touchend', 'joyUp');
+        this.mousehandler.add('#mobileControls', 'mouseup', 'joyUp');
+    }
+    joyDown(e) {
+        e.preventDefault();
+        this.isTouched = true;
+        this.joystickInterval = this.virtualJoystickInterval();
+    }
+    joyUp(e) {
+        e.preventDefault();
+        clearInterval(this.joystickInterval);
+        this.isTouched = false;
+        this.parent.keyboardHandler.reset();
+    }
+    virtualJoystickInterval() {
+        return setInterval(() => {
+            if (this.isTouched) {
+                if (this.joystick.deltaY() < -this.joystickOffset && (this.joystick.deltaX() > -this.joystickOffset || this.joystick.deltaX() < this.joystickOffset)) {
+                    this.parent.keyboardHandler.set('up');
+                } else if (this.joystick.deltaY() > this.joystickOffset && (this.joystick.deltaX() > -this.joystickOffset || this.joystick.deltaX() < this.joystickOffset)) {
+                    this.parent.keyboardHandler.set('down');
+                    this.parent.keyboardHandler.set('up', false);
+                } else {
+                    this.parent.keyboardHandler.set('up', false);
+                    this.parent.keyboardHandler.set('down', false);
+                }
+                if (this.joystick.deltaX() < -this.joystickOffset && (this.joystick.deltaY() > -this.joystickOffset || this.joystick.deltaY() < this.joystickOffset)) {
+                    this.parent.keyboardHandler.set('left');
+                    this.parent.keyboardHandler.set('right', false);
+                } else if (this.joystick.deltaX() > this.joystickOffset && (this.joystick.deltaY() > -this.joystickOffset || this.joystick.deltaY() < this.joystickOffset)) {
+                    this.parent.keyboardHandler.set('right');
+                    this.parent.keyboardHandler.set('left', false);
+                } else {
+                    this.parent.keyboardHandler.set('right', false);
+                    this.parent.keyboardHandler.set('left', false);
+                }
             }
-            if (joystick.deltaX() < -joystickOffset && (joystick.deltaY() > -joystickOffset || joystick.deltaY() < joystickOffset)) {
-                keyboardHandler.set('left');
-                keyboardHandler.set('right', false);
-            } else if (joystick.deltaX() > joystickOffset && (joystick.deltaY() > -joystickOffset || joystick.deltaY() < joystickOffset)) {
-                keyboardHandler.set('right');
-                keyboardHandler.set('left', false);
-            } else {
-                keyboardHandler.set('right', false);
-                keyboardHandler.set('left', false);
-            }
-        }
-    }, 1000 / 60);
+        }, 1000 / 60);
+    }
 }

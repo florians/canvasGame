@@ -1,16 +1,22 @@
 class Floors {
-    constructor(game) {
-        this.game = game;
+    constructor(parent) {
+        this.parent = parent;
         this.floors = [];
-        this.floorLevel = floorLevel || 1;
+        this.floorLevel = 1;
     }
     /************************
      **** Setup Loader ******
      ************************/
     load(level) {
-        this.game.loader.add('data', 'floors', {
+        this.parent.loader.add('data', 'floors', {
             type: 'getFloor',
             level: level
+        });
+        this.floorLevel = level;
+    }
+    loadAll() {
+        this.parent.loader.add('data', 'allFloors', {
+            type: 'getAllFloors'
         });
     }
     /************************
@@ -28,7 +34,7 @@ class Floors {
      ***** Add Floor ********
      ************************/
     add(result) {
-        return new Floor(result);
+        return new Floor(this.parent, result);
     }
     /************************
      ****** Fallback ********
@@ -55,7 +61,7 @@ class Floors {
     newFloor(newFloor) {
         this.floorLevel = newFloor;
         $('body').removeClass('loading-done');
-        this.game.stopGame = true;
+        this.parent.stopGame = true;
         if (!this.get(this.floorLevel)) {
             this.load(this.floorLevel);
         } else {
@@ -74,4 +80,18 @@ class Floors {
     // garbage collection
     // remove(id){
     // }
+
+
+
+    /************************
+     ****** Generator *******
+     ************************/
+    fillFloorSelect(result) {
+        $('.floorSelect').html('<option></option>');
+        for (let i = 0; i < result.length; i++) {
+            $('.floorSelect').append('<option value="' + result[i].level + '">Level ' + result[i].level + '</option>');
+        }
+        $('select.floorSelect').val(this.floorLevel);
+        $('.controls input.level').val(this.floorLevel);
+    }
 }

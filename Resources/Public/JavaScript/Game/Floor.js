@@ -1,5 +1,6 @@
 class Floor {
-    constructor(result) {
+    constructor(parent, result) {
+        this.parent = parent;
         // set part size
         this.partW = 100;
         this.partH = 100;
@@ -41,8 +42,8 @@ class Floor {
         this.setLevel(result.level);
         this.setStart('x', result.startX);
         this.setStart('y', result.startY);
-        this.setAssetsJson(result.assetsJson);
-        this.assetsLayer = this.getAssetsJson();
+        this.setTilesJson(result.tilesJson);
+        this.assetsLayer = this.getTilesJson();
 
         // reset the val of stageX/Y
         this.resetStageX();
@@ -61,11 +62,11 @@ class Floor {
     getLevel() {
         return this.level;
     }
-    getAssetsJson() {
-        return this.assetsJson;
-    }
     getStart(dir) {
         return this.start[dir];
+    }
+    getTilesJson() {
+        return this.tilesJson;
     }
     getStage(dir) {
         return this.stage[dir];
@@ -91,11 +92,11 @@ class Floor {
     setLevel(level) {
         this.level = parseInt(level);
     }
-    setAssetsJson(assetsJson) {
-        this.assetsJson = JSON.parse(assetsJson);
-    }
     setStart(dir, val) {
         this.start[dir] = parseInt(val);
+    }
+    setTilesJson(assetsJson) {
+        this.tilesJson = JSON.parse(assetsJson);
     }
     setStage(dir, val) {
         this.stage[dir] = val;
@@ -409,16 +410,16 @@ class Floor {
         if (elementAssetsLayer.overlay) {
             this.handleOverlay(elementAssetsLayer);
         }
-        if (keyboardHandler.get('up') && !keyboardHandler.get('down')) {
+        if (_game.keyboardHandler.get('up') && !_game.keyboardHandler.get('down')) {
             dy = Math.floor(-step * _game.delta * 100) / 100;
-        } else if (!keyboardHandler.get('up') && keyboardHandler.get('down')) {
+        } else if (!_game.keyboardHandler.get('up') && _game.keyboardHandler.get('down')) {
             dy = Math.floor(step * _game.delta * 100) / 100;
         } else {
             dy = 0;
         }
-        if (keyboardHandler.get('left') && !keyboardHandler.get('right')) {
+        if (_game.keyboardHandler.get('left') && !_game.keyboardHandler.get('right')) {
             dx = Math.floor(-step * _game.delta * 100) / 100;
-        } else if (!keyboardHandler.get('left') && keyboardHandler.get('right')) {
+        } else if (!_game.keyboardHandler.get('left') && _game.keyboardHandler.get('right')) {
             dx = Math.floor(step * _game.delta * 100) / 100;
         } else {
             dx = 0;

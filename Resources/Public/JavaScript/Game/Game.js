@@ -5,12 +5,19 @@ class Game {
         this._floors = new Floors(this);
         this._skills = new Skills(this);
         this._player = new Player(this);
+        this.mousehandler = new MouseHandler(this);
+        this.keyboardHandler = new KeyboardHandler(this);
+        this.joystickHandler = new Joystick(this);
+        this.fullscreenHandler = new Fullscreen();
 
         this.enemy = [];
         this.delta = 0;
         this.raF = 0;
         this.stopGame = false;
         this.lastTimestamp = 0;
+
+        this.mousehandler.add('.fullscreen', 'click', 'doFullscreen');
+        //this.keyboardHandler.add(document, 'keydown', 'doFullscreen');
 
         this.preloader();
     }
@@ -23,9 +30,7 @@ class Game {
         this._skills.load();
         this._player.load(playerName);
         this._player.loadSkills(playerName);
-        // give loader an object for calling functions
-        this.loader.setObj(this);
-        // calls _game.preloaderResult
+        // calls > preloaderResult
         this.loader.run();
     }
     /************************
@@ -103,6 +108,11 @@ class Game {
         this._player.resize();
         if (this.stopGame == true) {
             this.draw();
+        }
+    }
+    doFullscreen(event) {
+        if (event.keyCode == 70 || event.target.className == 'fullscreen') {
+            this.fullscreenHandler.toggle();
         }
     }
 }

@@ -15,7 +15,7 @@ class Generator {
     preloader() {
         if (this.generatorType == 'Floor') {
             this._assets.load();
-            this._floors.load(1);
+            this._floors.load(2);
             this._floors.loadAll();
         }
         // calls > preloaderResult

@@ -1,6 +1,9 @@
 class Floor {
     constructor(parent, result) {
         this.parent = parent;
+        this.dataHandler = new DataHandler(this);
+        this.tiles = new Tiles(this.parent);
+        this.collisionLayer = new Tiles(this.parent);
         // set part size
         this.partW = 100;
         this.partH = 100;
@@ -34,7 +37,6 @@ class Floor {
             bottom: 0
         }
 
-        this.collisionLayer = [];
         this.collisionLayerSize = 2;
 
         this.setHeight(result.height);
@@ -42,8 +44,8 @@ class Floor {
         this.setLevel(result.level);
         this.setStart('x', result.startX);
         this.setStart('y', result.startY);
-        this.setTilesJson(result.tilesJson);
-        this.assetsLayer = this.getTilesJson();
+        this.setTilesArray(result.tiles);
+        //this.assetsLayer = this.getTilesJson();
 
         // reset the val of stageX/Y
         this.resetStageX();
@@ -80,6 +82,9 @@ class Floor {
     getPlayer(dir) {
         return this.player[dir];
     }
+    getTilesArray() {
+        return this.tilesArray;
+    }
     /************************
      ******** Setter ********
      ************************/
@@ -95,8 +100,8 @@ class Floor {
     setStart(dir, val) {
         this.start[dir] = parseInt(val);
     }
-    setTilesJson(assetsJson) {
-        this.tilesJson = JSON.parse(assetsJson);
+    setTilesJson(tilesJson) {
+        this.tilesJson = tilesJson;
     }
     setStage(dir, val) {
         this.stage[dir] = val;
@@ -109,6 +114,9 @@ class Floor {
     }
     setPlayer(dir, val) {
         this.player[dir] = val;
+    }
+    setTilesArray(tiles) {
+        this.tilesArray = this.dataHandler.extract(tiles);
     }
     setStageCenter() {
         _ctxWorld.translate(Math.floor(_ctxWorld.canvas.width / 2 - this.getStage('x')), Math.floor(_ctxWorld.canvas.height / 2 - this.getStage('y')));
@@ -198,64 +206,25 @@ class Floor {
         this.doFloorResize = 1;
     }
     generateFloor() {
-        let a = 0,
-            b = 0;
-        this.stageY = 0;
-        this.stageX = 0;
+        let rowY = 0,
+            colX = 0,
+            a, b,
+            counter = 0;
+
+        this.setStage('x', 0);
+        this.setStage('y', 0);
         // first render and after resize
-        if (this.collisionLayer.length === 0) {
-            // prepare collision layer
-            for (let r = 0; r < this.getHeight() * this.collisionLayerSize; r++) {
-                b = Math.floor(this.stageY + (this.partH / this.collisionLayerSize * r));
-                for (let c = 0; c < this.getWidth() * this.collisionLayerSize; c++) {
-                    a = Math.floor(this.stageX + (this.partW / this.collisionLayerSize * c));
-                    if (!this.collisionLayer[r]) {
-                        this.collisionLayer[r] = [];
+        if (this.collisionLayer.tiles.length == 0) {
+            for (let row = 0; row < this.getHeight(); row++) {
+                rowY = Math.floor(this.getStage('y') + (this.partH * row));
+                for (let col = 0; col < this.getWidth(); col++) {
+                    colX = Math.floor(this.getStage('x') + (this.partW * col));
+                    this.tiles.add(this.tilesArray[counter], row, col, rowY, colX);
+                    this.addCollisionLayer(row, col, rowY, colX, this.tiles.get(row, col));
+                    if (this.isInView(colX, rowY)) {
+                        this.createBlocks(row, col);
                     }
-                    this.collisionLayer[r][c] = {
-                        x: a,
-                        y: b,
-                        collision: false,
-                        type: false,
-                        w: this.partW / this.collisionLayerSize,
-                        h: this.partH / this.collisionLayerSize
-                    }
-                }
-            }
-            // prepare assets layer
-            for (let r = 0; r < this.getHeight(); r++) {
-                b = Math.floor(this.stageY + (this.partH * r));
-                for (let c = 0; c < this.getWidth(); c++) {
-                    a = Math.floor(this.stageX + (this.partW * c));
-                    if (this.assetsLayer[r][c].uid) {
-                        this.assetsLayer[r][c].x = a;
-                        this.assetsLayer[r][c].y = b;
-                        this.assetsLayer[r][c].render = true;
-                        let asset = _game._assets.get(this.assetsLayer[r][c].uid);
-                        //let settings = _game._allAssets[this.assetsLayer[r][c].uid].settings;
-                        // this.assetsLayer[r][c].collision = settings.collision.split(',').map(Number);
-                        // this.assetsLayer[r][c].type = settings.type;
-                        // this.assetsLayer[r][c].factor = settings.factor;
-                        this.assetsLayer[r][c].collision = asset.getCollision();
-                        this.assetsLayer[r][c].type = asset.getType();
-                        this.assetsLayer[r][c].factor = asset.getFactor();
-                        this.assetsLayer[r][c].posX = c;
-                        this.assetsLayer[r][c].posY = r;
-                        this.changeCollisionLayer(r, c, this.assetsLayer[r][c]);
-                    } else {
-                        this.assetsLayer[r][c] = {
-                            x: a,
-                            y: b,
-                            collision: [1],
-                            render: false,
-                            posX: c,
-                            posY: r
-                        }
-                        this.changeCollisionLayer(r, c, this.assetsLayer[r][c]);
-                    }
-                    if (this.isInView(a, b)) {
-                        this.createBlocks(r, c);
-                    }
+                    counter++;
                 }
             }
             this.doFloorResize = 0;
@@ -279,22 +248,38 @@ class Floor {
             }
         }
     }
-    changeCollisionLayer(r, c, el) {
+    addCollisionLayer(row, col, rowY, colX, el) {
         let collisionNr = 0;
-        let collisionRow = r * this.collisionLayerSize;
-        let collisionCol = c * this.collisionLayerSize;
-
-        for (let r = 0; r < this.collisionLayerSize; r++) {
-            for (let c = 0; c < this.collisionLayerSize; c++) {
-                this.collisionLayer[collisionRow + r][collisionCol + c].collision = el.collision[collisionNr];
-                this.collisionLayer[collisionRow + r][collisionCol + c].type = el.type || 'default';
-                this.collisionLayer[collisionRow + r][collisionCol + c].factor = el.collision == 1 ? 0 : el.factor;
-                if (el.collision.length > 1) {
+        for (let a = 0; a < this.collisionLayerSize; a++) {
+            let cLayerRowY = rowY + (this.partH / this.collisionLayerSize * a);
+            for (let b = 0; b < this.collisionLayerSize; b++) {
+                let cLayerColX = colX + (this.partW / this.collisionLayerSize * b);
+                let newRow = row * this.collisionLayerSize + a;
+                let newCol = col * this.collisionLayerSize + b;
+                this.collisionLayer.add('', newRow, newCol, cLayerRowY, cLayerColX);
+                this.collisionLayer.get(newRow, newCol).setCollision(el.asset.getCollision()[collisionNr]);
+                this.collisionLayer.get(newRow, newCol).setOrig(el.asset);
+                if (el.asset.getCollision() > 1) {
                     collisionNr++;
                 }
             }
         }
     }
+    // changeCollisionLayer(row, col, el) {
+    //     let collisionNr = 0,
+    //         collisionRow = row * this.collisionLayerSize,
+    //         collisionCol = col * this.collisionLayerSize;
+    //
+    //     for (let r = 0; r < this.collisionLayerSize; r++) {
+    //         for (let c = 0; c < this.collisionLayerSize; c++) {
+    //             this.collisionLayer.get(collisionRow + r, collisionCol + c).setCollision(el.asset.getCollision()[collisionNr]);
+    //             this.collisionLayer.get(collisionRow + r, collisionCol + c).setOrig(el.asset);
+    //             if (el.asset.getCollision() > 1) {
+    //                 collisionNr++;
+    //             }
+    //         }
+    //     }
+    // }
     isInView(x, y) {
         if (
             x >= -_game._player.x - this.partW * 2 + this.getStageOffset('x') &&
@@ -305,86 +290,91 @@ class Floor {
             return true;
         }
     }
-    createBlocks(r, c) {
-        if (this.assetsLayer[r][c].render) {
+    createBlocks(row, col) {
+        if (this.tiles.get(row, col).asset.image) {
             _ctxWorld.drawImage(
-                _game._assets.get(this.assetsLayer[r][c].uid).getImage(),
-                this.assetsLayer[r][c].x,
-                this.assetsLayer[r][c].y,
+                this.tiles.get(row, col).asset.getImage(),
+                this.tiles.get(row, col).getX(),
+                this.tiles.get(row, col).getY(),
                 this.partW,
                 this.partH
             );
-            if (this.assetsLayer[r][c].overlay) {
-                _ctxWorld.drawImage(
-                    _game._assets.get(this.assetsLayer[r][c].overlay).getImage(),
-                    this.assetsLayer[r][c].x,
-                    this.assetsLayer[r][c].y,
-                    this.partW,
-                    this.partH
-                );
-                if (_game._assets.get(this.assetsLayer[r][c].overlay).getName() == 'lock') {
-                    this.assetsLayer[r][c].collision = [0, 1, 0, 1];
-                    this.changeCollisionLayer(r, c, this.assetsLayer[r][c]);
-                }
-            }
         }
         if (showHitBox) {
-            let hitBoxCounter = 0;
-            for (let a = 0; a < this.collisionLayerSize; a++) {
-                for (let b = 0; b < this.collisionLayerSize; b++) {
-                    if (
-                        this.assetsLayer[r][c].collision.length > 1 &&
-                        this.assetsLayer[r][c].collision[hitBoxCounter] == 1
-                    ) {
-                        _ctxWorld.fillStyle = 'rgb(0,255,0)';
+            if (this.tiles.get(row, col).asset.getCollision().length > 1) {
+                for (let a = 0; a < this.collisionLayerSize; a++) {
+                    for (let b = 0; b < this.collisionLayerSize; b++) {
+                        let newRow = row * this.collisionLayerSize + a;
+                        let newCol = col * this.collisionLayerSize + b;
+                        _ctxWorld.fillStyle = 'rgba(0,255,0,0.2)';
                         _ctxWorld.fillRect(
-                            this.collisionLayer[r * this.collisionLayerSize + a][c * this.collisionLayerSize + b].x + 0.5,
-                            this.collisionLayer[r * this.collisionLayerSize + a][c * this.collisionLayerSize + b].y + 0.5,
+                            this.collisionLayer.get(newRow, newCol).getX() + 0.5,
+                            this.collisionLayer.get(newRow, newCol).getY() + 0.5,
                             this.partW / this.collisionLayerSize - 1,
                             this.partH / this.collisionLayerSize - 1
                         );
                     }
-                    hitBoxCounter++;
                 }
             }
         }
+
+        // if (showHitBox) {
+        //     let hitBoxCounter = 0;
+        //     for (let a = 0; a < this.collisionLayerSize; a++) {
+        //         for (let b = 0; b < this.collisionLayerSize; b++) {
+        //             if (
+        //                 this.tiles.get(row, col).getCollision().length > 1// &&
+        //                 //this.tiles.get(row, col).collision[hitBoxCounter] == 1
+        //             ) {
+        //                 _ctxWorld.fillStyle = 'rgb(0,255,0)';
+        //                 _ctxWorld.fillRect(
+        //                     this.collisionLayer.get(r * this.collisionLayerSize + a, c * this.collisionLayerSize + b).getX() + 0.5,
+        //                     this.collisionLayer.get(r * this.collisionLayerSize + a, c * this.collisionLayerSize + b).getY() + 0.5,
+        //                     this.partW / this.collisionLayerSize - 1,
+        //                     this.partH / this.collisionLayerSize - 1
+        //                 );
+        //             }
+        //             hitBoxCounter++;
+        //         }
+        //     }
+        // }
     }
 
-    handleOverlay(elementAssetsLayer) {
-        let overlay = elementAssetsLayer.overlay;
-        let itemWasUsed = false;
-        if (_game._assets.get(overlay).getName() == 'hp' || _game._assets.get(overlay).getName() == 'es') {
-            itemWasUsed = _game.ui.addStat('_player', _game._assets.get(overlay).getName());
-        }
-        if (_game._assets.get(overlay).getName() == 'key') {
-            if (!_game._player.items['key']) {
-                _game.ui.addItem('_player', 'key', overlay);
-                itemWasUsed = true;
-            }
-        }
-        if (_game._assets.get(overlay).getName() == 'lock') {
-            if (_game._player.items['key']) {
-                elementAssetsLayer.collision = [0];
-                this.changeCollisionLayer(elementAssetsLayer.posY, elementAssetsLayer.posX, elementAssetsLayer);
-                //_game.ui.removeItem('_player', 'key');
-                itemWasUsed = true;
-            }
-        }
-        if (_game._assets.get(overlay).getName() == 'trap') {
-            _game.ui.removeStat('_player', 'hp');
-            itemWasUsed = true;
-        }
-        if (_game._assets.get(overlay).getName() == 'enemy') {
-            _game.stopGame = true;
-            _game.battle = new Battle();
-            _game.ui.draw();
-            itemWasUsed = true;
-        }
-        // remove overlay
-        if (itemWasUsed == true) {
-            elementAssetsLayer.overlay = '';
-        }
-    }
+    // handleOverlay(elementAssetsLayer) {
+    //     let overlay = elementAssetsLayer.overlay;
+    //     let itemWasUsed = false;
+    //     if (_game._assets.get(overlay).getName() == 'hp' || _game._assets.get(overlay).getName() == 'es') {
+    //         itemWasUsed = _game.ui.addStat('_player', _game._assets.get(overlay).getName());
+    //     }
+    //     if (_game._assets.get(overlay).getName() == 'key') {
+    //         if (!_game._player.items['key']) {
+    //             _game.ui.addItem('_player', 'key', overlay);
+    //             itemWasUsed = true;
+    //         }
+    //     }
+    //     if (_game._assets.get(overlay).getName() == 'lock') {
+    //         if (_game._player.items['key']) {
+    //             elementAssetsLayer.collision = [0];
+    //             this.changeCollisionLayer(elementAssetsLayer.posY, elementAssetsLayer.posX, elementAssetsLayer);
+    //             //_game.ui.removeItem('_player', 'key');
+    //             itemWasUsed = true;
+    //         }
+    //     }
+    //     if (_game._assets.get(overlay).getName() == 'trap') {
+    //         _game.ui.removeStat('_player', 'hp');
+    //         itemWasUsed = true;
+    //     }
+    //     if (_game._assets.get(overlay).getName() == 'enemy') {
+    //         _game.stopGame = true;
+    //         _game.battle = new Battle();
+    //         _game.ui.draw();
+    //         itemWasUsed = true;
+    //     }
+    //     // remove overlay
+    //     if (itemWasUsed == true) {
+    //         elementAssetsLayer.overlay = '';
+    //     }
+    // }
     collision() {
         // Player Center
         let playerY = Math.floor((this.getStageOffset('y')) / (this.partH / 2)),
@@ -393,36 +383,39 @@ class Floor {
             oldPlayerBottom = this.getPlayer('bottom'),
             oldPlayerLeft = this.getPlayer('left'),
             oldPlayerRight = this.getPlayer('right'),
-            type = this.collisionLayer[playerY][playerX].type || 'default',
-            factor = this.collisionLayer[playerY][playerX].factor || 1,
+            type = this.collisionLayer.get(playerY, playerX).getOrig().getType() || 'default',
+            factor = this.collisionLayer.get(playerY, playerX).getOrig().getFactor() || 1,
             dx = 0,
             dy = 0,
             step = this.steps * factor,
-            elementAssetsLayer = this.assetsLayer[Math.floor(playerY / this.collisionLayerSize)][Math.floor(playerX / this.collisionLayerSize)];
+            elementAssetsLayer = this.tiles.get(Math.floor(playerY / this.collisionLayerSize), Math.floor(playerX / this.collisionLayerSize));
 
         if (type == 'portal') {
             if (elementAssetsLayer.level) {
+                _game.keyboardHandler.reset();
                 _game._player.savePlayer();
                 _game._floors.newFloor(elementAssetsLayer.level);
                 _game.loader.run();
             }
         }
-        if (elementAssetsLayer.overlay) {
-            this.handleOverlay(elementAssetsLayer);
-        }
-        if (_game.keyboardHandler.get('up') && !_game.keyboardHandler.get('down')) {
-            dy = Math.floor(-step * _game.delta * 100) / 100;
-        } else if (!_game.keyboardHandler.get('up') && _game.keyboardHandler.get('down')) {
-            dy = Math.floor(step * _game.delta * 100) / 100;
-        } else {
-            dy = 0;
-        }
-        if (_game.keyboardHandler.get('left') && !_game.keyboardHandler.get('right')) {
-            dx = Math.floor(-step * _game.delta * 100) / 100;
-        } else if (!_game.keyboardHandler.get('left') && _game.keyboardHandler.get('right')) {
-            dx = Math.floor(step * _game.delta * 100) / 100;
-        } else {
-            dx = 0;
+        // if (elementAssetsLayer.overlay) {
+        //     this.handleOverlay(elementAssetsLayer);
+        // }
+        if (!this.stopGame == true) {
+            if (_game.keyboardHandler.get('up') && !_game.keyboardHandler.get('down')) {
+                dy = Math.floor(-step * _game.delta * 100) / 100;
+            } else if (!_game.keyboardHandler.get('up') && _game.keyboardHandler.get('down')) {
+                dy = Math.floor(step * _game.delta * 100) / 100;
+            } else {
+                dy = 0;
+            }
+            if (_game.keyboardHandler.get('left') && !_game.keyboardHandler.get('right')) {
+                dx = Math.floor(-step * _game.delta * 100) / 100;
+            } else if (!_game.keyboardHandler.get('left') && _game.keyboardHandler.get('right')) {
+                dx = Math.floor(step * _game.delta * 100) / 100;
+            } else {
+                dx = 0;
+            }
         }
         this.setStageOffsetX(this.getStageOffset('x') + dx, 1);
         this.setStageOffsetY(this.getStageOffset('y') + dy, 1);
@@ -476,11 +469,14 @@ class Floor {
                 this.collisionBox(oldPlayerRight, oldPlayerBottom, this.getPlayer('right'), this.getPlayer('bottom'), 0, 0);
             }
         }
+        // console.log(this.getPlayer('bottom'), this.getPlayer('left'));
+        // console.log(this.collisionLayer);
+        // console.log(this.collisionLayer.get(this.getPlayer('bottom'), this.getPlayer('left')));
         if (
-            this.collisionLayer[this.getPlayer('bottom')][this.getPlayer('right')].collision ||
-            this.collisionLayer[this.getPlayer('bottom')][this.getPlayer('left')].collision ||
-            this.collisionLayer[this.getPlayer('top')][this.getPlayer('left')].collision ||
-            this.collisionLayer[this.getPlayer('top')][this.getPlayer('right')].collision
+            this.collisionLayer.get(this.getPlayer('bottom'), this.getPlayer('right')).getCollision() ||
+            this.collisionLayer.get(this.getPlayer('bottom'), this.getPlayer('left')).getCollision() ||
+            this.collisionLayer.get(this.getPlayer('top'), this.getPlayer('left')).getCollision() ||
+            this.collisionLayer.get(this.getPlayer('top'), this.getPlayer('right')).getCollision()
         ) {
             //console.log('collision set to old Values');
             this.setStageOffsetX(this.oldStageOffsetX);
@@ -488,10 +484,10 @@ class Floor {
         }
     }
     collisionBox(oldBoxX, oldBoxY, newBoxX, newBoxY, playerCornerLeft, playerCornerTop) {
-        if (typeof this.collisionLayer[newBoxY][newBoxX] == "undefined") {
+        if (typeof this.collisionLayer.get(newBoxY, newBoxX) == "undefined") {
             return;
         }
-        if (!this.collisionLayer[newBoxY][newBoxX].collision) {
+        if (!this.collisionLayer.get(newBoxY, newBoxX).getCollision()) {
             return;
         }
         //console.log('collisionBox kolidierter Ecken:' + (playerCornerLeft ? 'Links' : 'Rechts') + ', ' + (playerCornerTop ? 'Oben' : 'Unten'));
@@ -514,10 +510,10 @@ class Floor {
         } else {
             //Kollision untere Kante?
             //console.log('oldBoxX=' + oldBoxX + ', oldBoxY=' + oldBoxY);
-            if (!this.collisionLayer[oldBoxY][newBoxX].collision && this.collisionLayer[newBoxY][oldBoxX].collision) {
+            if (!this.collisionLayer.get(oldBoxY, newBoxX).getCollision() && this.collisionLayer.get(newBoxY, oldBoxX).getCollision()) {
                 this.setStageOffsetY(kanteY + playerOffsetY);
                 //console.log('collisionBox Korrektur Y: ');
-            } else if (!this.collisionLayer[newBoxY][oldBoxX].collision && this.collisionLayer[oldBoxY][newBoxX].collision) {
+            } else if (!this.collisionLayer.get(newBoxY, oldBoxX).getCollision() && this.collisionLayer.get(oldBoxY, newBoxX).getCollision()) {
                 this.setStageOffsetX(kanteX + playerOffsetX);
                 //console.log('collisionBox Korrektur X: ');
             } else {

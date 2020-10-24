@@ -16,6 +16,8 @@ $jsFiles = [
     'Resources/Public/JavaScript/Game/Battle.js',
     'Resources/Public/JavaScript/Shared/Assets.js',
     'Resources/Public/JavaScript/Shared/Asset.js',
+    'Resources/Public/JavaScript/Shared/Tiles.js',
+    'Resources/Public/JavaScript/Shared/Tile.js',
     'Resources/Public/JavaScript/Game/Skills.js',
     'Resources/Public/JavaScript/Game/Skill.js',
     'Resources/Public/JavaScript/Game/Game.js',

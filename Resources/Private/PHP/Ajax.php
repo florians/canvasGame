@@ -55,10 +55,10 @@ switch ($_POST['type']) {
 function getFloor($db, $level)
 {
     $result = $db->select('floor', '*', ['deleted' => 0, 'level' => $level])[0];
-    $target_file = '../../Private/Floor/level_' . $result['uid'] . '.json';
-    if (file_exists($target_file)) {
-        $file = file_get_contents($target_file);
-        $result['tilesJson'] = $file;
+    $target_file = '../../Private/Floor/Level_' . $level . '/Layer_Tiles.txt';
+    $file = getFile($target_file);
+    if ($file) {
+        $result['tiles'] = $file;
         $msg = 'Floor Level ' . $level . ' successfully loaded';
     } else {
         $result = false;
@@ -121,8 +121,8 @@ function getAsset($db, $name)
             ],
         ]
     );
-    //returnJson($msg, $result,$type);
-    echo json_encode($result);
+    $msg = 'Assets loaded';
+    returnJson($msg, $result, $success);
 }
 function getAllFloors($db)
 {
@@ -196,20 +196,25 @@ function getAllSkills($db)
 function getSkillTypes($db)
 {
     $result = $db->select('skills_type', '*', ['deleted' => 0]);
-    echo json_encode($result);
+    if (count($result)) {
+        $msg = 'Skills types loaded';
+    } else {
+        $success = false;
+        $msg = 'No Skill types found';
+    }
+    returnJson($msg, $result, $success);
 }
 function savePlayer($db, $name, $level, $stats)
 {
 
-    $resultUid = $db->select('player', 'uid', ['AND' => ['deleted' => 0, 'name' => $name]]);
-    if ($resultUid[0]) {
+    $result = $db->select('player', 'uid', ['AND' => ['deleted' => 0, 'name' => $name]]);
+    if ($result[0]) {
         $db->update('player', [
             'level' => $level,
             'stats' => $stats,
         ], [
             'uid' => $resultUid[0],
         ]);
-        $type = 'success';
         $msg = 'Player: ' . $name . ' updated!';
     } else {
         $db->insert('player', [
@@ -217,26 +222,32 @@ function savePlayer($db, $name, $level, $stats)
             'level' => $level,
             'stats' => $stats,
         ]);
-        $type = 'success';
         $msg = 'Player: ' . $name . ' added!';
     }
-    echo json_encode(['type' => $type, 'msg' => $msg]);
+    //echo json_encode(['type' => $type, 'msg' => $msg]);
+    returnJson($msg, $result[0], $success);
 }
 
 function saveFloor($db, $json)
 {
     $jsonObj = json_decode($json);
-    $isLoaded = $_POST['isLoaded'];
     $level = $jsonObj->{'level'};
     $startX = $jsonObj->{'startX'};
     $startY = $jsonObj->{'startY'};
     $height = $jsonObj->{'height'};
     $width = $jsonObj->{'width'};
-    $tilesJson = json_encode($jsonObj->{'tileJson'});
+    $tiles = $jsonObj->{'tiles'};
+    $enemies = $jsonObj->{'enemies'};
+    $items = $jsonObj->{'items'};
 
-    $freeLevelCheck = $db->select('floor', 'uid', ['deleted' => 0, 'level' => $level]);
+    $isUpdate = $db->select('floor', 'uid', ['deleted' => 0, 'level' => $level])[0];
+    $destination_dir = '../../Private/Floor/Level_' . $level;
+
+    if (!is_dir($destination_dir)) {
+        mkdir($destination_dir, 0755, true);
+    }
     // update
-    if (count($freeLevelCheck) > 0 && $isLoaded == 1) {
+    if ($isUpdate) {
         $db->update('floor', [
             'level' => $level,
             'startX' => $startX,
@@ -244,21 +255,10 @@ function saveFloor($db, $json)
             'height' => $height,
             'width' => $width,
         ], [
-            'uid' => $freeLevelCheck[0],
+            'uid' => $isUpdate,
         ]);
-        if ($freeLevelCheck[0]) {
-            $target_file = '../../Private/Floor/level_' . $freeLevelCheck[0] . '.json';
-            $file = fopen($target_file, "w");
-            fwrite($file, $tilesJson);
-            fclose($file);
-        }
-        $type = 'success';
         $msg = 'Floor Level ' . $level . ' updated!';
-        //echo $db->id().' updated!';
-    } else if (count($freeLevelCheck) > 0 && $isLoaded == 0) {
-        $type = 'error';
-        $msg = 'Floor ' . $level . ' is already in use!';
-    } else if ($isLoaded == 0) {
+    } else {
         // insert
         if (isset($level) && isset($startX) && isset($startY) && isset($height) && isset($width)) {
             $db->insert('floor', [
@@ -268,21 +268,21 @@ function saveFloor($db, $json)
                 'height' => $height,
                 'width' => $width,
             ]);
-            if ($db->id()) {
-                $target_file = '../../Private/Floor/level_' . $db->id() . '.json';
-                $file = fopen($target_file, "w");
-                fwrite($file, $tilesJson);
-                fclose($file);
-            }
-            //echo $db->id().' is a new entry!';
-            $type = 'success';
             $msg = 'Floor Level ' . $level . ' was saved!';
-        } else {
-            $type = 'info';
-            $msg = 'smt failed';
         }
     }
-    echo json_encode(['type' => $type, 'msg' => $msg]);
+    if ($isUpdate || $db->id()) {
+        if ($tiles) {
+            writeFile($destination_dir . '/Layer_Tiles.txt', $tiles);
+        }
+        if ($enemies) {
+            writeFile($destination_dir . '/Layer_Enemies.txt', $tiles);
+        }
+        if ($items) {
+            writeFile($destination_dir . '/Layer_Items.txt', $tiles);
+        }
+    }
+    returnJson($msg, '', $success);
 }
 
 function saveAssets($db, $json, $file)
@@ -355,6 +355,22 @@ function delAssets($db, $name)
     $type = 'success';
     $msg = 'Assets removed';
     echo json_encode(['type' => $type, 'msg' => $msg]);
+}
+
+function getFile($path)
+{
+    if (file_exists($path)) {
+        return file_get_contents($path);
+    } else {
+        return false;
+    }
+}
+
+function writeFile($path, $content)
+{
+    $file = fopen($path, "w");
+    fwrite($file, $content);
+    fclose($file);
 }
 
 function returnJson($msg, $result, $success)

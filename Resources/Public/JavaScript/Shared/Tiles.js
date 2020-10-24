@@ -4,15 +4,6 @@ class Tiles {
         this.tiles = [];
     }
     /************************
-     ***** Loader init ******
-     ************************/
-    // init(result) {
-    //     for (let i = 0; i < result.length; i++) {
-    //         this.tiles[result[i].uid] = this.add(result[i]);
-    //     }
-    //     return this;
-    // }
-    /************************
      ******** Getter ********
      ************************/
     get(row, col) {
@@ -21,18 +12,37 @@ class Tiles {
     /************************
      ******** Setter ********
      ************************/
-    add(uid, row, col, rowY, colX) {
+    add(data, row, col, rowY, colX) {
+
+        let id, level;
+        if (Array.isArray(data)) {
+            id = data[0];
+            level = data[1];
+        } else {
+            id = data;
+        }
         if (!this.tiles[row]) {
             this.tiles[row] = [];
         }
         if (!this.tiles[row][col]) {
             this.tiles[row][col] = [];
         }
-        this.tiles[row][col] = new Tile(this.parent, uid);
+        this.tiles[row][col] = new Tile(this.parent, id);
         this.tiles[row][col].setX(colX);
         this.tiles[row][col].setY(rowY);
         this.tiles[row][col].setCol(col);
         this.tiles[row][col].setRow(row);
-        this.tiles[row][col].level = uid.level;
+        if (level) {
+            this.tiles[row][col].setLevel(level);
+        }
+    }
+    setOrig(orig, row, col) {
+        this.tiles[row][col].setOrig(orig);
+    }
+    /************************
+     **** clear tiles *******
+     ************************/
+    clear() {
+        this.tiles = [];
     }
 }

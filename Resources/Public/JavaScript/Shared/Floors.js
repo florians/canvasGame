@@ -3,6 +3,7 @@ class Floors {
         this.parent = parent;
         this.floors = [];
         this.floorLevel = 1;
+        this.counter = 0;
     }
     /************************
      **** Setup Loader ******
@@ -24,7 +25,9 @@ class Floors {
      ************************/
     init(result) {
         if (result) {
-            this.floors[result.level] = this.add(result);
+            if (!this.floors[result.level]) {
+                this.floors[result.level] = this.add(result);
+            }
         } else {
             this.fallback();
         }
@@ -63,6 +66,7 @@ class Floors {
         $('body').removeClass('loading-done');
         this.parent.stopGame = true;
         if (!this.get(this.floorLevel)) {
+            this.counter = 0;
             this.load(this.floorLevel);
         } else {
             this.getCurrent().resetStart();

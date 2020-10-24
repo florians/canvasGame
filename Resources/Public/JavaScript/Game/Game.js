@@ -17,7 +17,7 @@ class Game {
         this.lastTimestamp = 0;
 
         this.mousehandler.add('.fullscreen', 'click', 'doFullscreen');
-        //this.keyboardHandler.add(document, 'keydown', 'doFullscreen');
+        this.keyboardHandler.add(document, 'keydown', 'doFullscreen');
 
         this.preloader();
     }

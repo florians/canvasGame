@@ -55,18 +55,19 @@ switch ($_POST['type']) {
 function getFloor($db, $level)
 {
     $result = $db->select('floor', '*', ['deleted' => 0, 'level' => $level])[0];
-    $target_file = '../../Private/Floor/Level_' . $level . '/Layer_Tiles.txt';
-    $file = getFile($target_file);
-    if ($file) {
-        $result['tiles'] = $file;
+    $tiles = getFile('../../Private/Floor/Level_' . $level . '/Layer_Tiles.txt');
+    $enemies = getFile('../../Private/Floor/Level_' . $level . '/Layer_Enemies.txt');
+    $items = getFile('../../Private/Floor/Level_' . $level . '/Layer_Items.txt');
+    if ($tiles || $enemies || $items) {
+        $result['tiles'] = $tiles;
+        $result['enemies'] = $enemies;
+        $result['items'] = $items;
         $msg = 'Floor Level ' . $level . ' successfully loaded';
     } else {
         $result = false;
         $msg = 'Fallback Floor Level loaded';
     }
     returnJson($msg, $result, $success);
-
-    //echo json_encode(['type' => $type, 'msg' => $msg, 'result' => $result[0]]);
 }
 function getAllAssets($db)
 {
@@ -133,7 +134,8 @@ function getAllFloors($db)
 function getAssetsType($db)
 {
     $result = $db->select('assets_type', '*', ['deleted' => 0]);
-    echo json_encode($result);
+    $msg = 'Asset Types loaded';
+    returnJson($msg, $result, $success);
 }
 function getPlayer($db, $name)
 {
@@ -276,10 +278,10 @@ function saveFloor($db, $json)
             writeFile($destination_dir . '/Layer_Tiles.txt', $tiles);
         }
         if ($enemies) {
-            writeFile($destination_dir . '/Layer_Enemies.txt', $tiles);
+            writeFile($destination_dir . '/Layer_Enemies.txt', $enemies);
         }
         if ($items) {
-            writeFile($destination_dir . '/Layer_Items.txt', $tiles);
+            writeFile($destination_dir . '/Layer_Items.txt', $items);
         }
     }
     returnJson($msg, '', $success);

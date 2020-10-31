@@ -2,6 +2,7 @@ class Tiles {
     constructor(parent, result) {
         this.parent = parent;
         this.tiles = [];
+        this.startIsSet = false;
     }
     /************************
      ******** Getter ********
@@ -9,11 +10,16 @@ class Tiles {
     get(row, col) {
         return this.tiles[row][col];
     }
+    getCount() {
+        return this.tiles.length;
+    }
+    getStartIsSet() {
+        return this.startIsSet;
+    }
     /************************
      ******** Setter ********
      ************************/
     add(data, row, col, rowY, colX) {
-
         let id, level;
         if (Array.isArray(data)) {
             id = data[0];
@@ -35,6 +41,9 @@ class Tiles {
         if (level) {
             this.tiles[row][col].setLevel(level);
         }
+        if (!this.tiles[row][col].getIsEmpty() && this.tiles[row][col].asset.getType() == 'start') {
+            this.startIsSet = true;
+        }
     }
     setOrig(orig, row, col) {
         this.tiles[row][col].setOrig(orig);
@@ -44,5 +53,6 @@ class Tiles {
      ************************/
     clear() {
         this.tiles = [];
+        this.startIsSet = false;
     }
 }

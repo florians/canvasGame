@@ -14,6 +14,22 @@ main .canvasContainer {
   width: 100%;
   height: auto; }
 
+.layer {
+  padding: 5px 10px;
+  margin-right: 10px;
+  border: 0;
+  outline: 0; }
+  .layer:focus {
+    outline: 0; }
+  .layer.active {
+    background-color: #a4a4a4;
+    color: #FFF; }
+
+aside .asset-layer {
+  display: none; }
+  aside .asset-layer.active {
+    display: block; }
+
 aside .assetGroup {
   margin-bottom: 30px;
   background: rgba(0, 0, 0, 0.1);
@@ -44,7 +60,7 @@ aside .assetGroup {
     margin-bottom: 5px;
     border-radius: 3px;
     overflow: hidden; }
-    aside .assetGroup .asset.isSelected {
+    aside .assetGroup .asset.active {
       border: 5px solid #FFF; }
     aside .assetGroup .asset > img {
       position: absolute;

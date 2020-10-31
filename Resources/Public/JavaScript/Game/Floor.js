@@ -3,6 +3,8 @@ class Floor {
         this.parent = parent;
         this.dataHandler = new DataHandler(this);
         this.tiles = new Tiles(this.parent);
+        this.items = new Tiles(this.parent);
+        this.enemies = new Tiles(this.parent);
         this.collisionLayer = new Tiles(this.parent);
         // set part size
         this.partW = 100;
@@ -44,8 +46,15 @@ class Floor {
         this.setLevel(result.level);
         this.setStart('x', result.startX);
         this.setStart('y', result.startY);
-        this.setTilesArray(result.tiles);
-        //this.assetsLayer = this.getTilesJson();
+        if (result.tiles) {
+            this.setTilesArray(result.tiles);
+        }
+        if (result.enemies) {
+            this.setEnemiesArray(result.enemies);
+        }
+        if (result.items) {
+            this.setItemsArray(result.items);
+        }
 
         // reset the val of stageX/Y
         this.resetStageX();
@@ -117,6 +126,12 @@ class Floor {
     }
     setTilesArray(tiles) {
         this.tilesArray = this.dataHandler.extract(tiles);
+    }
+    setItemsArray(items) {
+        this.itemsArray = this.dataHandler.extract(items);
+    }
+    setEnemiesArray(enemies) {
+        this.enemiesArray = this.dataHandler.extract(enemies);
     }
     setStageCenter() {
         _ctxWorld.translate(Math.floor(_ctxWorld.canvas.width / 2 - this.getStage('x')), Math.floor(_ctxWorld.canvas.height / 2 - this.getStage('y')));
@@ -197,9 +212,9 @@ class Floor {
         // move canvas content
         let stageOffsetXInt = Math.round(this.getStageOffset('x'));
         let stageOffsetYInt = Math.round(this.getStageOffset('y'));
-        _ctxWorld.translate(this.oldStageOffsetX - stageOffsetXInt, this.oldStageOffsetY - stageOffsetYInt);
-        this.oldStageOffsetX = stageOffsetXInt;
-        this.oldStageOffsetY = stageOffsetYInt;
+        _ctxWorld.translate(this.getOldStageOffset('x') - stageOffsetXInt, this.getOldStageOffset('y') - stageOffsetYInt);
+        this.setOldStageOffset('x', stageOffsetXInt);
+        this.setOldStageOffset('y', stageOffsetYInt);
     }
     resize(h, w) {
         this.init();
@@ -219,10 +234,24 @@ class Floor {
                 rowY = Math.floor(this.getStage('y') + (this.partH * row));
                 for (let col = 0; col < this.getWidth(); col++) {
                     colX = Math.floor(this.getStage('x') + (this.partW * col));
-                    this.tiles.add(this.tilesArray[counter], row, col, rowY, colX);
+                    if (this.tilesArray) {
+                        this.tiles.add(this.tilesArray[counter], row, col, rowY, colX);
+                    }
+                    if (this.enemiesArray) {
+                        this.enemies.add(this.enemiesArray[counter], row, col, rowY, colX);
+                    } else {
+                        this.enemies.add('', row, col, rowY, colX);
+                    }
+                    if (this.itemsArray) {
+                        this.items.add(this.itemsArray[counter], row, col, rowY, colX);
+                    } else {
+                        this.items.add('', row, col, rowY, colX);
+                    }
                     this.addCollisionLayer(row, col, rowY, colX, this.tiles.get(row, col));
                     if (this.isInView(colX, rowY)) {
-                        this.createBlocks(row, col);
+                        this.drawAsset(this.tiles.get(row, col));
+                        this.drawAsset(this.items.get(row, col));
+                        this.drawAsset(this.enemies.get(row, col));
                     }
                     counter++;
                 }
@@ -241,9 +270,11 @@ class Floor {
             rStop = rStart + rStop < this.getHeight() ? rStart + rStop : this.getHeight();
 
             // every other run
-            for (let r = rStart; r < rStop; r++) {
-                for (let c = cStart; c < cStop; c++) {
-                    this.createBlocks(r, c);
+            for (let row = rStart; row < rStop; row++) {
+                for (let col = cStart; col < cStop; col++) {
+                    this.drawAsset(this.tiles.get(row, col));
+                    this.drawAsset(this.items.get(row, col));
+                    this.drawAsset(this.enemies.get(row, col));
                 }
             }
         }
@@ -257,29 +288,14 @@ class Floor {
                 let newRow = row * this.collisionLayerSize + a;
                 let newCol = col * this.collisionLayerSize + b;
                 this.collisionLayer.add('', newRow, newCol, cLayerRowY, cLayerColX);
-                this.collisionLayer.get(newRow, newCol).setCollision(el.asset.getCollision()[collisionNr]);
+                this.collisionLayer.get(newRow, newCol).setCollision(el.asset.collision[collisionNr]);
                 this.collisionLayer.get(newRow, newCol).setOrig(el.asset);
-                if (el.asset.getCollision() > 1) {
+                if (el.asset.collision.length > 1) {
                     collisionNr++;
                 }
             }
         }
     }
-    // changeCollisionLayer(row, col, el) {
-    //     let collisionNr = 0,
-    //         collisionRow = row * this.collisionLayerSize,
-    //         collisionCol = col * this.collisionLayerSize;
-    //
-    //     for (let r = 0; r < this.collisionLayerSize; r++) {
-    //         for (let c = 0; c < this.collisionLayerSize; c++) {
-    //             this.collisionLayer.get(collisionRow + r, collisionCol + c).setCollision(el.asset.getCollision()[collisionNr]);
-    //             this.collisionLayer.get(collisionRow + r, collisionCol + c).setOrig(el.asset);
-    //             if (el.asset.getCollision() > 1) {
-    //                 collisionNr++;
-    //             }
-    //         }
-    //     }
-    // }
     isInView(x, y) {
         if (
             x >= -_game._player.x - this.partW * 2 + this.getStageOffset('x') &&
@@ -290,22 +306,16 @@ class Floor {
             return true;
         }
     }
-    createBlocks(row, col) {
-        if (this.tiles.get(row, col).asset.image) {
-            _ctxWorld.drawImage(
-                this.tiles.get(row, col).asset.getImage(),
-                this.tiles.get(row, col).getX(),
-                this.tiles.get(row, col).getY(),
-                this.partW,
-                this.partH
-            );
+    drawAsset(element) {
+        if (element.asset.image) {
+            _ctxWorld.drawImage(element.asset.getImage(), element.getX(), element.getY(), this.partH, this.partW);
         }
         if (showHitBox) {
-            if (this.tiles.get(row, col).asset.getCollision().length > 1) {
+            if (element.asset.getCollision().length > 1) {
                 for (let a = 0; a < this.collisionLayerSize; a++) {
                     for (let b = 0; b < this.collisionLayerSize; b++) {
-                        let newRow = row * this.collisionLayerSize + a;
-                        let newCol = col * this.collisionLayerSize + b;
+                        let newRow = element.row * this.collisionLayerSize + a;
+                        let newCol = element.col * this.collisionLayerSize + b;
                         _ctxWorld.fillStyle = 'rgba(0,255,0,0.2)';
                         _ctxWorld.fillRect(
                             this.collisionLayer.get(newRow, newCol).getX() + 0.5,
@@ -317,24 +327,31 @@ class Floor {
                 }
             }
         }
-
+    }
+    createBlocks(row, col) {
+        // if (this.tiles.get(row, col).asset.image) {
+        //     _ctxWorld.drawImage(
+        //         this.tiles.get(row, col).asset.getImage(),
+        //         this.tiles.get(row, col).getX(),
+        //         this.tiles.get(row, col).getY(),
+        //         this.partW,
+        //         this.partH
+        //     );
+        // }
         // if (showHitBox) {
-        //     let hitBoxCounter = 0;
-        //     for (let a = 0; a < this.collisionLayerSize; a++) {
-        //         for (let b = 0; b < this.collisionLayerSize; b++) {
-        //             if (
-        //                 this.tiles.get(row, col).getCollision().length > 1// &&
-        //                 //this.tiles.get(row, col).collision[hitBoxCounter] == 1
-        //             ) {
-        //                 _ctxWorld.fillStyle = 'rgb(0,255,0)';
+        //     if (this.tiles.get(row, col).asset.getCollision().length > 1) {
+        //         for (let a = 0; a < this.collisionLayerSize; a++) {
+        //             for (let b = 0; b < this.collisionLayerSize; b++) {
+        //                 let newRow = row * this.collisionLayerSize + a;
+        //                 let newCol = col * this.collisionLayerSize + b;
+        //                 _ctxWorld.fillStyle = 'rgba(0,255,0,0.2)';
         //                 _ctxWorld.fillRect(
-        //                     this.collisionLayer.get(r * this.collisionLayerSize + a, c * this.collisionLayerSize + b).getX() + 0.5,
-        //                     this.collisionLayer.get(r * this.collisionLayerSize + a, c * this.collisionLayerSize + b).getY() + 0.5,
+        //                     this.collisionLayer.get(newRow, newCol).getX() + 0.5,
+        //                     this.collisionLayer.get(newRow, newCol).getY() + 0.5,
         //                     this.partW / this.collisionLayerSize - 1,
         //                     this.partH / this.collisionLayerSize - 1
         //                 );
         //             }
-        //             hitBoxCounter++;
         //         }
         //     }
         // }
@@ -479,8 +496,8 @@ class Floor {
             this.collisionLayer.get(this.getPlayer('top'), this.getPlayer('right')).getCollision()
         ) {
             //console.log('collision set to old Values');
-            this.setStageOffsetX(this.oldStageOffsetX);
-            this.setStageOffsetY(this.oldStageOffsetY);
+            this.setStageOffsetX(this.getOldStageOffset('x'));
+            this.setStageOffsetY(this.getOldStageOffset('y'));
         }
     }
     collisionBox(oldBoxX, oldBoxY, newBoxX, newBoxY, playerCornerLeft, playerCornerTop) {

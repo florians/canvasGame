@@ -15,7 +15,7 @@ class Generator {
     preloader() {
         if (this.generatorType == 'Floor') {
             this._assets.load();
-            this._floors.load(2);
+            this._floors.load(1);
             this._floors.loadAll();
         }
         // calls > preloaderResult
@@ -28,6 +28,9 @@ class Generator {
         for (let i = 0; i < result.length; i++) {
             if (result[i].name == "assets") {
                 this._assets.init(result[i].data.result);
+            }
+            if (result[i].name == "assetsType") {
+                this._assets.initType(result[i].data.result);
             }
             if (result[i].name == "floors") {
                 this._floors.init(result[i].data.result);

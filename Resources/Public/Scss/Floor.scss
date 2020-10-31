@@ -17,7 +17,31 @@ main {
     }
 }
 
+.layer {
+    padding: 5px 10px;
+    margin-right: 10px;
+    border: 0;
+    outline: 0;
+
+    &:focus {
+        outline: 0;
+    }
+
+    &.active {
+        background-color: #a4a4a4;
+        color: #FFF;
+    }
+}
+
 aside {
+    .asset-layer {
+        display: none;
+
+        &.active {
+            display: block;
+        }
+    }
+
     .assetGroup {
         margin-bottom: 30px;
         background: rgba(0,0,0,0.1);
@@ -60,7 +84,7 @@ aside {
             border-radius: 3px;
             overflow: hidden;
 
-            &.isSelected {
+            &.active {
                 border: 5px solid #FFF;
             }
 

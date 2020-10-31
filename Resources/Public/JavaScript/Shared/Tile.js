@@ -6,7 +6,7 @@ class Tile {
         this.col = 0;
         this.row = 0;
         this.level = 0;
-        this.blank = false;
+        this.isEmpty = false;
         this.asset = [];
         this.collision = [];
         this.orig = '';
@@ -43,7 +43,7 @@ class Tile {
      ******** Setter ********
      ************************/
     setTile(id) {
-        if (this.parent._assets.get(id)) {
+        if (id && this.parent._assets.get(id)) {
             this.setIsEmpty(false);
             this.asset = this.parent._assets.get(id);
         } else {
@@ -69,8 +69,8 @@ class Tile {
     setLevel(level) {
         this.level = level;
     }
-    setIsEmpty(blank) {
-        this.isEmpty = blank;
+    setIsEmpty(isEmpty) {
+        this.isEmpty = isEmpty;
     }
     setCollision(collision) {
         this.collision = collision;

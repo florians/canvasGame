@@ -25,6 +25,9 @@ class Generator {
      ***** Loader init ******
      ************************/
     preloaderResult(result) {
+        if (result.length == 1) {
+            this.msg(result[0].data.type, result[0].data.msg);
+        }
         for (let i = 0; i < result.length; i++) {
             if (result[i].name == "assets") {
                 this._assets.init(result[i].data.result);
@@ -39,12 +42,16 @@ class Generator {
                 this._floors.fillFloorSelect(result[i].data.result);
             }
         }
-        this.init();
     }
-    init() {
+    msg(type, msg) {
+        this.msgReset();
+        $('.infoBox .' + type).html(msg).addClass('active');
+    }
 
+    msgReset() {
+        $('.infoBox > span').removeClass('active')
     }
-    resize(){
+    resize() {
         if (this.generatorType == 'Floor') {
             this._floors.resize();
         }

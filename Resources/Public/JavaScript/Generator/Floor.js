@@ -33,6 +33,7 @@ class Floor {
         this.mousehandler.add('.dimension .sizeSubmit', 'click', 'setDimensions');
         this.mousehandler.add('.saveFloor', 'click', 'save');
         this.mousehandler.add('.layer', 'click', 'changeLayer');
+        this.mousehandler.add('aside .custom .save-to-element', 'click', 'saveToElement')
 
         // mouse event
         this.mousehandler.add('#world', 'mousedown', 'mousedown');
@@ -278,33 +279,37 @@ class Floor {
         let ignoreBrushItems = ['start', 'portal', 'trap', 'enemy', 'item'];
         let col = Math.floor((event.offsetX - this.getStageOffset('x')) / this.getZoomSize());
         let row = Math.floor((event.offsetY - this.getStageOffset('y')) / this.getZoomSize());
+        if (this.selectedAsset && row > 0 && row < this.getHeight() && col > 0 && col < this.getWidth()) {
+            if (ignoreBrushItems.includes(this.parent._assets.get(this.selectedAsset).getType())) {
+                this.checkIfStart(this[this.selectedLayer].get(row, col));
+                if (this.parent._assets.get(this.selectedAsset).getType() == 'start' && this.startIsSet == false) {
+                    this.startIsSet = true;
+                    this.setStart('x', col);
+                    this.setStart('y', row);
+                    this[this.selectedLayer].get(row, col).setTile(this.selectedAsset);
+                    this.repaint(this[this.selectedLayer].get(row, col));
+                }
+                if (this.parent._assets.get(this.selectedAsset).getType() == 'portal') {
+                    this.showCustomBox(this[this.selectedLayer].get(row, col));
+                }
+                if (this.parent._assets.get(this.selectedAsset).getType() != 'start') {
+                    this[this.selectedLayer].get(row, col).setTile(this.selectedAsset);
+                    this.repaint(this[this.selectedLayer].get(row, col));
+                }
+            } else {
+                for (let r = row - Math.floor(this.brushSize / 2); r < row + Math.ceil(this.brushSize / 2); r++) {
+                    for (let c = col - Math.floor(this.brushSize / 2); c < col + Math.ceil(this.brushSize / 2); c++) {
+                        if (c < 0 || r < 0) {
+                            continue;
+                        }
+                        this.checkIfStart(this[this.selectedLayer].get(r, c));
 
-        if (ignoreBrushItems.includes(this.parent._assets.get(this.selectedAsset).getType())) {
-            this.checkIfStart(this[this.selectedLayer].get(row, col));
-            if (this.parent._assets.get(this.selectedAsset).getType() == 'start' && this.startIsSet == false) {
-                this.startIsSet = true;
-                this.setStart('x', col);
-                this.setStart('y', row);
-                this[this.selectedLayer].get(row, col).setTile(this.selectedAsset);
-                this.repaint(this[this.selectedLayer].get(row, col));
-            }
-            if (this.parent._assets.get(this.selectedAsset).getType() != 'start') {
-                this[this.selectedLayer].get(row, col).setTile(this.selectedAsset);
-                this.repaint(this[this.selectedLayer].get(row, col));
-            }
-        } else {
-            for (let r = row - Math.floor(this.brushSize / 2); r < row + Math.ceil(this.brushSize / 2); r++) {
-                for (let c = col - Math.floor(this.brushSize / 2); c < col + Math.ceil(this.brushSize / 2); c++) {
-                    if (c < 0 || r < 0) {
-                        continue;
+                        if (c < this.getWidth() && r < this.getHeight()) {
+                            this[this.selectedLayer].get(r, c).setTile(this.selectedAsset);
+                            this.repaint(this[this.selectedLayer].get(r, c));
+                        }
+
                     }
-                    this.checkIfStart(this[this.selectedLayer].get(r, c));
-
-                    if (c < this.getWidth() && r < this.getHeight()) {
-                        this[this.selectedLayer].get(r, c).setTile(this.selectedAsset);
-                        this.repaint(this[this.selectedLayer].get(r, c));
-                    }
-
                 }
             }
         }
@@ -398,6 +403,9 @@ class Floor {
         }
     }
     preloaderResult(result) {
+        if (result.length == 1) {
+            this.parent.msg(result[0].data.type, result[0].data.msg);
+        }
         for (let i = 0; i < result.length; i++) {
             if (result[i].name == "floors") {
                 this.defaultWidth = result[i].data.result.width;
@@ -453,7 +461,7 @@ class Floor {
         $('input.dimension-h').val(this.getWidth());
 
 
-        $('.infoBox > span').removeClass('active');
+        this.parent.msgReset();
         $('select.floorSelect').val([]);
         $('select.floorSelect option').prop('selected', false);
         $('.controls input.level').val('').prop('disabled', false);
@@ -471,31 +479,40 @@ class Floor {
         this.generateGrid();
     }
     setDimensions(event) {
-        this.setHeight($('input.dimension-h').val());
-        this.setWidth($('input.dimension-w').val());
         this.setStageOffset('x', 0);
         this.setStageOffset('y', 0);
-        if (this.getHeight() <= 0 || this.getWidth() <= 0) {
-            this.showMsg('error', 'Dimension can\'t be 0!');
-        } else if (this.getHeight() > 500 || this.getWidth() <= 0 > 500) {
-            this.showMsg('error', 'Dimension are limited to max 500!');
+        if ($('input.dimension-h').val() <= 0 || $('input.dimension-w').val() <= 0) {
+            this.parent.msg('error', 'Dimension can\'t be 0!');
+            $('input.dimension-h').val(20);
+            $('input.dimension-w').val(20);
+        } else if ($('input.dimension-h').val() > 500 || $('input.dimension-w').val() <= 0 > 500) {
+            this.parent.msg('error', 'Dimension are limited to max 500!');
+            $('input.dimension-h').val(20);
+            $('input.dimension-w').val(20);
         } else {
+            this.setHeight($('input.dimension-h').val());
+            this.setWidth($('input.dimension-w').val());
             this.zoom = 1;
             this.setZoomSize(this.getSize() * this.getZoom());
             this.generateGrid();
         }
     }
-    showMsg(type, msg) {
-        this.showMsgReset();
-        $('.infoBox .' + type).html(msg).addClass('active');
-    }
-
-    showMsgReset() {
-        $('.infoBox > span').removeClass('active')
+    saveToElement() {
+        let row = $('aside .custom .custom-hidden').attr('data-row'),
+            col = $('aside .custom .custom-hidden').attr('data-col'),
+            level = $('aside .custom .level').val();
+        this.tiles.get(row, col).setLevel(level);
+        this.parent.msg('success', 'Level ' + level + ' has been set');
+        $('aside .custom').removeClass('active');
     }
     /************************
      ***** HTML changes *****
      ************************/
+    showCustomBox(asset) {
+        $('aside .custom').addClass('active');
+        $('aside .custom .level').val(asset.getLevel());
+        $('aside .custom .custom-hidden').attr('data-col', asset.getCol()).attr('data-row', asset.getRow());
+    }
     listAssets() {
         let types = this.parent._assets.getTypes();
         let htmlArray = [];
@@ -526,30 +543,3 @@ class Floor {
         this.mousehandler.add('aside .asset', 'click', 'changeAsset');
     }
 }
-
-
-class Floor2 {
-    showCustomBox(type, asset) {
-        if (type == 'portal') {
-            $('aside .custom').addClass('active');
-            $('aside .custom .level').val(asset.level);
-            $('aside .custom .custom-hidden').attr('data-x', asset.posX).attr('data-y', asset.posY);
-        } else {
-            $('aside .custom').removeClass('active');
-        }
-    }
-}
-/***********************************
- ********* click events *************
- ***********************************/
-// add custom config to start / end elements
-$('aside .custom .save-to-element').click(function() {
-    let x = $('aside .custom .custom-hidden').attr('data-x');
-    let y = $('aside .custom .custom-hidden').attr('data-y');
-    let level = $('aside .custom .level').val();
-    if (y != '' && x != '' && level != '') {
-        floor.floorSettings.assets[y][x].level = level;
-        showMsg('success', 'Level has been set');
-        $('aside .custom').removeClass('active');
-    }
-});

@@ -328,35 +328,6 @@ class Floor {
             }
         }
     }
-    createBlocks(row, col) {
-        // if (this.tiles.get(row, col).asset.image) {
-        //     _ctxWorld.drawImage(
-        //         this.tiles.get(row, col).asset.getImage(),
-        //         this.tiles.get(row, col).getX(),
-        //         this.tiles.get(row, col).getY(),
-        //         this.partW,
-        //         this.partH
-        //     );
-        // }
-        // if (showHitBox) {
-        //     if (this.tiles.get(row, col).asset.getCollision().length > 1) {
-        //         for (let a = 0; a < this.collisionLayerSize; a++) {
-        //             for (let b = 0; b < this.collisionLayerSize; b++) {
-        //                 let newRow = row * this.collisionLayerSize + a;
-        //                 let newCol = col * this.collisionLayerSize + b;
-        //                 _ctxWorld.fillStyle = 'rgba(0,255,0,0.2)';
-        //                 _ctxWorld.fillRect(
-        //                     this.collisionLayer.get(newRow, newCol).getX() + 0.5,
-        //                     this.collisionLayer.get(newRow, newCol).getY() + 0.5,
-        //                     this.partW / this.collisionLayerSize - 1,
-        //                     this.partH / this.collisionLayerSize - 1
-        //                 );
-        //             }
-        //         }
-        //     }
-        // }
-    }
-
     // handleOverlay(elementAssetsLayer) {
     //     let overlay = elementAssetsLayer.overlay;
     //     let itemWasUsed = false;

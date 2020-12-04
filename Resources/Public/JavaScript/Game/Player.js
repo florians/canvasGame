@@ -52,7 +52,7 @@ class Player {
     }
     initSkills(result) {
         for (let i = 0; i < result.length; i++) {
-            this.skills.push(this.scaleSkill(result[i]));
+            this.skills.push(new Skill(this.game._skills.get(result[i]['skills_uid'])));
         }
     }
     /************************
@@ -94,7 +94,6 @@ class Player {
         this.game.ui.repaint = false;
     }
     resize() {
-        //this.resize = function() {
         this.x = Math.floor(_ctxUi.canvas.width / 2 - this.w / 2);
         this.y = Math.floor(_ctxUi.canvas.height / 2 - this.h / 2);
     }

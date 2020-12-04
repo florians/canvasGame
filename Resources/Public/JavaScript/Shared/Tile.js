@@ -10,72 +10,49 @@ class Tile {
         this.asset = [];
         this.collision = [];
         this.orig = '';
-        this.setTile(result);
-    }
-    /************************
-     ******** Getter ********
-     ************************/
-    getX() {
-        return this.x;
-    }
-    getY() {
-        return this.y;
-    }
-    getCol() {
-        return this.col;
-    }
-    getRow() {
-        return this.row;
-    }
-    getLevel() {
-        return this.level;
-    }
-    getIsEmpty() {
-        return this.isEmpty;
-    }
-    getCollision() {
-        return this.collision;
-    }
-    getOrig() {
-        return this.orig;
     }
     /************************
      ******** Setter ********
      ************************/
     setTile(id) {
         if (id && this.parent._assets.get(id)) {
-            this.setIsEmpty(false);
+            this.isEmpty = false;
             this.asset = this.parent._assets.get(id);
         } else {
-            this.setIsEmpty(true);
+            this.isEmpty = true;
             this.asset = {
                 collision: [1, 1, 1, 1],
                 factor: 0
             }
         }
     }
-    setX(x) {
-        this.x = x;
-    }
-    setY(y) {
-        this.y = y;
-    }
-    setCol(col) {
-        this.col = col;
-    }
-    setRow(row) {
-        this.row = row;
-    }
-    setLevel(level) {
-        this.level = level;
-    }
-    setIsEmpty(isEmpty) {
-        this.isEmpty = isEmpty;
-    }
-    setCollision(collision) {
-        this.collision = collision;
-    }
-    setOrig(orig) {
-        this.orig = orig;
+    // setX(x) {
+    //     this.x = x;
+    // }
+    // setY(y) {
+    //     this.y = y;
+    // }
+    // setCol(col) {
+    //     this.col = col;
+    // }
+    // setRow(row) {
+    //     this.row = row;
+    // }
+    // setLevel(level) {
+    //     this.level = level;
+    // }
+    // setIsEmpty(isEmpty) {
+    //     this.isEmpty = isEmpty;
+    // }
+    // setCollision(collision) {
+    //     this.collision = collision;
+    // }
+    // setOrig(orig) {
+    //     this.orig = orig;
+    // }
+
+    del() {
+        this.setTile(0);
+        this.collision = false;
     }
 }

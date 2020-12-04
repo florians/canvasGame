@@ -2,25 +2,51 @@
 $debug = true; //$_GET['debug'];
 include_once 'Resources/Private/PHP/Util.php';
 $jsFiles = [
+    // Utilities
     'Resources/Public/JavaScript/Utilities/',
+
+    // UserInterface
     'Resources/Public/JavaScript/UserInterface/UserInterface.js',
-    'Resources/Public/JavaScript/Controls/Fullscreen.js',
+
+    // Assets
+    'Resources/Public/JavaScript/Shared/Assets.js',
+        'Resources/Public/JavaScript/Shared/Asset.js',
+
+    // Floors
+    'Resources/Public/JavaScript/Shared/Floors.js',
+        'Resources/Public/JavaScript/Game/Floor.js',
+            // Tiles
+            'Resources/Public/JavaScript/Shared/Tiles.js',
+                'Resources/Public/JavaScript/Shared/Tile.js',
+            // Squares
+            'Resources/Public/JavaScript/Shared/Squares.js',
+                'Resources/Public/JavaScript/Shared/Square.js',
+            // Items
+            'Resources/Public/JavaScript/Shared/Items.js',
+                'Resources/Public/JavaScript/Shared/Item.js',
+            // Enemies
+            'Resources/Public/JavaScript/Shared/Enemies.js',
+                'Resources/Public/JavaScript/Shared/Enemy.js',
+            // Battle
+            'Resources/Public/JavaScript/Game/Battle.js',
+
+    // Skills
+    'Resources/Public/JavaScript/Game/Skills.js',
+        'Resources/Public/JavaScript/Game/Skill.js',
+
+    // Player
+    'Resources/Public/JavaScript/Game/Player.js',
+
+    // Controls
     'Resources/Public/JavaScript/Controls/MouseHandler.js',
     'Resources/Public/JavaScript/Controls/KeyboardHandler.js',
     'Resources/Public/JavaScript/Controls/Joystick.js',
-    'Resources/Public/JavaScript/Shared/Floors.js',
-    'Resources/Public/JavaScript/Game/Floor.js',
-    'Resources/Public/JavaScript/Game/Player.js',
-    'Resources/Public/JavaScript/Game/Enemies.js',
-    'Resources/Public/JavaScript/Game/Enemy.js',
-    'Resources/Public/JavaScript/Game/Battle.js',
-    'Resources/Public/JavaScript/Shared/Assets.js',
-    'Resources/Public/JavaScript/Shared/Asset.js',
-    'Resources/Public/JavaScript/Shared/Tiles.js',
-    'Resources/Public/JavaScript/Shared/Tile.js',
-    'Resources/Public/JavaScript/Game/Skills.js',
-    'Resources/Public/JavaScript/Game/Skill.js',
+    'Resources/Public/JavaScript/Controls/Fullscreen.js',
+
+    // Game
     'Resources/Public/JavaScript/Game/Game.js',
+
+    // Initialize the script
     'Resources/Public/JavaScript/Game/Init.js',
 ];
 $cssFiles = [
@@ -58,7 +84,7 @@ $cssFiles = [
 		<canvas id='world'></canvas>
 		<canvas id='ui'></canvas>
 	</div>
-    <script src='Resources/Public/JavaScript/Library/jquery-3.5.0.min.js'></script>
+    <!-- <script src='Resources/Public/JavaScript/Library/jquery-3.5.0.min.js'></script> -->
     <script src='Resources/Public/JavaScript/Library/virtualjoystick.js'></script>
     <script>
         let playerGet = '<?php echo $_GET['player'] ?>';

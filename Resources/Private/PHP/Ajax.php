@@ -208,14 +208,13 @@ function getSkillTypes($db)
 }
 function savePlayer($db, $name, $level, $stats)
 {
-
     $result = $db->select('player', 'uid', ['AND' => ['deleted' => 0, 'name' => $name]]);
     if ($result[0]) {
         $db->update('player', [
             'level' => $level,
             'stats' => $stats,
         ], [
-            'uid' => $resultUid[0],
+            'uid' => $result[0],
         ]);
         $msg = 'Player: ' . $name . ' updated!';
     } else {
@@ -226,7 +225,6 @@ function savePlayer($db, $name, $level, $stats)
         ]);
         $msg = 'Player: ' . $name . ' added!';
     }
-    //echo json_encode(['type' => $type, 'msg' => $msg]);
     returnJson($msg, $result[0], $success);
 }
 

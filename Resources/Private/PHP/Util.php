@@ -13,7 +13,9 @@ function combine_my_files($array_files, $destination_dir, $dest_file_name, $type
         }
         $new_file = fopen($destination_dir . $dest_file_name, "w");
         if ($type == 'js') {
-            $content = '(function($) {' . $content . '})(jQuery);';
+            $content = '(() => {
+                ' . $content . '
+            })();';
             if (!$debug) {
                 $content = \JShrink\Minifier::minify($content);
             }

@@ -14,9 +14,19 @@ $jsFiles = [
     'Resources/Public/JavaScript/Controls/KeyboardHandler.js',
     'Resources/Public/JavaScript/Shared/Assets.js',
     'Resources/Public/JavaScript/Shared/Asset.js',
-    'Resources/Public/JavaScript/Shared/Tiles.js',
-    'Resources/Public/JavaScript/Shared/Tile.js',
     'Resources/Public/JavaScript/Shared/Floors.js',
+    // Tiles
+    'Resources/Public/JavaScript/Shared/Tiles.js',
+        'Resources/Public/JavaScript/Shared/Tile.js',
+    // Squares
+    'Resources/Public/JavaScript/Shared/Squares.js',
+        'Resources/Public/JavaScript/Shared/Square.js',
+    // Items
+    'Resources/Public/JavaScript/Shared/Items.js',
+        'Resources/Public/JavaScript/Shared/Item.js',
+    // Enemies
+    'Resources/Public/JavaScript/Shared/Enemies.js',
+        'Resources/Public/JavaScript/Shared/Enemy.js',
     'Resources/Public/JavaScript/Generator/'.ucFirst($page).'.js',
     'Resources/Public/JavaScript/Generator/Generator.js',
     'Resources/Public/JavaScript/Generator/Init.js',

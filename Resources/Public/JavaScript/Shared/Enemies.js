@@ -1,0 +1,13 @@
+class Enemies extends Tiles {
+    constructor(parent) {
+        super(parent);
+    }
+    /************************
+     ***** Add Enemy ********
+     ************************/
+    add(data, row, col, rowY, colX) {
+        super.addToArray(row, col);
+        this.tiles[row][col] = new Enemy(this.parent, super.id(data));
+        super.setTileInfo(data, row, col, rowY, colX);
+    }
+}

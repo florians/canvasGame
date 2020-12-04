@@ -1,5 +1,5 @@
 class Tiles {
-    constructor(parent, result) {
+    constructor(parent) {
         this.parent = parent;
         this.tiles = [];
         this.startIsSet = false;
@@ -13,40 +13,48 @@ class Tiles {
     getCount() {
         return this.tiles.length;
     }
-    getStartIsSet() {
-        return this.startIsSet;
-    }
     /************************
      ******** Setter ********
      ************************/
-    add(data, row, col, rowY, colX) {
-        let id, level;
-        if (Array.isArray(data)) {
-            id = data[0];
-            level = data[1];
-        } else {
-            id = data;
-        }
+    setOrig(orig, row, col) {
+        this.tiles[row][col].setOrig(orig);
+    }
+    /************************
+     ***** Add tiles ********
+     ************************/
+    addToArray(row, col) {
         if (!this.tiles[row]) {
             this.tiles[row] = [];
         }
         if (!this.tiles[row][col]) {
             this.tiles[row][col] = [];
         }
-        this.tiles[row][col] = new Tile(this.parent, id);
-        this.tiles[row][col].setX(colX);
-        this.tiles[row][col].setY(rowY);
-        this.tiles[row][col].setCol(col);
-        this.tiles[row][col].setRow(row);
-        if (level) {
-            this.tiles[row][col].setLevel(level);
+    }
+    setTileInfo(data, row, col, rowY, colX){
+        this.tiles[row][col].x = colX;
+        this.tiles[row][col].y = rowY;
+        this.tiles[row][col].col = col;
+        this.tiles[row][col].row = row;
+        if (this.level(data)) {
+            this.tiles[row][col].level = this.level(data);
         }
-        if (!this.tiles[row][col].getIsEmpty() && this.tiles[row][col].asset.getType() == 'start') {
+        if (!this.tiles[row][col].isEmpty && this.tiles[row][col].asset.getType() == 'start') {
             this.startIsSet = true;
         }
     }
-    setOrig(orig, row, col) {
-        this.tiles[row][col].setOrig(orig);
+    id(data){
+        if (Array.isArray(data)) {
+            return data[0];
+        } else {
+            return data;
+        }
+    }
+    level(data){
+        if (Array.isArray(data)) {
+            return data[1];
+        } else {
+            return false;
+        }
     }
     /************************
      **** clear tiles *******

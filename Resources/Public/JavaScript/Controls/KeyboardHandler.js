@@ -45,7 +45,7 @@ class KeyboardHandler {
         });
     }
     defaultKeydown(e) {
-        if ($.inArray(e.keyCode, this.allowedKeys) !== -1) {
+        if (this.allowedKeys.includes(e.keyCode)) {
             e.preventDefault();
             // w / up
             if (e.keyCode == 38 || e.keyCode == 87) {

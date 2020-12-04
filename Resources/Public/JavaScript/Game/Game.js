@@ -1,14 +1,15 @@
 class Game {
     constructor() {
+        this.mousehandler = new MouseHandler(this);
+        this.keyboardHandler = new KeyboardHandler(this);
+        this.joystickHandler = new Joystick(this);
+        this.fullscreenHandler = new Fullscreen();
+
         this.loader = new Loader(this);
         this._assets = new Assets(this);
         this._floors = new Floors(this);
         this._skills = new Skills(this);
         this._player = new Player(this);
-        this.mousehandler = new MouseHandler(this);
-        this.keyboardHandler = new KeyboardHandler(this);
-        this.joystickHandler = new Joystick(this);
-        this.fullscreenHandler = new Fullscreen();
 
         this.enemy = [];
         this.delta = 0;
@@ -57,11 +58,11 @@ class Game {
         this.init();
     }
     init() {
-        $('body').addClass('loading-done');
+        document.body.classList.add('loading-done');
         this.stopGame = false;
         this.setCanvasSize();
         // create ui
-        this.ui = new UserInterface();
+        this.ui = new UserInterface(this);
         this.ui.repaint = true;
         this.resize();
         this.animate();
@@ -79,10 +80,14 @@ class Game {
         _ctxWorld.save();
         // used to removed old translate
         _ctxWorld.setTransform(1, 0, 0, 1, 0, 0);
-        _ctxWorld.clearRect(0, 0, _ctxWorld.canvas.width, _ctxWorld.canvas.height);
+        _ctxWorld.fillStyle = 'black';
+        _ctxWorld.fillRect(0, 0, _ctxWorld.canvas.width, _ctxWorld.canvas.height);
+        //_ctxWorld.clearRect(0, 0, _ctxWorld.canvas.width, _ctxWorld.canvas.height);
         _ctxWorld.restore();
 
+        //let fps = Math.round(1000 / (now - this.lastTimestamp));
         this.lastTimestamp = now;
+        //console.log("fps", fps);
         this.draw();
 
         if (!this.stopGame == true) {
@@ -96,10 +101,10 @@ class Game {
         }
     }
     setCanvasSize() {
-        _ctxWorld.canvas.width = $('body').width();
-        _ctxWorld.canvas.height = $('body').height();
-        _ctxUi.canvas.width = $('body').width();
-        _ctxUi.canvas.height = $('body').height();
+        _ctxWorld.canvas.width = window.innerWidth;
+        _ctxWorld.canvas.height = window.innerHeight;
+        _ctxUi.canvas.width = window.innerWidth;
+        _ctxUi.canvas.height = window.innerHeight;
     }
     resize() {
         this.setCanvasSize();

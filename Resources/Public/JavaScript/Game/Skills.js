@@ -35,8 +35,4 @@ class Skills {
     add(result) {
         return new Skill(result);
     }
-
-    // garbage collection
-    // remove(id){
-    // }
 }

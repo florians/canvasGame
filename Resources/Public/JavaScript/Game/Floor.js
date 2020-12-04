@@ -2,10 +2,10 @@ class Floor {
     constructor(parent, result) {
         this.parent = parent;
         this.dataHandler = new DataHandler(this);
-        this.tiles = new Tiles(this.parent);
-        this.items = new Tiles(this.parent);
-        this.enemies = new Tiles(this.parent);
-        this.collisionLayer = new Tiles(this.parent);
+        this.tiles = new Squares(this.parent);
+        this.items = new Items(this.parent);
+        this.enemies = new Enemies(this.parent);
+        this.collisionLayer = new Squares(this.parent);
         // set part size
         this.partW = 100;
         this.partH = 100;
@@ -61,40 +61,6 @@ class Floor {
         this.resetStageY();
     }
     /************************
-     ******** Getter ********
-     ************************/
-
-    getHeight() {
-        return this.height;
-    }
-    getWidth() {
-        return this.width;
-    }
-    getLevel() {
-        return this.level;
-    }
-    getStart(dir) {
-        return this.start[dir];
-    }
-    getTilesJson() {
-        return this.tilesJson;
-    }
-    getStage(dir) {
-        return this.stage[dir];
-    }
-    getStageOffset(dir) {
-        return this.stageOffset[dir];
-    }
-    getOldStageOffset(dir) {
-        return this.oldStageOffset[dir];
-    }
-    getPlayer(dir) {
-        return this.player[dir];
-    }
-    getTilesArray() {
-        return this.tilesArray;
-    }
-    /************************
      ******** Setter ********
      ************************/
     setHeight(height) {
@@ -109,20 +75,8 @@ class Floor {
     setStart(dir, val) {
         this.start[dir] = parseInt(val);
     }
-    setTilesJson(tilesJson) {
-        this.tilesJson = tilesJson;
-    }
     setStage(dir, val) {
         this.stage[dir] = val;
-    }
-    setStageOffset(dir, val) {
-        this.stageOffset[dir] = val;
-    }
-    setOldStageOffset(dir, val) {
-        this.oldStageOffset[dir] = val;
-    }
-    setPlayer(dir, val) {
-        this.player[dir] = val;
     }
     setTilesArray(tiles) {
         this.tilesArray = this.dataHandler.extract(tiles);
@@ -134,69 +88,68 @@ class Floor {
         this.enemiesArray = this.dataHandler.extract(enemies);
     }
     setStageCenter() {
-        _ctxWorld.translate(Math.floor(_ctxWorld.canvas.width / 2 - this.getStage('x')), Math.floor(_ctxWorld.canvas.height / 2 - this.getStage('y')));
+        _ctxWorld.translate(Math.floor(_ctxWorld.canvas.width / 2 - this.stage.x), Math.floor(_ctxWorld.canvas.height / 2 - this.stage.y));
     }
     setStageOffsetX(stageOffsetX, force = 0) {
-        this.setStageOffset('x', stageOffsetX);
-        this.setPlayer('left', Math.floor((this.getStageOffset('x') - _game._player.offsetLeft) / (this.partW / this.collisionLayerSize)));
-        this.setPlayer('right', Math.floor((this.getStageOffset('x') + _game._player.offsetRight - 1) / (this.partW / this.collisionLayerSize)));
+        this.stageOffset.x = stageOffsetX;
+        this.player.left = Math.floor((this.stageOffset.x - _game._player.offsetLeft) / (this.partW / this.collisionLayerSize));
+        this.player.right = Math.floor((this.stageOffset.x + _game._player.offsetRight - 1) / (this.partW / this.collisionLayerSize));
         if (force) {
             return;
         }
-        if (this.getPlayer('left') < 0) {
-            this.setPlayer('left', 0);
+        if (this.player.left < 0) {
+            this.player.left = 0;
         }
-        if (this.getPlayer('right') >= (this.getWidth() * this.collisionLayerSize)) {
-            this.setPlayer('right', (this.getWidth() * this.collisionLayerSize) - 1);
+        if (this.player.right >= (this.width * this.collisionLayerSize)) {
+            this.player.right = (this.width * this.collisionLayerSize) - 1;
         }
     }
     setStageOffsetY(stageOffsetY, force = 0) {
-        this.setStageOffset('y', stageOffsetY);
-        this.setPlayer('top', Math.floor((this.getStageOffset('y') - _game._player.offsetTop) / (this.partH / this.collisionLayerSize)));
-        this.setPlayer('bottom', Math.floor((this.getStageOffset('y') + _game._player.offsetBottom - 1) / (this.partH / this.collisionLayerSize)));
-
+        this.stageOffset.y = stageOffsetY;
+        this.player.top = Math.floor((this.stageOffset.y - _game._player.offsetTop) / (this.partH / this.collisionLayerSize));
+        this.player.bottom = Math.floor((this.stageOffset.y + _game._player.offsetBottom - 1) / (this.partH / this.collisionLayerSize));
         if (force) {
             return;
         }
-        if (this.getPlayer('top') < 0) {
-            this.setPlayer('top', 0);
+        if (this.player.top < 0) {
+            this.player.top = 0;
         }
-        if (this.getPlayer('bottom') >= (this.getHeight() * this.collisionLayerSize)) {
-            this.setPlayer('bottom', (this.getHeight() * this.collisionLayerSize) - 1);
+        if (this.player.bottom >= (this.height * this.collisionLayerSize)) {
+            this.player.bottom = (this.height * this.collisionLayerSize) - 1;
         }
     }
     /************************
      *** Reset to Default ***
      ************************/
     resetStageX() {
-        this.setStage('x', Math.floor((this.getStart('x') * this.partW) + this.partW / 2));
+        this.stage.x = Math.floor((this.start.x * this.partW) + this.partW / 2);
     }
     resetStageY() {
-        this.setStage('y', Math.floor((this.getStart('y') * this.partH) + this.partH / 2));
+        this.stage.y = Math.floor((this.start.y * this.partH) + this.partH / 2);
     }
     resetOffset() {
-        this.setStageOffset('x', this.getStage('x'));
-        this.setStageOffset('y', this.getStage('y'));
-        this.setOldStageOffset('x', this.getStageOffset('x'));
-        this.setOldStageOffset('y', this.getStageOffset('y'));
+        this.stageOffset.x = this.stage.x;
+        this.stageOffset.y = this.stage.y;
+        this.oldStageOffset.x = this.stageOffset.x;
+        this.oldStageOffset.y = this.stageOffset.y;
     }
     resetStart() {
-        this.setOldStageOffset('x', 0);
-        this.setOldStageOffset('y', 0);
+        this.oldStageOffset.x = 0;
+        this.oldStageOffset.y = 0;
     }
     /************************
      ***** Loader init ******
      ************************/
     init() {
-        if (this.getOldStageOffset('x') == 0) {
+        if (this.oldStageOffset.x == 0) {
             this.resetStageX();
         } else {
-            this.setStage('x', this.getOldStageOffset('x'));
+            this.stage.x = this.oldStageOffset.x;
         }
-        if (this.getOldStageOffset('y') == 0) {
+        if (this.oldStageOffset.y == 0) {
             this.resetStageY();
         } else {
-            this.setStage('y', this.getOldStageOffset('y'));
+            this.stage.y = this.oldStageOffset.y;
         }
         this.setStageCenter();
         this.resetOffset()
@@ -210,15 +163,15 @@ class Floor {
         // check on collisions
         this.collision(this.collisionLayer);
         // move canvas content
-        let stageOffsetXInt = Math.round(this.getStageOffset('x'));
-        let stageOffsetYInt = Math.round(this.getStageOffset('y'));
-        _ctxWorld.translate(this.getOldStageOffset('x') - stageOffsetXInt, this.getOldStageOffset('y') - stageOffsetYInt);
-        this.setOldStageOffset('x', stageOffsetXInt);
-        this.setOldStageOffset('y', stageOffsetYInt);
+        let stageOffsetXInt = Math.round(this.stageOffset.x);
+        let stageOffsetYInt = Math.round(this.stageOffset.y);
+        _ctxWorld.translate(this.oldStageOffset.x - stageOffsetXInt, this.oldStageOffset.y - stageOffsetYInt);
+        this.oldStageOffset.x = stageOffsetXInt;
+        this.oldStageOffset.y = stageOffsetYInt;
     }
     resize(h, w) {
         this.init();
-        this.doFloorResize = 1;
+        //this.doFloorResize = 1;
     }
     generateFloor() {
         let rowY = 0,
@@ -230,23 +183,13 @@ class Floor {
         this.setStage('y', 0);
         // first render and after resize
         if (this.collisionLayer.tiles.length == 0) {
-            for (let row = 0; row < this.getHeight(); row++) {
-                rowY = Math.floor(this.getStage('y') + (this.partH * row));
-                for (let col = 0; col < this.getWidth(); col++) {
-                    colX = Math.floor(this.getStage('x') + (this.partW * col));
-                    if (this.tilesArray) {
-                        this.tiles.add(this.tilesArray[counter], row, col, rowY, colX);
-                    }
-                    if (this.enemiesArray) {
-                        this.enemies.add(this.enemiesArray[counter], row, col, rowY, colX);
-                    } else {
-                        this.enemies.add('', row, col, rowY, colX);
-                    }
-                    if (this.itemsArray) {
-                        this.items.add(this.itemsArray[counter], row, col, rowY, colX);
-                    } else {
-                        this.items.add('', row, col, rowY, colX);
-                    }
+            for (let row = 0; row < this.height; row++) {
+                rowY = Math.floor(this.stage.y + (this.partH * row));
+                for (let col = 0; col < this.width; col++) {
+                    colX = Math.floor(this.stage.x + (this.partW * col));
+                    this.tiles.add(this.tilesArray[counter], row, col, rowY, colX);
+                    this.enemies.add(this.enemiesArray[counter], row, col, rowY, colX);
+                    this.items.add(this.itemsArray[counter], row, col, rowY, colX);
                     this.addCollisionLayer(row, col, rowY, colX, this.tiles.get(row, col));
                     if (this.isInView(colX, rowY)) {
                         this.drawAsset(this.tiles.get(row, col));
@@ -256,18 +199,18 @@ class Floor {
                     counter++;
                 }
             }
-            this.doFloorResize = 0;
+            //this.doFloorResize = 0;
         } else {
-            let cStart = Math.floor((-_game._player.x - this.partW + this.getStageOffset('x')) / this.partW),
-                rStart = Math.floor((-_game._player.y - this.partW + this.getStageOffset('y')) / this.partH),
+            let cStart = Math.floor((-_game._player.x - this.partW + this.stageOffset.x) / this.partW),
+                rStart = Math.floor((-_game._player.y - this.partW + this.stageOffset.y) / this.partH),
                 cStop = Math.floor((_ctxWorld.canvas.width + this.partW * 3) / this.partW),
                 rStop = Math.floor((_ctxWorld.canvas.height + this.partH * 3) / this.partH);
 
             cStart = cStart > 0 ? cStart : 0;
             rStart = rStart > 0 ? rStart : 0;
 
-            cStop = cStart + cStop < this.getWidth() ? cStart + cStop : this.getWidth();
-            rStop = rStart + rStop < this.getHeight() ? rStart + rStop : this.getHeight();
+            cStop = cStart + cStop < this.width ? cStart + cStop : this.width;
+            rStop = rStart + rStop < this.height ? rStart + rStop : this.height;
 
             // every other run
             for (let row = rStart; row < rStop; row++) {
@@ -288,8 +231,8 @@ class Floor {
                 let newRow = row * this.collisionLayerSize + a;
                 let newCol = col * this.collisionLayerSize + b;
                 this.collisionLayer.add('', newRow, newCol, cLayerRowY, cLayerColX);
-                this.collisionLayer.get(newRow, newCol).setCollision(el.asset.collision[collisionNr]);
-                this.collisionLayer.get(newRow, newCol).setOrig(el.asset);
+                this.collisionLayer.get(newRow, newCol).collision = el.asset.collision[collisionNr];
+                this.collisionLayer.get(newRow, newCol).orig = el.asset;
                 if (el.asset.collision.length > 1) {
                     collisionNr++;
                 }
@@ -298,35 +241,35 @@ class Floor {
     }
     isInView(x, y) {
         if (
-            x >= -_game._player.x - this.partW * 2 + this.getStageOffset('x') &&
-            x <= _game._player.x + this.partW * 2 + this.getStageOffset('x') &&
-            y >= -_game._player.y - this.partH * 2 + this.getStageOffset('y') &&
-            y <= _game._player.y + this.partH * 2 + this.getStageOffset('y')
+            x >= -_game._player.x - this.partW * 2 + this.stageOffset.x &&
+            x <= _game._player.x + this.partW * 2 + this.stageOffset.x &&
+            y >= -_game._player.y - this.partH * 2 + this.stageOffset.y &&
+            y <= _game._player.y + this.partH * 2 + this.stageOffset.y
         ) {
             return true;
         }
     }
     drawAsset(element) {
         if (element.asset.image) {
-            _ctxWorld.drawImage(element.asset.getImage(), element.getX(), element.getY(), this.partH, this.partW);
+            _ctxWorld.drawImage(element.asset.getImage(), element.x, element.y, this.partH, this.partW);
         }
-        if (showHitBox) {
-            if (element.asset.getCollision().length > 1) {
-                for (let a = 0; a < this.collisionLayerSize; a++) {
-                    for (let b = 0; b < this.collisionLayerSize; b++) {
-                        let newRow = element.row * this.collisionLayerSize + a;
-                        let newCol = element.col * this.collisionLayerSize + b;
-                        _ctxWorld.fillStyle = 'rgba(0,255,0,0.2)';
-                        _ctxWorld.fillRect(
-                            this.collisionLayer.get(newRow, newCol).getX() + 0.5,
-                            this.collisionLayer.get(newRow, newCol).getY() + 0.5,
-                            this.partW / this.collisionLayerSize - 1,
-                            this.partH / this.collisionLayerSize - 1
-                        );
-                    }
-                }
-            }
-        }
+        // if (showHitBox) {
+        //     if (element.asset.collision.length > 1) {
+        //         for (let a = 0; a < this.collisionLayerSize; a++) {
+        //             for (let b = 0; b < this.collisionLayerSize; b++) {
+        //                 let newRow = element.row * this.collisionLayerSize + a;
+        //                 let newCol = element.col * this.collisionLayerSize + b;
+        //                 _ctxWorld.fillStyle = 'rgba(0,255,0,0.2)';
+        //                 _ctxWorld.fillRect(
+        //                     this.collisionLayer.get(newRow, newCol).getX() + 0.5,
+        //                     this.collisionLayer.get(newRow, newCol).getY() + 0.5,
+        //                     this.partW / this.collisionLayerSize - 1,
+        //                     this.partH / this.collisionLayerSize - 1
+        //                 );
+        //             }
+        //         }
+        //     }
+        // }
     }
     // handleOverlay(elementAssetsLayer) {
     //     let overlay = elementAssetsLayer.overlay;
@@ -365,30 +308,25 @@ class Floor {
     // }
     collision() {
         // Player Center
-        let playerY = Math.floor((this.getStageOffset('y')) / (this.partH / 2)),
-            playerX = Math.floor((this.getStageOffset('x')) / (this.partW / 2)),
-            oldPlayerTop = this.getPlayer('top'),
-            oldPlayerBottom = this.getPlayer('bottom'),
-            oldPlayerLeft = this.getPlayer('left'),
-            oldPlayerRight = this.getPlayer('right'),
-            type = this.collisionLayer.get(playerY, playerX).getOrig().getType() || 'default',
-            factor = this.collisionLayer.get(playerY, playerX).getOrig().getFactor() || 1,
+        let playerY = Math.floor((this.stageOffset.y) / (this.partH / 2)),
+            playerX = Math.floor((this.stageOffset.x) / (this.partW / 2)),
+            oldPlayerTop = this.player.top,
+            oldPlayerBottom = this.player.bottom,
+            oldPlayerLeft = this.player.left,
+            oldPlayerRight = this.player.right,
+            type = this.collisionLayer.get(playerY, playerX).orig.type || 'default',
+            factor = this.collisionLayer.get(playerY, playerX).orig.factor || 1,
             dx = 0,
             dy = 0,
             step = this.steps * factor,
-            elementAssetsLayer = this.tiles.get(Math.floor(playerY / this.collisionLayerSize), Math.floor(playerX / this.collisionLayerSize));
+            collisionTile = this.tiles.get(Math.floor(playerY / this.collisionLayerSize), Math.floor(playerX / this.collisionLayerSize)),
+            collisionEnemy = this.enemies.get(Math.floor(playerY / this.collisionLayerSize), Math.floor(playerX / this.collisionLayerSize)),
+            collisionItem = this.items.get(Math.floor(playerY / this.collisionLayerSize), Math.floor(playerX / this.collisionLayerSize));
 
-        if (type == 'portal') {
-            if (elementAssetsLayer.level) {
-                _game.keyboardHandler.reset();
-                _game._player.savePlayer();
-                _game._floors.newFloor(elementAssetsLayer.level);
-                _game.loader.run();
-            }
-        }
-        // if (elementAssetsLayer.overlay) {
-        //     this.handleOverlay(elementAssetsLayer);
-        // }
+        collisionTile.hit(type);
+        collisionEnemy.hit(type);
+        collisionItem.hit(type);
+
         if (!this.stopGame == true) {
             if (_game.keyboardHandler.get('up') && !_game.keyboardHandler.get('down')) {
                 dy = Math.floor(-step * _game.delta * 100) / 100;
@@ -405,77 +343,77 @@ class Floor {
                 dx = 0;
             }
         }
-        this.setStageOffsetX(this.getStageOffset('x') + dx, 1);
-        this.setStageOffsetY(this.getStageOffset('y') + dy, 1);
+        this.setStageOffsetX(this.stageOffset.x + dx, 1);
+        this.setStageOffsetY(this.stageOffset.y + dy, 1);
 
         // stage collision
-        if (this.getPlayer('top') < 0 || this.getPlayer('left') < 0 || this.getPlayer('right') >= this.getWidth() * this.collisionLayerSize || this.getPlayer('bottom') >= this.getHeight() * this.collisionLayerSize) {
-            if (this.getPlayer('top') < 0) {
+        if (this.player.top < 0 || this.player.left < 0 || this.player.right >= this.width * this.collisionLayerSize || this.player.bottom >= this.height * this.collisionLayerSize) {
+            if (this.player.top < 0) {
                 //console.log('Field Top');
                 this.setStageOffsetY(_game._player.offsetTop);
             }
-            if (this.getPlayer('bottom') >= this.getHeight() * this.collisionLayerSize) {
+            if (this.player.bottom >= this.height * this.collisionLayerSize) {
                 //console.log('Field Bottom');
-                this.setStageOffsetY(this.partH * this.getHeight() - _game._player.offsetBottom);
+                this.setStageOffsetY(this.partH * this.height - _game._player.offsetBottom);
             }
-            if (this.getPlayer('left') < 0) {
+            if (this.player.left < 0) {
                 //console.log('Field Left');
                 this.setStageOffsetX(_game._player.offsetLeft);
             }
-            if (this.getPlayer('right') >= this.getWidth() * this.collisionLayerSize) {
+            if (this.player.right >= this.width * this.collisionLayerSize) {
                 //console.log('Field Right');
-                this.setStageOffsetX(this.partW * this.getWidth() - _game._player.offsetRight);
+                this.setStageOffsetX(this.partW * this.width - _game._player.offsetRight);
             }
-            //console.log('topBox='+this.getPlayer('top') + ',topX='+(this.getStageOffset('y') + _game._player.offsetTop)+' playerY='+ this.getStageOffset('y'));
-            //console.log('bottomBox='+this.getPlayer('bottom') + ',bottomX='+(this.getStageOffset('y') + _game._player.offsetBottom)+',fiedl='+ (this.getHeight() * this.partH-1) + ', playerY='+ this.getStageOffset('y'));
+            //console.log('topBox='+this.player.top + ',topX='+(this.stageOffset.y + _game._player.offsetTop)+' playerY='+ this.stageOffset.y);
+            //console.log('bottomBox='+this.player.bottom + ',bottomX='+(this.stageOffset.y + _game._player.offsetBottom)+',fiedl='+ (this.height * this.partH-1) + ', playerY='+ this.stageOffset.y);
         }
-        //console.log('bottomBox='+this.getPlayer('bottom') + ',bottomX='+(this.getStageOffset('y') + _game._player.offsetBottom)+',field='+ (this.getHeight() * this.partH-1) + ', playerY='+ this.getStageOffset('y'));
-        //console.log(this.getPlayer('top'),this.getPlayer('bottom'),this.getPlayer('left'),this.getPlayer('right'));
+        //console.log('bottomBox='+this.player.bottom + ',bottomX='+(this.stageOffset.y + _game._player.offsetBottom)+',field='+ (this.height * this.partH-1) + ', playerY='+ this.stageOffset.y);
+        //console.log(this.player.top,this.player.bottom,this.player.left,this.player.right);
 
         if (dx > 0) {
             if (dy > 0) {
-                this.collisionBox(oldPlayerRight, oldPlayerBottom, this.getPlayer('right'), this.getPlayer('bottom'), 0, 0);
-                this.collisionBox(oldPlayerRight, oldPlayerTop, this.getPlayer('right'), this.getPlayer('top'), 0, 1);
-                this.collisionBox(oldPlayerLeft, oldPlayerBottom, this.getPlayer('left'), this.getPlayer('bottom'), 1, 0);
-                this.collisionBox(oldPlayerLeft, oldPlayerTop, this.getPlayer('left'), this.getPlayer('top'), 1, 1);
+                this.collisionBox(oldPlayerRight, oldPlayerBottom, this.player.right, this.player.bottom, 0, 0);
+                this.collisionBox(oldPlayerRight, oldPlayerTop, this.player.right, this.player.top, 0, 1);
+                this.collisionBox(oldPlayerLeft, oldPlayerBottom, this.player.left, this.player.bottom, 1, 0);
+                this.collisionBox(oldPlayerLeft, oldPlayerTop, this.player.left, this.player.top, 1, 1);
             } else {
-                this.collisionBox(oldPlayerLeft, oldPlayerTop, this.getPlayer('left'), this.getPlayer('top'), 1, 1);
-                this.collisionBox(oldPlayerLeft, oldPlayerBottom, this.getPlayer('left'), this.getPlayer('bottom'), 1, 0);
-                this.collisionBox(oldPlayerRight, oldPlayerTop, this.getPlayer('right'), this.getPlayer('top'), 0, 1);
-                this.collisionBox(oldPlayerRight, oldPlayerBottom, this.getPlayer('right'), this.getPlayer('bottom'), 0, 0);
+                this.collisionBox(oldPlayerLeft, oldPlayerTop, this.player.left, this.player.top, 1, 1);
+                this.collisionBox(oldPlayerLeft, oldPlayerBottom, this.player.left, this.player.bottom, 1, 0);
+                this.collisionBox(oldPlayerRight, oldPlayerTop, this.player.right, this.player.top, 0, 1);
+                this.collisionBox(oldPlayerRight, oldPlayerBottom, this.player.right, this.player.bottom, 0, 0);
             }
         } else {
             if (dy > 0) {
-                this.collisionBox(oldPlayerRight, oldPlayerBottom, this.getPlayer('right'), this.getPlayer('bottom'), 0, 0);
-                this.collisionBox(oldPlayerRight, oldPlayerTop, this.getPlayer('right'), this.getPlayer('top'), 0, 1);
-                this.collisionBox(oldPlayerLeft, oldPlayerBottom, this.getPlayer('left'), this.getPlayer('bottom'), 1, 0);
-                this.collisionBox(oldPlayerLeft, oldPlayerTop, this.getPlayer('left'), this.getPlayer('top'), 1, 1);
+                this.collisionBox(oldPlayerRight, oldPlayerBottom, this.player.right, this.player.bottom, 0, 0);
+                this.collisionBox(oldPlayerRight, oldPlayerTop, this.player.right, this.player.top, 0, 1);
+                this.collisionBox(oldPlayerLeft, oldPlayerBottom, this.player.left, this.player.bottom, 1, 0);
+                this.collisionBox(oldPlayerLeft, oldPlayerTop, this.player.left, this.player.top, 1, 1);
             } else {
-                this.collisionBox(oldPlayerLeft, oldPlayerTop, this.getPlayer('left'), this.getPlayer('top'), 1, 1);
-                this.collisionBox(oldPlayerLeft, oldPlayerBottom, this.getPlayer('left'), this.getPlayer('bottom'), 1, 0);
-                this.collisionBox(oldPlayerRight, oldPlayerTop, this.getPlayer('right'), this.getPlayer('top'), 0, 1);
-                this.collisionBox(oldPlayerRight, oldPlayerBottom, this.getPlayer('right'), this.getPlayer('bottom'), 0, 0);
+                this.collisionBox(oldPlayerLeft, oldPlayerTop, this.player.left, this.player.top, 1, 1);
+                this.collisionBox(oldPlayerLeft, oldPlayerBottom, this.player.left, this.player.bottom, 1, 0);
+                this.collisionBox(oldPlayerRight, oldPlayerTop, this.player.right, this.player.top, 0, 1);
+                this.collisionBox(oldPlayerRight, oldPlayerBottom, this.player.right, this.player.bottom, 0, 0);
             }
         }
-        // console.log(this.getPlayer('bottom'), this.getPlayer('left'));
+        // console.log(this.player.bottom, this.player.left);
         // console.log(this.collisionLayer);
-        // console.log(this.collisionLayer.get(this.getPlayer('bottom'), this.getPlayer('left')));
+        // console.log(this.collisionLayer.get(this.player.bottom, this.player.left));
         if (
-            this.collisionLayer.get(this.getPlayer('bottom'), this.getPlayer('right')).getCollision() ||
-            this.collisionLayer.get(this.getPlayer('bottom'), this.getPlayer('left')).getCollision() ||
-            this.collisionLayer.get(this.getPlayer('top'), this.getPlayer('left')).getCollision() ||
-            this.collisionLayer.get(this.getPlayer('top'), this.getPlayer('right')).getCollision()
+            this.collisionLayer.get(this.player.bottom, this.player.right).collision ||
+            this.collisionLayer.get(this.player.bottom, this.player.left).collision ||
+            this.collisionLayer.get(this.player.top, this.player.left).collision ||
+            this.collisionLayer.get(this.player.top, this.player.right).collision
         ) {
             //console.log('collision set to old Values');
-            this.setStageOffsetX(this.getOldStageOffset('x'));
-            this.setStageOffsetY(this.getOldStageOffset('y'));
+            this.setStageOffsetX(this.oldStageOffset.x);
+            this.setStageOffsetY(this.oldStageOffset.y);
         }
     }
     collisionBox(oldBoxX, oldBoxY, newBoxX, newBoxY, playerCornerLeft, playerCornerTop) {
         if (typeof this.collisionLayer.get(newBoxY, newBoxX) == "undefined") {
             return;
         }
-        if (!this.collisionLayer.get(newBoxY, newBoxX).getCollision()) {
+        if (!this.collisionLayer.get(newBoxY, newBoxX).collision) {
             return;
         }
         //console.log('collisionBox kolidierter Ecken:' + (playerCornerLeft ? 'Links' : 'Rechts') + ', ' + (playerCornerTop ? 'Oben' : 'Unten'));
@@ -498,10 +436,10 @@ class Floor {
         } else {
             //Kollision untere Kante?
             //console.log('oldBoxX=' + oldBoxX + ', oldBoxY=' + oldBoxY);
-            if (!this.collisionLayer.get(oldBoxY, newBoxX).getCollision() && this.collisionLayer.get(newBoxY, oldBoxX).getCollision()) {
+            if (!this.collisionLayer.get(oldBoxY, newBoxX).collision && this.collisionLayer.get(newBoxY, oldBoxX).collision) {
                 this.setStageOffsetY(kanteY + playerOffsetY);
                 //console.log('collisionBox Korrektur Y: ');
-            } else if (!this.collisionLayer.get(newBoxY, oldBoxX).getCollision() && this.collisionLayer.get(oldBoxY, newBoxX).getCollision()) {
+            } else if (!this.collisionLayer.get(newBoxY, oldBoxX).collision && this.collisionLayer.get(oldBoxY, newBoxX).collision) {
                 this.setStageOffsetX(kanteX + playerOffsetX);
                 //console.log('collisionBox Korrektur X: ');
             } else {

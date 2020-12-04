@@ -1,9 +1,9 @@
 class Floor {
     constructor(parent, result) {
         this.parent = parent;
-        this.tiles = new Tiles(this.parent);
-        this.items = new Tiles(this.parent);
-        this.enemies = new Tiles(this.parent);
+        this.tiles = new Squares(this.parent);
+        this.items = new Items(this.parent);
+        this.enemies = new Enemies(this.parent);
         this.dataHandler = new DataHandler(this);
         this.mousehandler = new MouseHandler(this);
         this.keyboardHandler = new KeyboardHandler(this);
@@ -216,7 +216,7 @@ class Floor {
                 }
             }
         }
-        this.startIsSet = this.tiles.getStartIsSet();
+        this.startIsSet = this.tiles.startIsSet;
         this.repaint();
     }
     repaint(element = '') {
@@ -257,8 +257,8 @@ class Floor {
         }
     }
     drawAsset(element) {
-        let x = element.getX() * this.zoom,
-            y = element.getY() * this.zoom,
+        let x = element.x * this.zoom,
+            y = element.y * this.zoom,
             h = this.getZoomSize(),
             w = this.getZoomSize();
         if (element.asset.image) {
@@ -268,7 +268,7 @@ class Floor {
     addGrid(element) {
         _ctx.beginPath();
         _ctx.strokeStyle = 'rgb(0,0,0)';
-        _ctx.rect(element.getX() * this.zoom, element.getY() * this.zoom, this.getZoomSize(), this.getZoomSize());
+        _ctx.rect(element.x * this.zoom, element.y * this.zoom, this.getZoomSize(), this.getZoomSize());
         _ctx.stroke();
     }
     resize() {
@@ -315,7 +315,7 @@ class Floor {
         }
     }
     checkIfStart(el) {
-        if (!el.getIsEmpty() && el.asset.getType() == 'start') {
+        if (!el.isEmpty && el.asset.getType() == 'start') {
             this.startIsSet = false;
             this.setStart('x', 0);
             this.setStart('y', 0);

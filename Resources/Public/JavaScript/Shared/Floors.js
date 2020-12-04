@@ -63,7 +63,7 @@ class Floors {
      ************************/
     newFloor(newFloor) {
         this.floorLevel = newFloor;
-        $('body').removeClass('loading-done');
+        document.body.classList.remove('loading-done');
         this.parent.stopGame = true;
         if (!this.get(this.floorLevel)) {
             this.counter = 0;
@@ -81,11 +81,6 @@ class Floors {
     resize() {
         this.getCurrent().resize();
     }
-    // garbage collection
-    // remove(id){
-    // }
-
-
 
     /************************
      ****** Generator *******

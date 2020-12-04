@@ -45,10 +45,16 @@ class Loader {
         this.paint();
     }
     addText(txt) {
-        $('.loaderBar .text').html(txt);
+        //$('.loaderBar .text').html(txt);
+        if (document.querySelector('.loaderBar .text')) {
+            document.querySelector('.loaderBar .text').innerHTML = txt;
+        }
     }
     removeText() {
-        $('.loaderBar .text').html('');
+        //$('.loaderBar .text').html('');
+        if (document.querySelector('.loaderBar .text')) {
+            document.querySelector('.loaderBar .text').innerHTML = '';
+        }
     }
     reset() {
         this.progress = 0;
@@ -60,9 +66,15 @@ class Loader {
     paint() {
         if (this.max != 0) {
             this.progress = (100 / this.max) * this.step;
-            $('.loaderBar .bar').css('width', this.progress + '%');
+            //$('.loaderBar .bar').css('width', this.progress + '%');
+            if (document.querySelector('.loaderBar .bar')) {
+                document.querySelector('.loaderBar .bar').style.width = this.progress + '%';
+            }
         } else {
-            $('.loaderBar .bar').css('width', '0%');
+            //$('.loaderBar .bar').css('width', '0%');
+            if (document.querySelector('.loaderBar .bar')) {
+                document.querySelector('.loaderBar .bar').style.width = '0%';
+            }
         }
     }
     showProgress() {

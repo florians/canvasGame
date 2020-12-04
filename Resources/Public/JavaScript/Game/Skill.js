@@ -1,73 +1,24 @@
 class Skill {
     constructor(result) {
-        this.setCost(result.cost);
-        this.setDeleted(result.deleted);
-        this.setLevel(result.level);
-        this.setName(result.name);
-        this.setText(result.text);
-        this.setTurns(result.turns);
-        this.setType(result.type);
-        this.setUid(result.uid);
-        this.setValue(result.value);
+        this.cost = result.cost;
+        this.deleted = result.deleted;
+        this.level = result.level;
+        this.name = result.name;
+        this.text = result.text;
+        this.turns = result.turns;
+        this.type = result.type;
+        this.uid = result.uid;
+        this.value = result.value;
     }
-    /************************
-     ******** Getter ********
-     ************************/
-    getUid() {
-        return this.uid;
-    }
-    getCost() {
-        return this.cost;
-    }
-    getDeleted() {
-        return this.deleted;
-    }
-    getLevel() {
-        return this.level;
-    }
-    getName() {
-        return this.name;
-    }
-    getText() {
-        return this.text;
-    }
-    getTurns() {
-        return this.turns;
-    }
-    getType() {
-        return this.type;
-    }
-    getValue() {
-        return this.value;
-    }
-    /************************
-     ******** Setter ********
-     ************************/
-    setUid(uid) {
-        this.uid = uid;
-    }
-    setCost(cost) {
-        this.cost = cost;
-    }
-    setDeleted(deleted) {
-        this.deleted = deleted;
-    }
-    setLevel(level) {
-        this.level = level;
-    }
-    setName(name) {
-        this.name = name;
-    }
-    setText(text) {
-        this.text = text;
-    }
-    setTurns(turns) {
-        this.turns = turns;
-    }
-    setType(type) {
-        this.type = type;
-    }
-    setValue(value) {
-        this.value = value;
+    draw(x, y, w, h, i) {
+        _ctxUi.fillStyle = 'rgb(0,255,255)';
+        _ctxUi.fillRect(x, y + (h + 5) * i, w, h);
+        this.x = x;
+        this.y = y + (h + 5) * i;
+        this.w = w;
+        this.h = h;
+        _ctxUi.font = "30px Arial";
+        _ctxUi.fillStyle = 'rgb(0,0,0)';
+        _ctxUi.fillText(this.name, x, 25 + y + (h + 5) * i);
     }
 }

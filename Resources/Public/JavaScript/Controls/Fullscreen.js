@@ -6,23 +6,17 @@ class Fullscreen {
         this.requestFullScreen = this.docEl.requestFullscreen || this.docEl.mozRequestFullScreen || this.docEl.webkitRequestFullScreen || this.docEl.msRequestFullscreen;
         this.cancelFullScreen = this.doc.exitFullscreen || this.doc.mozCancelFullScreen || this.doc.webkitExitFullscreen || this.doc.msExitFullscreen;
     }
-    toggle(){
+    toggle() {
         if (!this.doc.fullscreenElement && !this.doc.mozFullScreenElement && !this.doc.webkitFullscreenElement && !this.doc.msFullscreenElement) {
-            if (!$('body').hasClass('isFullscreen')) {
+            if (!document.body.classList.contains('isFullscreen')) {
                 this.requestFullScreen.call(this.docEl);
-                $('body').addClass('isFullscreen');
+                document.body.classList.add('isFullscreen');
             }
         } else {
-            if ($('body').hasClass('isFullscreen')) {
+            if (document.body.classList.contains('isFullscreen')) {
                 this.cancelFullScreen.call(this.doc);
-                $('body').removeClass('isFullscreen');
+                document.body.classList.remove('isFullscreen');
             }
         }
     }
 }
-// 
-// const fullscreen = new Fullscreen();
-//
-// $('.fullscreen').on('click', function() {
-//     fullscreen.toggle();
-// });

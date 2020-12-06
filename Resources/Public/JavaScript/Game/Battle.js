@@ -8,6 +8,7 @@ class Battle {
             _enemy: enemy
         }
         this.win = false;
+        this.resize();
         document.body.classList.add('battle');
     }
 
@@ -18,13 +19,18 @@ class Battle {
         _ctxUi.globalAlpha = 1;
     }
     draw() {
+        this.drawBackground();
+        // skill menu
         _ctxUi.fillStyle = 'rgb(50,50,50)';
         _ctxUi.fillRect(0, _ctxUi.canvas.height / 2, _ctxUi.canvas.width, _ctxUi.canvas.height / 2);
+
+        this.challengers._enemy.draw();
+        this.challengers._player.draw();
     }
-    current(){
+    current() {
         return this.challengers[this.turn];
     }
-    currentTarget(){
+    currentTarget() {
         return this.challengers[this.target];
     }
     changeTarget() {
@@ -35,5 +41,17 @@ class Battle {
             this.target = '_enemy';
             this.turn = '_player';
         }
+        this.current().actions.use();
+    }
+    addAction(skill) {
+        // hot and heal to self else to enemy
+        if (skill.type == 2 || skill.type == 3) {
+            this.current().actions.trigger(skill);
+        } else {
+            this.currentTarget().actions.add(skill);
+        }
+    }
+    resize() {
+        this.challengers._enemy.resize();
     }
 }

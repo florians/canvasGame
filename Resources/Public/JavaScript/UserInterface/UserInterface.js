@@ -16,10 +16,7 @@ class UserInterface {
         }
         // battle background
         if (this.parent.battle) {
-            this.parent.battle.drawBackground();
             this.parent.battle.draw();
-            this.parent.battle.challengers._enemy.draw();
-            this.parent.battle.challengers._player.draw();
         } else {
             this.parent._player.draw();
         }
@@ -89,10 +86,11 @@ class UserInterface {
             if (this.parent.battle.target == '_player') {
                 this.resetStat(target, 'hp');
                 this.resetStat(target, 'es');
-                this.parent.newFloor(floorLevel, true);
+                this.parent._floors.newFloor(this.parent._floors.floorLevel, true);
             } else {
                 this.parent.stopGame = false;
                 this.addStat(this.parent.battle.current(), 'exp');
+                this.parent.battle.challengers._enemy.delete();
                 this.parent.animate();
             }
             document.body.classList.remove('battle');
@@ -115,24 +113,11 @@ class UserInterface {
         //         _ctxUi.globalAlpha = 0.8;
         //         _ctxUi.fillRect(x + (w * count), y, w, h);
         //         _ctxUi.globalAlpha = 1;
-        //         _ctxUi.drawImage(items[type].getImage(), x + (w * count), 25, w, h);
+        //         _ctxUi.drawImage(items[type].image, x + (w * count), 25, w, h);
         //         count++;
         //     }
         // });
         _ctxUi.restore();
-    }
-    drawStat(stat, x, y, h, color) {
-        let barSize = 0;
-        let max = stat.max || stat.current;
-        barSize = Math.floor(_ctxUi.canvas.width / 2) / max;
-        _ctxUi.fillStyle = 'rgb(10,10,10)';
-        _ctxUi.fillRect(x, y, Math.floor(_ctxUi.canvas.width / 2) - 2, h);
-        for (let i = 0; i < max; i++) {
-            if (stat.current >= i + 1) {
-                _ctxUi.fillStyle = color;
-                _ctxUi.fillRect(x + (barSize * i), y, barSize - 2, h);
-            }
-        }
     }
     /************************
      ***** Use Skill ********
@@ -143,17 +128,21 @@ class UserInterface {
                 x: event.clientX,
                 y: event.clientY
             };
-            for (var i = 0; i < this.parent._player.skills.length; i++) {
-                if (this.isColliding(mPos, this.parent._player.skills[i])) {
-                    this.parent.ui.removeStat(this.parent.battle.currentTarget(), 'hp', this.parent._player.skills[i].value);
-                    if (this.parent.battle) {
-                        this.parent.battle.changeTarget();
-                        this.parent.ui.draw();
-                        if (this.parent.battle.currentTarget().stats.hp.current > 0) {
-                            setTimeout(() => {
-                                this.parent.battle.current().attack(this.parent.battle.currentTarget());
-                                this.parent.battle.changeTarget();
-                            }, 100);
+            if (this.parent.battle.turn == '_player') {
+                for (var i = 0; i < this.parent._player.skills.length; i++) {
+                    if (this.isColliding(mPos, this.parent._player.skills[i])) {
+                        this.parent.battle.addAction(this.parent._player.skills[i]);
+                        if (this.parent.battle) {
+                            this.parent.battle.changeTarget();
+                            this.parent.ui.draw();
+                            if (this.parent.battle && this.parent.battle.currentTarget().stats.hp.current > 0) {
+                                setTimeout(() => {
+                                    this.parent.battle.current().attack(this.parent.battle.currentTarget());
+                                    if (this.parent.battle) {
+                                        this.parent.battle.changeTarget();
+                                    }
+                                }, 100);
+                            }
                         }
                     }
                 }
@@ -165,6 +154,11 @@ class UserInterface {
             return true;
         } else {
             return false;
+        }
+    }
+    resize() {
+        if (this.parent.battle) {
+            this.parent.battle.resize();
         }
     }
 }

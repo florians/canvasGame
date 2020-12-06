@@ -54,8 +54,8 @@ class Floor {
     init(result) {
         this.setZoom('reset');
         this.setBrushSize('reset');
-        this.setSize(30);
-        this.setZoomSize(this.getSize() * this.getZoom());
+        this.size = 30;
+        this.zoomSize = this.size * this.zoom;
         this.setHeight(result.height);
         this.setWidth(result.width);
         this.setLevel(result.level);
@@ -73,45 +73,6 @@ class Floor {
 
         this.setCanvasSize();
         this.generateGrid();
-    }
-    /************************
-     ******** Getter ********
-     ************************/
-    getHeight() {
-        return this.height;
-    }
-    getWidth() {
-        return this.width;
-    }
-    getLevel() {
-        return this.level;
-    }
-    getStart(dir) {
-        return this.start[dir];
-    }
-    getTilesArray() {
-        return this.tilesArray;
-    }
-    getEnemiesArray() {
-        return this.enemiesArray;
-    }
-    getItemsArray() {
-        return this.itemsArray;
-    }
-    getStageOffset(dir) {
-        return this.stageOffset[dir];
-    }
-    getSize() {
-        return this.size;
-    }
-    getZoomSize() {
-        return this.zoomSize;
-    }
-    getZoom() {
-        return this.zoom;
-    }
-    getBrushSize() {
-        return this.brushSize;
     }
     /************************
      ******** Setter ********
@@ -143,38 +104,32 @@ class Floor {
     setStageOffset(dir, val) {
         this.stageOffset[dir] = val;
     }
-    setSize(size) {
-        this.size = size;
-    }
-    setZoomSize(zoomSize) {
-        this.zoomSize = zoomSize;
-    }
     setZoom(task) {
         if (task == 'reset') {
             this.zoom = 1;
         } else {
-            if (this.getZoom() < 20 && task == '+') {
+            if (this.zoom < 20 && task == '+') {
                 this.zoom += 0.1;
             }
-            if (this.getZoom() >= 0.2 && task == '-') {
+            if (this.zoom >= 0.2 && task == '-') {
                 this.zoom -= 0.1;
             }
         }
-        $('.zoomLevel').html(Math.round(this.getZoom() * 100));
+        $('.zoomLevel').html(Math.round(this.zoom * 100));
     }
     setBrushSize(task) {
         if (task == 'reset') {
             this.brushSize = 1;
         } else {
             let brushSizes = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 49];
-            if (this.getBrushSize() <= 48 && task == '+') {
-                this.brushSize = brushSizes[brushSizes.indexOf(this.getBrushSize()) + 1];
+            if (this.brushSize <= 48 && task == '+') {
+                this.brushSize = brushSizes[brushSizes.indexOf(this.brushSize) + 1];
             }
-            if (this.getBrushSize() > 1 && task == '-') {
-                this.brushSize = brushSizes[brushSizes.indexOf(this.getBrushSize()) - 1];
+            if (this.brushSize > 1 && task == '-') {
+                this.brushSize = brushSizes[brushSizes.indexOf(this.brushSize) - 1];
             }
         }
-        $('.brushSize').html(this.getBrushSize());
+        $('.brushSize').html(this.brushSize);
     }
     setCanvasSize() {
         _ctx.canvas.width = Math.floor($('.canvasContainer').width());
@@ -187,16 +142,16 @@ class Floor {
         let rowY = 0,
             colX = 0,
             counter = 0;
-        for (let row = 0; row < this.getHeight(); row++) {
-            rowY = this.getZoomSize() * row;
-            for (let col = 0; col < this.getWidth(); col++) {
-                colX = this.getZoomSize() * col;
+        for (let row = 0; row < this.height; row++) {
+            rowY = this.zoomSize * row;
+            for (let col = 0; col < this.width; col++) {
+                colX = this.zoomSize * col;
                 // scale up
                 if (this.defaultWidth > 0 && col >= this.defaultWidth) {
                     this.tiles.add('', row, col, rowY, colX);
                     this.enemies.add('', row, col, rowY, colX);
                     this.items.add('', row, col, rowY, colX);
-                } else if (this.defaultWidth > this.getWidth()) {
+                } else if (this.defaultWidth > this.width) {
                     counter++;
                 } else {
                     if (this.tilesArray) {
@@ -223,9 +178,11 @@ class Floor {
         _ctx.save();
         _ctx.setTransform(1, 0, 0, 1, 0, 0);
         if (element == '') {
-            _ctx.clearRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
+            _ctx.fillStyle = '#e5e5e5';
+            _ctx.fillRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
+            //_ctx.clearRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
         }
-        _ctx.translate(this.getStageOffset('x'), this.getStageOffset('y'))
+        _ctx.translate(this.stageOffset.x, this.stageOffset.y)
         this.fillCanvas(element);
         _ctx.restore();
     }
@@ -236,16 +193,16 @@ class Floor {
             this.drawAsset(this.enemies.get(element.row, element.col));
             this.addGrid(element);
         } else {
-            let cStart = Math.floor(-this.getStageOffset('x') / this.getZoomSize());
-            let rStart = Math.floor(-this.getStageOffset('y') / this.getZoomSize());
-            let cStop = Math.floor((_ctx.canvas.width + this.getZoomSize() * 2) / this.getZoomSize());
-            let rStop = Math.floor((_ctx.canvas.height + this.getZoomSize() * 2) / this.getZoomSize());
+            let cStart = Math.floor(-this.stageOffset.x / this.zoomSize);
+            let rStart = Math.floor(-this.stageOffset.y / this.zoomSize);
+            let cStop = Math.floor((_ctx.canvas.width + this.zoomSize * 2) / this.zoomSize);
+            let rStop = Math.floor((_ctx.canvas.height + this.zoomSize * 2) / this.zoomSize);
 
             cStart = cStart > 0 ? cStart : 0;
             rStart = rStart > 0 ? rStart : 0;
 
-            cStop = cStart + cStop < this.getWidth() ? cStart + cStop : this.getWidth();
-            rStop = rStart + rStop < this.getHeight() ? rStart + rStop : this.getHeight();
+            cStop = cStart + cStop < this.width ? cStart + cStop : this.width;
+            rStop = rStart + rStop < this.height ? rStart + rStop : this.height;
             for (let row = rStart; row < rStop; row++) {
                 for (let col = cStart; col < cStop; col++) {
                     this.drawAsset(this.tiles.get(row, col));
@@ -259,16 +216,16 @@ class Floor {
     drawAsset(element) {
         let x = element.x * this.zoom,
             y = element.y * this.zoom,
-            h = this.getZoomSize(),
-            w = this.getZoomSize();
+            h = this.zoomSize,
+            w = this.zoomSize;
         if (element.asset.image) {
-            _ctx.drawImage(element.asset.getImage(), x, y, h, w);
+            _ctx.drawImage(element.asset.image, x, y, h, w);
         }
     }
     addGrid(element) {
         _ctx.beginPath();
         _ctx.strokeStyle = 'rgb(0,0,0)';
-        _ctx.rect(element.x * this.zoom, element.y * this.zoom, this.getZoomSize(), this.getZoomSize());
+        _ctx.rect(element.x * this.zoom, element.y * this.zoom, this.zoomSize, this.zoomSize);
         _ctx.stroke();
     }
     resize() {
@@ -277,22 +234,22 @@ class Floor {
     }
     addTile(event) {
         let ignoreBrushItems = ['start', 'portal', 'trap', 'enemy', 'item'];
-        let col = Math.floor((event.offsetX - this.getStageOffset('x')) / this.getZoomSize());
-        let row = Math.floor((event.offsetY - this.getStageOffset('y')) / this.getZoomSize());
-        if (this.selectedAsset && row > 0 && row < this.getHeight() && col > 0 && col < this.getWidth()) {
-            if (ignoreBrushItems.includes(this.parent._assets.get(this.selectedAsset).getType())) {
+        let col = Math.floor((event.offsetX - this.stageOffset.x) / this.zoomSize);
+        let row = Math.floor((event.offsetY - this.stageOffset.y) / this.zoomSize);
+        if (this.selectedAsset && row >= 0 && row < this.height && col >= 0 && col < this.width) {
+            if (ignoreBrushItems.includes(this.parent._assets.get(this.selectedAsset).type)) {
                 this.checkIfStart(this[this.selectedLayer].get(row, col));
-                if (this.parent._assets.get(this.selectedAsset).getType() == 'start' && this.startIsSet == false) {
+                if (this.parent._assets.get(this.selectedAsset).type == 'start' && this.startIsSet == false) {
                     this.startIsSet = true;
                     this.setStart('x', col);
                     this.setStart('y', row);
                     this[this.selectedLayer].get(row, col).setTile(this.selectedAsset);
                     this.repaint(this[this.selectedLayer].get(row, col));
                 }
-                if (this.parent._assets.get(this.selectedAsset).getType() == 'portal') {
+                if (this.parent._assets.get(this.selectedAsset).type == 'portal') {
                     this.showCustomBox(this[this.selectedLayer].get(row, col));
                 }
-                if (this.parent._assets.get(this.selectedAsset).getType() != 'start') {
+                if (this.parent._assets.get(this.selectedAsset).type != 'start') {
                     this[this.selectedLayer].get(row, col).setTile(this.selectedAsset);
                     this.repaint(this[this.selectedLayer].get(row, col));
                 }
@@ -302,20 +259,21 @@ class Floor {
                         if (c < 0 || r < 0) {
                             continue;
                         }
-                        this.checkIfStart(this[this.selectedLayer].get(r, c));
+                        if (r >= 0 && r < this.height && c >= 0 && c < this.width) {
+                            this.checkIfStart(this[this.selectedLayer].get(r, c));
 
-                        if (c < this.getWidth() && r < this.getHeight()) {
-                            this[this.selectedLayer].get(r, c).setTile(this.selectedAsset);
-                            this.repaint(this[this.selectedLayer].get(r, c));
+                            if (c < this.width && r < this.height) {
+                                this[this.selectedLayer].get(r, c).setTile(this.selectedAsset);
+                                this.repaint(this[this.selectedLayer].get(r, c));
+                            }
                         }
-
                     }
                 }
             }
         }
     }
     checkIfStart(el) {
-        if (!el.isEmpty && el.asset.getType() == 'start') {
+        if (!el.isEmpty && el.asset.type == 'start') {
             this.startIsSet = false;
             this.setStart('x', 0);
             this.setStart('y', 0);
@@ -341,7 +299,7 @@ class Floor {
         } else {
             this.zoom = 1;
         }
-        this.setZoomSize(this.getSize() * this.getZoom());
+        this.zoomSize = this.size * this.zoom;
         this.setStageOffset('x', 0);
         this.setStageOffset('y', 0);
         this.repaint();
@@ -352,7 +310,7 @@ class Floor {
         } else {
             this.setZoom('+');
         }
-        this.setZoomSize(this.getSize() * this.getZoom());
+        this.zoomSize = this.size * this.zoom;
         this.setStageOffset('x', 0);
         this.setStageOffset('y', 0);
         this.repaint();
@@ -383,19 +341,19 @@ class Floor {
     keydown() {
         let repaint = false;
         if (this.keyboardHandler.get('left')) {
-            this.setStageOffset('x', this.getStageOffset('x') - this.getZoomSize());
+            this.setStageOffset('x', this.stageOffset.x - this.zoomSize);
             repaint = true;
         }
         if (this.keyboardHandler.get('right')) {
-            this.setStageOffset('x', this.getStageOffset('x') + this.getZoomSize());
+            this.setStageOffset('x', this.stageOffset.x + this.zoomSize);
             repaint = true;
         }
         if (this.keyboardHandler.get('up')) {
-            this.setStageOffset('y', this.getStageOffset('y') - this.getZoomSize());
+            this.setStageOffset('y', this.stageOffset.y - this.zoomSize);
             repaint = true;
         }
         if (this.keyboardHandler.get('down')) {
-            this.setStageOffset('y', this.getStageOffset('y') + this.getZoomSize());
+            this.setStageOffset('y', this.stageOffset.y + this.zoomSize);
             repaint = true;
         }
         if (repaint) {
@@ -424,11 +382,11 @@ class Floor {
     save(event) {
         this.setLevel($('input.level').val());
         let floor = {
-            level: this.getLevel(),
-            startX: this.getStart('x'),
-            startY: this.getStart('y'),
-            height: this.getHeight(),
-            width: this.getWidth(),
+            level: this.level,
+            startX: this.start.x,
+            startY: this.start.y,
+            height: this.height,
+            width: this.width,
             tiles: []
         }
         if (this.tiles.getCount()) {
@@ -440,7 +398,7 @@ class Floor {
         if (this.enemies.getCount()) {
             floor.enemies = this.dataHandler.compress(this.enemies);
         }
-        if (this.getLevel() > 0) {
+        if (this.level > 0) {
             this.parent.loader.add('data', 'assets', {
                 type: 'saveFloor',
                 json: JSON.stringify(floor)
@@ -457,8 +415,8 @@ class Floor {
         this.setStageOffset('x', 0);
         this.setStageOffset('y', 0);
 
-        $('input.dimension-w').val(this.getHeight());
-        $('input.dimension-h').val(this.getWidth());
+        $('input.dimension-w').val(this.height);
+        $('input.dimension-h').val(this.width);
 
 
         this.parent.msgReset();
@@ -493,7 +451,7 @@ class Floor {
             this.setHeight($('input.dimension-h').val());
             this.setWidth($('input.dimension-w').val());
             this.zoom = 1;
-            this.setZoomSize(this.getSize() * this.getZoom());
+            this.zoomSize = this.size * this.zoom;
             this.generateGrid();
         }
     }
@@ -510,8 +468,8 @@ class Floor {
      ************************/
     showCustomBox(asset) {
         $('aside .custom').addClass('active');
-        $('aside .custom .level').val(asset.getLevel());
-        $('aside .custom .custom-hidden').attr('data-col', asset.getCol()).attr('data-row', asset.getRow());
+        $('aside .custom .level').val(asset.level);
+        $('aside .custom .custom-hidden').attr('data-col', asset.col).attr('data-row', asset.row);
     }
     listAssets() {
         let types = this.parent._assets.getTypes();
@@ -530,7 +488,7 @@ class Floor {
             let typeAssets = this.parent._assets.getByType(types[i]);
             if (typeAssets) {
                 for (let i = 0; i < typeAssets.length; i++) {
-                    htmlArray.push('<div class="asset" data-uid="' + typeAssets[i].getUid() + '"><img src="' + typeAssets[i].getImage().src + '" /></div>');
+                    htmlArray.push('<div class="asset" data-uid="' + typeAssets[i].uid + '"><img src="' + typeAssets[i].image.src + '" /></div>');
                 }
             }
             htmlArray.push('</div>');

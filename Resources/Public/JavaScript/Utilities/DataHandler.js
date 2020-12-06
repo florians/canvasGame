@@ -8,16 +8,16 @@ class DataHandler {
             empty = false,
             uid = '',
             compressed = [];
-        for (let row = 0; row < this.parent.getHeight(); row++) {
-            for (let col = 0; col < this.parent.getWidth(); col++) {
-                if (assets.get(row, col).getIsEmpty()) {
+        for (let row = 0; row < this.parent.height; row++) {
+            for (let col = 0; col < this.parent.width; col++) {
+                if (assets.get(row, col).isEmpty) {
                     counter++;
                     uid = '';
                 } else {
-                    if (assets.get(row, col).asset.getType() == 'portal') {
-                        uid = assets.get(row, col).asset.getUid() + "|" + assets.get(row, col).level;
+                    if (assets.get(row, col).asset.type == 'portal') {
+                        uid = assets.get(row, col).asset.uid + "|" + assets.get(row, col).level;
                     } else {
-                        uid = assets.get(row, col).asset.getUid();
+                        uid = assets.get(row, col).asset.uid;
                     }
                 }
                 if (uid) {

@@ -12,47 +12,35 @@ class Tile {
         this.orig = '';
     }
     /************************
+     ***** Hit action *******
+     ************************/
+    hit(type) {
+        this.del = false;
+        if (this.isEmpty == false) {
+            if (this[this.asset.name] instanceof Function) {
+                this[this.asset.name]();
+            }
+        }
+    }
+
+    /************************
      ******** Setter ********
      ************************/
-    setTile(id) {
+    set(id) {
         if (id && this.parent._assets.get(id)) {
             this.isEmpty = false;
             this.asset = this.parent._assets.get(id);
         } else {
             this.isEmpty = true;
             this.asset = {
-                collision: [1, 1, 1, 1],
+                collision: false,
                 factor: 0
             }
         }
     }
-    // setX(x) {
-    //     this.x = x;
-    // }
-    // setY(y) {
-    //     this.y = y;
-    // }
-    // setCol(col) {
-    //     this.col = col;
-    // }
-    // setRow(row) {
-    //     this.row = row;
-    // }
-    // setLevel(level) {
-    //     this.level = level;
-    // }
-    // setIsEmpty(isEmpty) {
-    //     this.isEmpty = isEmpty;
-    // }
-    // setCollision(collision) {
-    //     this.collision = collision;
-    // }
-    // setOrig(orig) {
-    //     this.orig = orig;
-    // }
-
     del() {
-        this.setTile(0);
+        this.set(0);
         this.collision = false;
+        _game.ui.draw();
     }
 }

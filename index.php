@@ -7,6 +7,8 @@ $jsFiles = [
 
     // UserInterface
     'Resources/Public/JavaScript/UserInterface/UserInterface.js',
+        'Resources/Public/JavaScript/UserInterface/Bars.js',
+        'Resources/Public/JavaScript/UserInterface/Bar.js',
 
     // Assets
     'Resources/Public/JavaScript/Shared/Assets.js',
@@ -33,6 +35,10 @@ $jsFiles = [
     // Skills
     'Resources/Public/JavaScript/Game/Skills.js',
         'Resources/Public/JavaScript/Game/Skill.js',
+
+    // Actions
+    'Resources/Public/JavaScript/Game/Actions.js',
+        'Resources/Public/JavaScript/Game/Action.js',
 
     // Player
     'Resources/Public/JavaScript/Game/Player.js',

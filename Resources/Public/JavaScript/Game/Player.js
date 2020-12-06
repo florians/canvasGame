@@ -15,6 +15,13 @@ class Player {
         this.name = '';
         this.level = 0;
         this.stats = {};
+        this.actions = new Actions(this);
+        this.bars = new Bars(this);
+        // values type, x, y, h, w, color
+        // y = [0, 10] 0% + 10
+        this.bars.add('hp', 0, 0, 20, 50, 'rgb(255,0,0)');
+        this.bars.add('es', 0, [0, 10], 10, 50, 'rgb(0,0,255)');
+        this.bars.add('exp', 0, [0, 25], 10, 50, 'rgb(0,255,0)');
     }
     /************************
      **** Setup Loader ******
@@ -34,21 +41,21 @@ class Player {
     savePlayer() {
         this.game.loader.add('data', '', {
             type: 'savePlayer',
-            name: this.getName(),
-            level: this.getLevel(),
-            stats: JSON.stringify(this.getStats())
+            name: this.name,
+            level: this.level,
+            stats: JSON.stringify(this.stats)
         });
     }
     /************************
      ***** Loader init ******
      ************************/
     init(result) {
-        this.setUid(result.uid);
-        this.setName(result.name);
-        this.setLevel(result.level);
         this.setStats(result.stats);
-        this.setStat('hp.current', this.getStat('hp.max'));
-        this.setStat('es.current', 0);
+        this.setUid(result.uid);
+        this.setLevel(result.level);
+        this.name = result.name;
+        this.stats.hp.current = this.stats.hp.max;
+        this.stats.es.current = 0;
     }
     initSkills(result) {
         for (let i = 0; i < result.length; i++) {
@@ -77,14 +84,7 @@ class Player {
      **** Canvas changes ****
      ************************/
     draw() {
-        // player stuff
-        this.game.ui.drawStat(this.stats.hp, 0, 0, 20, 'rgb(255,0,0)');
-        if (this.stats.es.current > 0) {
-            this.game.ui.drawStat(this.stats.es, 0, 10, 10, 'rgb(0,0,255)');
-        }
-        if (this.stats.exp.current > 0) {
-            this.game.ui.drawStat(this.stats.exp, 0, 20, 5, 'rgb(0,255,0)');
-        }
+        this.bars.draw();
         if (this.items) {
             this.game.ui.drawItem(this.items, 0, 25, 50, 50);
         }
@@ -96,6 +96,7 @@ class Player {
     resize() {
         this.x = Math.floor(_ctxUi.canvas.width / 2 - this.w / 2);
         this.y = Math.floor(_ctxUi.canvas.height / 2 - this.h / 2);
+        this.bars.resize();
     }
     drawPlayer() {
         // save already rendered ctx to only translate player
@@ -118,26 +119,11 @@ class Player {
             return this.stats[stat];
         }
     }
-    getUid() {
-        return this.uid;
-    }
-    getName() {
-        return this.name
-    }
-    getLevel() {
-        return this.level
-    }
-    getStats() {
-        return this.stats
-    }
     /************************
      ******** Setter ********
      ************************/
     setUid(uid) {
         this.uid = parseInt(uid);
-    }
-    setName(name) {
-        this.name = name;
     }
     setLevel(level) {
         this.level = parseInt(level);
@@ -152,7 +138,6 @@ class Player {
             } else {
                 this.stats[splitStat[0]][splitStat[1]] = val;
             }
-
         } else {
             if (dir == '+') {
                 this.stats[stat] += val;
@@ -170,9 +155,9 @@ class Player {
      ***** Stat handling ****
      ************************/
     levelUp() {
-        this.setLevel(this.getLevel() + 1);
+        this.setLevel(this.level + 1);
         this.addStat('hp.max');
-        this.setStat('hp.current', this.getStat('hp.max'));
+        this.setStat('hp.current', this.stats.hp.max);
         this.addStat('exp.max');
         this.setStat('exp.current', 0);
     }

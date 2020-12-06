@@ -1,5 +1,7 @@
 class Game {
     constructor() {
+        this.setCanvasSize();
+
         this.mousehandler = new MouseHandler(this);
         this.keyboardHandler = new KeyboardHandler(this);
         this.joystickHandler = new Joystick(this);
@@ -19,7 +21,6 @@ class Game {
 
         this.mousehandler.add('.fullscreen', 'click', 'doFullscreen');
         this.keyboardHandler.add(document, 'keydown', 'doFullscreen');
-
         this.preloader();
     }
     /************************
@@ -60,7 +61,6 @@ class Game {
     init() {
         document.body.classList.add('loading-done');
         this.stopGame = false;
-        this.setCanvasSize();
         // create ui
         this.ui = new UserInterface(this);
         this.ui.repaint = true;
@@ -111,6 +111,7 @@ class Game {
         this.ui.repaint = true;
         this._floors.resize();
         this._player.resize();
+        this.ui.resize();
         if (this.stopGame == true) {
             this.draw();
         }

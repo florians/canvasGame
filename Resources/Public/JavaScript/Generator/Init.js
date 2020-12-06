@@ -9,6 +9,6 @@ let _generator = new Generator(generatorType);
 /***********************************
  ************* resize ***************
  ***********************************/
-$(window).resize(function() {
+window.addEventListener('resize', function() {
     _generator.resize();
 });

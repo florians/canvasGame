@@ -44,7 +44,7 @@ class Assets {
     getByType(type) {
         let assetArray = [];
         for (var i = 0; i < this.assets.length; i++) {
-            if (this.assets[i] && this.assets[i].getType() == type) {
+            if (this.assets[i] && this.assets[i].type == type) {
                 assetArray.push(this.assets[i]);
             }
         }

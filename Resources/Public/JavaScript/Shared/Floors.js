@@ -70,6 +70,7 @@ class Floors {
             this.load(this.floorLevel);
         } else {
             this.getCurrent().resetStart();
+            this.parent.init();
         }
     }
     /************************

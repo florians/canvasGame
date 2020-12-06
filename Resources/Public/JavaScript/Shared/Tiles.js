@@ -38,7 +38,7 @@ class Tiles {
         if (this.level(data)) {
             this.tiles[row][col].level = this.level(data);
         }
-        if (!this.tiles[row][col].isEmpty && this.tiles[row][col].asset.getType() == 'start') {
+        if (!this.tiles[row][col].isEmpty && this.tiles[row][col].asset.type == 'start') {
             this.startIsSet = true;
         }
     }

@@ -251,7 +251,7 @@ class Floor {
     }
     drawAsset(element) {
         if (element.asset.image) {
-            _ctxWorld.drawImage(element.asset.getImage(), element.x, element.y, this.partH, this.partW);
+            _ctxWorld.drawImage(element.asset.image, element.x, element.y, this.partH, this.partW);
         }
         // if (showHitBox) {
         //     if (element.asset.collision.length > 1) {

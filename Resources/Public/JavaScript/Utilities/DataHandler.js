@@ -2,51 +2,51 @@ class DataHandler {
     constructor(parent) {
         this.parent = parent;
     }
-    compress(assets) {
-        let assetArray = [],
+    compress(data) {
+        let dataArray = [],
             counter = 0,
             empty = false,
             uid = '',
             compressed = [];
         for (let row = 0; row < this.parent.height; row++) {
             for (let col = 0; col < this.parent.width; col++) {
-                if (assets.get(row, col).isEmpty) {
+                if (data.get(row, col).isEmpty) {
                     counter++;
                     uid = '';
                 } else {
-                    if (assets.get(row, col).asset.type == 'portal') {
-                        uid = assets.get(row, col).asset.uid + "|" + assets.get(row, col).level;
+                    if (data.get(row, col).asset.type == 'portal') {
+                        uid = data.get(row, col).asset.uid + "|" + data.get(row, col).level;
                     } else {
-                        uid = assets.get(row, col).asset.uid;
+                        uid = data.get(row, col).asset.uid;
                     }
                 }
                 if (uid) {
                     if (counter > 0) {
-                        assetArray.push("#" + counter);
+                        dataArray.push("#" + counter);
                         counter = 0;
                     }
-                    assetArray.push(uid);
+                    dataArray.push(uid);
                 }
             }
         }
         if (counter > 0) {
-            assetArray.push("#" + counter);
+            dataArray.push("#" + counter);
             counter = 0;
         }
-        // set to 1 so that on comparisson it's 1 + 1
+        // set to 1 so that on comparison it's 1 + 1
         counter = 1;
-        for (let i = 0; i < assetArray.length; i++) {
-            if (assetArray[i].includes('#')) {
-                compressed.push(assetArray[i]);
+        for (let i = 0; i < dataArray.length; i++) {
+            if (isNaN(dataArray[i]) && dataArray[i].includes('#')) {
+                compressed.push(dataArray[i]);
             } else {
-                if (assetArray[i] == assetArray[i + 1]) {
+                if (dataArray[i] == dataArray[i + 1]) {
                     counter++;
                 } else {
                     if (counter == 1) {
-                        compressed.push(assetArray[i]);
+                        compressed.push(dataArray[i]);
                         counter = 1;
                     } else if (counter > 1) {
-                        compressed.push('#' + counter + "|" + assetArray[i]);
+                        compressed.push('#' + counter + "|" + dataArray[i]);
                         counter = 1;
                     }
                 }

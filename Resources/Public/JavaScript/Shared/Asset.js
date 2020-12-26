@@ -29,6 +29,12 @@ class Asset {
         this.uid = parseInt(uid);
     }
     setCollision(collision) {
-        this.collision = collision.split(',').map(Number);
+        let c = collision.split(',').map(Number);
+        if (c.length == 1) {
+            this.collision = false;
+        } else {
+            this.collision = collision.split(',').map(Number);
+        }
+
     }
 }

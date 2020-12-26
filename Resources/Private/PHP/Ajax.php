@@ -56,12 +56,12 @@ function getFloor($db, $level)
 {
     $result = $db->select('floor', '*', ['deleted' => 0, 'level' => $level])[0];
     $tiles = getFile('../../Private/Floor/Level_' . $level . '/Layer_Tiles.txt');
-    $enemies = getFile('../../Private/Floor/Level_' . $level . '/Layer_Enemies.txt');
-    $items = getFile('../../Private/Floor/Level_' . $level . '/Layer_Items.txt');
-    if ($tiles || $enemies || $items) {
+    $interactions = getFile('../../Private/Floor/Level_' . $level . '/Layer_Interactions.txt');
+    $collectibles = getFile('../../Private/Floor/Level_' . $level . '/Layer_Collectibles.txt');
+    if ($tiles || $interactions || $collectibles) {
         $result['tiles'] = $tiles;
-        $result['enemies'] = $enemies;
-        $result['items'] = $items;
+        $result['interactions'] = $interactions;
+        $result['collectibles'] = $collectibles;
         $msg = 'Floor Level ' . $level . ' successfully loaded';
     } else {
         $result = false;
@@ -237,8 +237,8 @@ function saveFloor($db, $json)
     $height = $jsonObj->{'height'};
     $width = $jsonObj->{'width'};
     $tiles = $jsonObj->{'tiles'};
-    $enemies = $jsonObj->{'enemies'};
-    $items = $jsonObj->{'items'};
+    $interactions = $jsonObj->{'interactions'};
+    $collectibles = $jsonObj->{'collectibles'};
 
     $isUpdate = $db->select('floor', 'uid', ['deleted' => 0, 'level' => $level])[0];
     $destination_dir = '../../Private/Floor/Level_' . $level;
@@ -275,11 +275,11 @@ function saveFloor($db, $json)
         if ($tiles) {
             writeFile($destination_dir . '/Layer_Tiles.txt', $tiles);
         }
-        if ($enemies) {
-            writeFile($destination_dir . '/Layer_Enemies.txt', $enemies);
+        if ($interactions) {
+            writeFile($destination_dir . '/Layer_Interactions.txt', $interactions);
         }
-        if ($items) {
-            writeFile($destination_dir . '/Layer_Items.txt', $items);
+        if ($collectibles) {
+            writeFile($destination_dir . '/Layer_Collectibles.txt', $collectibles);
         }
     }
     returnJson($msg, '', $success);

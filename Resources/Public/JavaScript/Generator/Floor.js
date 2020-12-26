@@ -1,9 +1,9 @@
 class Floor {
     constructor(parent, result) {
         this.parent = parent;
-        this.tiles = new Squares(this.parent);
-        this.items = new Items(this.parent);
-        this.enemies = new Enemies(this.parent);
+        this.tiles = new Tiles(this.parent);
+        this.collectibles = new Collectibles(this.parent);
+        this.interactions = new Interactions(this.parent);
         this.dataHandler = new DataHandler(this);
         this.mousehandler = new MouseHandler(this);
         this.keyboardHandler = new KeyboardHandler(this);
@@ -64,11 +64,11 @@ class Floor {
         if (result.tiles) {
             this.setTilesArray(result.tiles);
         }
-        if (result.enemies) {
-            this.setEnemiesArray(result.enemies);
+        if (result.interactions) {
+            this.setInteractionsArray(result.interactions);
         }
-        if (result.items) {
-            this.setItemsArray(result.items);
+        if (result.collectibles) {
+            this.setCollectiblesArray(result.collectibles);
         }
 
         this.setCanvasSize();
@@ -95,11 +95,11 @@ class Floor {
     setTilesArray(tiles) {
         this.tilesArray = this.dataHandler.extract(tiles);
     }
-    setItemsArray(items) {
-        this.itemsArray = this.dataHandler.extract(items);
+    setCollectiblesArray(collectibles) {
+        this.collectiblesArray = this.dataHandler.extract(collectibles);
     }
-    setEnemiesArray(enemies) {
-        this.enemiesArray = this.dataHandler.extract(enemies);
+    setInteractionsArray(interactions) {
+        this.interactionsArray = this.dataHandler.extract(interactions);
     }
     setStageOffset(dir, val) {
         this.stageOffset[dir] = val;
@@ -149,23 +149,23 @@ class Floor {
                 // scale up
                 if (this.defaultWidth > 0 && col >= this.defaultWidth) {
                     this.tiles.add('', row, col, rowY, colX);
-                    this.enemies.add('', row, col, rowY, colX);
-                    this.items.add('', row, col, rowY, colX);
+                    this.interactions.add('', row, col, rowY, colX);
+                    this.collectibles.add('', row, col, rowY, colX);
                 } else if (this.defaultWidth > this.width) {
                     counter++;
                 } else {
                     if (this.tilesArray) {
                         this.tiles.add(this.tilesArray[counter], row, col, rowY, colX);
                     }
-                    if (this.enemiesArray) {
-                        this.enemies.add(this.enemiesArray[counter], row, col, rowY, colX);
+                    if (this.interactionsArray) {
+                        this.interactions.add(this.interactionsArray[counter], row, col, rowY, colX);
                     } else {
-                        this.enemies.add('', row, col, rowY, colX);
+                        this.interactions.add('', row, col, rowY, colX);
                     }
-                    if (this.itemsArray) {
-                        this.items.add(this.itemsArray[counter], row, col, rowY, colX);
+                    if (this.collectiblesArray) {
+                        this.collectibles.add(this.collectiblesArray[counter], row, col, rowY, colX);
                     } else {
-                        this.items.add('', row, col, rowY, colX);
+                        this.collectibles.add('', row, col, rowY, colX);
                     }
                     counter++;
                 }
@@ -189,8 +189,8 @@ class Floor {
     fillCanvas(element) {
         if (element) {
             this.drawAsset(this.tiles.get(element.row, element.col));
-            this.drawAsset(this.items.get(element.row, element.col));
-            this.drawAsset(this.enemies.get(element.row, element.col));
+            this.drawAsset(this.collectibles.get(element.row, element.col));
+            this.drawAsset(this.interactions.get(element.row, element.col));
             this.addGrid(element);
         } else {
             let cStart = Math.floor(-this.stageOffset.x / this.zoomSize);
@@ -206,8 +206,8 @@ class Floor {
             for (let row = rStart; row < rStop; row++) {
                 for (let col = cStart; col < cStop; col++) {
                     this.drawAsset(this.tiles.get(row, col));
-                    this.drawAsset(this.items.get(row, col));
-                    this.drawAsset(this.enemies.get(row, col));
+                    this.drawAsset(this.collectibles.get(row, col));
+                    this.drawAsset(this.interactions.get(row, col));
                     this.addGrid(this.tiles.get(row, col));
                 }
             }
@@ -233,24 +233,24 @@ class Floor {
         this.repaint();
     }
     addTile(event) {
-        let ignoreBrushItems = ['start', 'portal', 'trap', 'enemy', 'item'];
+        let ignoreBrushTiles = ['start', 'portal', 'trap', 'enemy', 'item'];
         let col = Math.floor((event.offsetX - this.stageOffset.x) / this.zoomSize);
         let row = Math.floor((event.offsetY - this.stageOffset.y) / this.zoomSize);
         if (this.selectedAsset && row >= 0 && row < this.height && col >= 0 && col < this.width) {
-            if (ignoreBrushItems.includes(this.parent._assets.get(this.selectedAsset).type)) {
+            if (ignoreBrushTiles.includes(this.parent._assets.get(this.selectedAsset).type)) {
                 this.checkIfStart(this[this.selectedLayer].get(row, col));
                 if (this.parent._assets.get(this.selectedAsset).type == 'start' && this.startIsSet == false) {
                     this.startIsSet = true;
                     this.setStart('x', col);
                     this.setStart('y', row);
-                    this[this.selectedLayer].get(row, col).setTile(this.selectedAsset);
+                    this[this.selectedLayer].get(row, col).set(this.selectedAsset);
                     this.repaint(this[this.selectedLayer].get(row, col));
                 }
                 if (this.parent._assets.get(this.selectedAsset).type == 'portal') {
                     this.showCustomBox(this[this.selectedLayer].get(row, col));
                 }
                 if (this.parent._assets.get(this.selectedAsset).type != 'start') {
-                    this[this.selectedLayer].get(row, col).setTile(this.selectedAsset);
+                    this[this.selectedLayer].get(row, col).set(this.selectedAsset);
                     this.repaint(this[this.selectedLayer].get(row, col));
                 }
             } else {
@@ -263,7 +263,7 @@ class Floor {
                             this.checkIfStart(this[this.selectedLayer].get(r, c));
 
                             if (c < this.width && r < this.height) {
-                                this[this.selectedLayer].get(r, c).setTile(this.selectedAsset);
+                                this[this.selectedLayer].get(r, c).set(this.selectedAsset);
                                 this.repaint(this[this.selectedLayer].get(r, c));
                             }
                         }
@@ -392,11 +392,11 @@ class Floor {
         if (this.tiles.getCount()) {
             floor.tiles = this.dataHandler.compress(this.tiles);
         }
-        if (this.items.getCount()) {
-            floor.items = this.dataHandler.compress(this.items);
+        if (this.collectibles.getCount()) {
+            floor.collectibles = this.dataHandler.compress(this.collectibles);
         }
-        if (this.enemies.getCount()) {
-            floor.enemies = this.dataHandler.compress(this.enemies);
+        if (this.interactions.getCount()) {
+            floor.interactions = this.dataHandler.compress(this.interactions);
         }
         if (this.level > 0) {
             this.parent.loader.add('data', 'assets', {
@@ -429,11 +429,11 @@ class Floor {
         this.selectedAsset = 0;
         this.selectedLayer = 'tiles';
         this.tilesArray = [];
-        this.itemsArray = [];
-        this.enemiesArray = [];
+        this.collectiblesArray = [];
+        this.interactionsArray = [];
         this.tiles.clear();
-        this.items.clear();
-        this.enemies.clear();
+        this.collectibles.clear();
+        this.interactions.clear();
         this.generateGrid();
     }
     setDimensions(event) {
@@ -476,11 +476,11 @@ class Floor {
         let htmlArray = [];
         htmlArray.push('<div class="asset-layer active layer-tiles">');
         for (let i = 0; i < types.length; i++) {
-            if (types[i] == 'item') {
-                htmlArray.push('</div><div class="asset-layer layer-items">');
+            if (types[i] == 'collectible') {
+                htmlArray.push('</div><div class="asset-layer layer-collectibles">');
             }
             if (types[i] == 'trap') {
-                htmlArray.push('</div><div class="asset-layer layer-enemies">');
+                htmlArray.push('</div><div class="asset-layer layer-interactions">');
             }
 
             htmlArray.push('<div class="assetGroup accordion padding-lr-m padding-tb-m block flex-m">');

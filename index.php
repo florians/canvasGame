@@ -17,18 +17,20 @@ $jsFiles = [
     // Floors
     'Resources/Public/JavaScript/Shared/Floors.js',
         'Resources/Public/JavaScript/Game/Floor.js',
+            // Abstract
+            'Resources/Public/JavaScript/Abstract/AbstractSquares.js',
+                'Resources/Public/JavaScript/Abstract/AbstractSquare.js',
+            'Resources/Public/JavaScript/Abstract/AbstractCharacter.js',
+
             // Tiles
             'Resources/Public/JavaScript/Shared/Tiles.js',
                 'Resources/Public/JavaScript/Shared/Tile.js',
-            // Squares
-            'Resources/Public/JavaScript/Shared/Squares.js',
-                'Resources/Public/JavaScript/Shared/Square.js',
-            // Items
-            'Resources/Public/JavaScript/Shared/Items.js',
-                'Resources/Public/JavaScript/Shared/Item.js',
-            // Enemies
-            'Resources/Public/JavaScript/Shared/Enemies.js',
-                'Resources/Public/JavaScript/Shared/Enemy.js',
+            // Collectibles
+            'Resources/Public/JavaScript/Shared/Collectibles.js',
+                'Resources/Public/JavaScript/Shared/Collectible.js',
+            // Interactions
+            'Resources/Public/JavaScript/Shared/Interactions.js',
+                'Resources/Public/JavaScript/Shared/Interaction.js',
             // Battle
             'Resources/Public/JavaScript/Game/Battle.js',
 

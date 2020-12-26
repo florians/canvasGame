@@ -1,8 +1,7 @@
 class UserInterface {
     constructor(parent) {
         this.parent = parent;
-        this.parent.mousehandler.setParent(this);
-        this.parent.mousehandler.add('body', 'click', 'useSkill');
+        this.parent.mousehandler.add('body', 'click', 'useSkill', this);
         this.repaint = false;
     }
 
@@ -83,14 +82,14 @@ class UserInterface {
     }
     deathCheck(target) {
         if (target.stats.hp.current <= 0) {
-            if (this.parent.battle.target == '_player') {
+            if (target instanceof Player) {
                 this.resetStat(target, 'hp');
                 this.resetStat(target, 'es');
                 this.parent._floors.newFloor(this.parent._floors.floorLevel, true);
             } else {
                 this.parent.stopGame = false;
-                this.addStat(this.parent.battle.current(), 'exp');
-                this.parent.battle.challengers._enemy.delete();
+                this.addStat(this.parent.battle.currentTarget(), 'exp');
+                this.parent.battle.challengers._enemy.remove();
                 this.parent.animate();
             }
             document.body.classList.remove('battle');

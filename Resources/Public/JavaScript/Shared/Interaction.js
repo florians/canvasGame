@@ -1,16 +1,11 @@
-class Enemy extends Tile {
+class Interaction extends AbstractSquare {
     constructor(parent, id) {
         super(parent);
-        super.set(id);
+        this.set(id);
         this.name = "ENEMY";
         this.level = 1;
         this.stats = {};
-        this.actions = new Actions(this);
-        this.bars = new Bars(this);
-        // values type, x, y, h, w, color
-        // y = [50, -20] 50% - 20
-        this.bars.add('hp', [50, 2], [50, -20], 20, 50, 'rgb(255,0,0)');
-        this.bars.add('es', [50, 2], [50, -10], 10, 50, 'rgb(0,0,255)');
+
     }
     setStats() {
         this.level = this.parent._player.level;
@@ -42,18 +37,25 @@ class Enemy extends Tile {
     }
     trap() {
         _game.ui.removeStat(this.parent._player, 'hp', 1);
-        super.del();
+        this.remove();
     }
     enemy() {
         _game.stopGame = true;
         this.setStats();
+        this.actions = new Actions(this);
+        this.bars = new Bars(this);
+        // values type, x, y, h, w, color
+        // y = [50, -20] 50% - 20
+        this.bars.add('hp', [50, 2], [50, -20], 20, 50, 'rgb(255,0,0)');
+        this.bars.add('es', [50, 2], [50, -10], 10, 50, 'rgb(0,0,255)');
         _game.battle = new Battle(this.parent, this);
         _game.ui.draw();
     }
     resize() {
         this.bars.resize();
     }
-    delete() {
-        super.del();
-    }
+    // delete() {
+    //     //console.log(Object.getOwnPropertyNames(this));
+    //     this.remove();
+    // }
 }

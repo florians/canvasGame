@@ -1,13 +1,13 @@
-class Tiles extends AbstractSquares {
+class Collectibles extends AbstractSquares {
     constructor(parent) {
         super(parent);
     }
     /************************
-     ***** Add Tiles *******
+     ***** Add Item ********
      ************************/
     add(data, row, col, rowY, colX) {
         this.addToArray(row, col);
-        this.tiles[row][col] = new Tile(this.parent, this.id(data));
+        this.tiles[row][col] = new Collectible(this.parent, this.id(data));
         this.setTileInfo(data, row, col, rowY, colX);
     }
 }

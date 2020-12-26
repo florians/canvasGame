@@ -1,17 +1,17 @@
-class Item extends Tile {
+class Collectible extends AbstractSquare {
     constructor(parent, id) {
         super(parent);
-        super.set(id);
+        this.set(id);
     }
     hp() {
         if (this.parent._player.stats.hp.current < this.parent._player.stats.hp.max) {
             this.parent.ui.addStat(this.parent._player, 'hp');
-            super.del();
+            this.remove();
         }
     }
     es() {
         this.parent.ui.addStat(this.parent._player, 'es');
-        super.del();
+        this.remove();
     }
     // key() {
     //

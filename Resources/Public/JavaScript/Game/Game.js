@@ -1,27 +1,24 @@
 class Game {
     constructor() {
         this.setCanvasSize();
-
         this.mousehandler = new MouseHandler(this);
         this.keyboardHandler = new KeyboardHandler(this);
-        this.joystickHandler = new Joystick(this);
+        this.joystickHandler = new Joystick();
         this.fullscreenHandler = new Fullscreen();
 
         this.loader = new Loader(this);
         this._assets = new Assets(this);
         this._floors = new Floors(this);
-        this._skills = new Skills(this);
-        this._player = new Player(this);
+        this._skills = new Skills();
+        this._player = new Player();
 
-        this.enemy = [];
         this.delta = 0;
         this.raF = 0;
         this.stopGame = false;
         this.lastTimestamp = 0;
 
         this.mousehandler.add('.fullscreen', 'click', 'doFullscreen');
-        this.keyboardHandler.add(document, 'keydown', 'doFullscreen');
-        this.preloader();
+        this.keyboardHandler.add(document, 'keydown', 'doFullscreen', [70, 13]);
     }
     /************************
      **** Setup Loader ******
@@ -60,12 +57,13 @@ class Game {
     }
     init() {
         document.body.classList.add('loading-done');
-        this.stopGame = false;
+        // hide the loader
+        this.loader.hide();
         // create ui
         this.ui = new UserInterface(this);
         this.ui.repaint = true;
         this.resize();
-        this.animate();
+        this.start();
     }
 
     /************************
@@ -116,9 +114,18 @@ class Game {
             this.draw();
         }
     }
+    stop() {
+        this.stopGame = true;
+        this.keyboardHandler.reset();
+        document.body.classList.add('suspended');
+    }
+    start() {
+        this.ui.repaint = true;
+        this.stopGame = false;
+        this.animate();
+        document.body.classList.remove('battle', 'suspended');
+    }
     doFullscreen(event) {
-        if (event.keyCode == 70 || event.target.className == 'fullscreen') {
-            this.fullscreenHandler.toggle();
-        }
+        this.fullscreenHandler.toggle();
     }
 }

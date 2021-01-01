@@ -56,6 +56,9 @@ class Loader {
             document.querySelector('.loaderBar .text').innerHTML = '';
         }
     }
+    hide(){
+        document.body.classList.add('remove-loaderBar');
+    }
     reset() {
         this.progress = 0;
         this.step = 0;

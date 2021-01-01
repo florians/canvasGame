@@ -1,11 +1,10 @@
 class Floor {
-    constructor(parent, result) {
-        this.parent = parent;
+    constructor(game,result) {
         this.dataHandler = new DataHandler(this);
-        this.tiles = new Tiles(this.parent);
-        this.collectibles = new Collectibles(this.parent);
-        this.interactions = new Interactions(this.parent);
-        this.collisionLayer = new Tiles(this.parent);
+        this.tiles = new Tiles(_game);
+        this.collectibles = new Collectibles(_game);
+        this.interactions = new Interactions(_game);
+        this.collisionLayer = new Tiles(_game);
         // set part size
         this.partW = 100;
         this.partH = 100;

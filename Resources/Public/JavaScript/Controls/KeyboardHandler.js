@@ -1,15 +1,15 @@
 class KeyboardHandler {
     constructor(parent) {
         this.parent = parent;
-        this.allowedKeys = [38, 87, 40, 83, 37, 65, 39, 68, 13, 70];
+        //this.allowedKeys = [38, 87, 40, 83, 37, 65, 39, 68, 13, 70];
         this.keyPressed = {
             up: false,
             down: false,
             left: false,
             right: false
         }
-        this.add(document, 'keydown', 'defaultKeydown', this);
-        this.add(document, 'keyup', 'defaultKeyup', this);
+        this.add(document, 'keydown', 'defaultKeydown', [38, 87, 40, 83, 37, 65, 39, 68], this);
+        this.add(document, 'keyup', 'defaultKeyup', [38, 87, 40, 83, 37, 65, 39, 68], this);
     }
     get(direction) {
         return this.keyPressed[direction]
@@ -29,7 +29,7 @@ class KeyboardHandler {
         this.keyPressed.left = false;
         this.keyPressed.right = false;
     }
-    add(target, type, functionName, obj = null) {
+    add(target, type, functionName, keys = null, obj = null) {
         let el = '';
         if (target != document) {
             el = document.querySelector(target);
@@ -37,16 +37,21 @@ class KeyboardHandler {
             el = document;
         }
         el.addEventListener(type, (event) => {
-            if (obj) {
-                this[functionName](event);
+            if (keys != null && keys.includes(event.keyCode)) {
+                event.preventDefault();
+                if (obj) {
+                    obj[functionName](event);
+                } else {
+                    this.parent[functionName](event);
+                }
             } else {
-                this.parent[functionName](event);
+                //console.log(event.keyCode);
             }
         });
     }
     defaultKeydown(e) {
-        if (this.allowedKeys.includes(e.keyCode)) {
-            e.preventDefault();
+        if (!document.body.classList.contains('suspended')) {
+            //e.preventDefault();
             // w / up
             if (e.keyCode == 38 || e.keyCode == 87) {
                 this.set('up');

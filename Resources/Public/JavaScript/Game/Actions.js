@@ -21,7 +21,10 @@ class Actions {
     use() {
         for (let i = 0; i < this.actions.length; i++) {
             this.actions[i].use();
-            this.del(i);
+            this.actions[i].turns--;
+            if (this.actions[i].turns <= 0) {
+                this.del(i);
+            }
         }
     }
 }

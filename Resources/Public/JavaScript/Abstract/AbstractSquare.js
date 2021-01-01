@@ -41,6 +41,6 @@ class AbstractSquare {
     remove() {
         this.set(0);
         this.collision = false;
-        _game.ui.draw();
+        this.parent.ui.draw();
     }
 }

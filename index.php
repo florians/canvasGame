@@ -7,6 +7,9 @@ $jsFiles = [
 
     // UserInterface
     'Resources/Public/JavaScript/UserInterface/UserInterface.js',
+        'Resources/Public/JavaScript/UserInterface/Windows.js',
+        'Resources/Public/JavaScript/UserInterface/Window.js',
+        'Resources/Public/JavaScript/UserInterface/Grid.js',
         'Resources/Public/JavaScript/UserInterface/Bars.js',
         'Resources/Public/JavaScript/UserInterface/Bar.js',
 

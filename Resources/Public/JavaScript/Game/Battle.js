@@ -1,10 +1,9 @@
 class Battle {
-    constructor(parent, enemy) {
-        this.parent = parent;
+    constructor(enemy) {
         this.turn = '_player';
         this.target = '_enemy';
         this.challengers = {
-            _player: this.parent._player,
+            _player: _game._player,
             _enemy: enemy
         }
         this.win = false;
@@ -20,10 +19,6 @@ class Battle {
     }
     draw() {
         this.drawBackground();
-        // skill menu
-        _ctxUi.fillStyle = 'rgb(50,50,50)';
-        _ctxUi.fillRect(0, _ctxUi.canvas.height / 2, _ctxUi.canvas.width, _ctxUi.canvas.height / 2);
-
         this.challengers._enemy.draw();
         this.challengers._player.draw();
     }

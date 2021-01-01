@@ -1,7 +1,6 @@
 class Player extends AbstractCharacter {
-    constructor(game) {
-        super(game);
-        this.game = game;
+    constructor() {
+        super();
         this.w = 50;
         this.h = 50
         this.offsetTop = Math.round(this.h / 2);
@@ -28,23 +27,28 @@ class Player extends AbstractCharacter {
      **** Setup Loader ******
      ************************/
     load(playerName) {
-        this.game.loader.add('data', 'player', {
+        _game.loader.add('data', 'player', {
             type: 'getPlayer',
             name: playerName
         });
     }
     loadSkills(playerName) {
-        this.game.loader.add('data', 'playerSkills', {
+        _game.loader.add('data', 'playerSkills', {
             type: 'getPlayerSkills',
             name: playerName
         });
     }
     savePlayer() {
-        this.game.loader.add('data', '', {
+        let skillArray = [];
+        for (var i = 0; i < this.skills.length; i++) {
+            skillArray.push(this.skills[i].db());
+        }
+        _game.loader.add('data', '', {
             type: 'savePlayer',
             name: this.name,
             level: this.level,
-            stats: JSON.stringify(this.stats)
+            stats: JSON.stringify(this.stats),
+            skills: JSON.stringify(skillArray)
         });
     }
     /************************
@@ -60,7 +64,21 @@ class Player extends AbstractCharacter {
     }
     initSkills(result) {
         for (let i = 0; i < result.length; i++) {
-            this.skills.push(new Skill(this.game._skills.get(result[i]['skills_uid'])));
+            let playerSkill = {
+                level: result[i]['level'] || 1,
+            }
+            if (result[i]['player_uid']) {
+                playerSkill.player_uid = result[i]['player_uid'];
+            }
+            if (result[i]['exp']) {
+                let exp = result[i]['exp'].split(',');
+                playerSkill.exp = {
+                    current: exp[0],
+                    max: exp[1]
+                }
+            }
+            console.log(result);
+            this.skills.push(new Skill(_game._skills.get(result[i]['skills_uid']), playerSkill));
         }
     }
     /************************
@@ -68,13 +86,6 @@ class Player extends AbstractCharacter {
      ************************/
     draw() {
         this.bars.draw();
-        if (this.items) {
-            this.game.ui.drawItem(this.items, 0, 25, 50, 50);
-        }
-        if (this.game.battle) {
-            this.game.ui.drawSkills(this.skills, 5, (_ctxUi.canvas.height / 2) + 5, 150, 30);
-        }
-        this.game.ui.repaint = false;
     }
     resize() {
         this.x = Math.floor(_ctxUi.canvas.width / 2 - this.w / 2);

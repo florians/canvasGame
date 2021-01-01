@@ -31,16 +31,16 @@ class Interaction extends AbstractSquare {
     attack(target) {
         var loseHp = Math.random();
         //if (loseHp >= 0.3) {
-        _game.ui.removeStat(target, 'hp', 5);
+        this.parent.ui.removeStat(target, 'hp', 5);
         //}
-        _game.ui.draw();
+        this.parent.ui.draw();
     }
     trap() {
-        _game.ui.removeStat(this.parent._player, 'hp', 1);
+        this.parent.ui.removeStat(this.parent._player, 'hp', 1);
         this.remove();
     }
     enemy() {
-        _game.stopGame = true;
+        this.parent.stop();
         this.setStats();
         this.actions = new Actions(this);
         this.bars = new Bars(this);
@@ -48,8 +48,8 @@ class Interaction extends AbstractSquare {
         // y = [50, -20] 50% - 20
         this.bars.add('hp', [50, 2], [50, -20], 20, 50, 'rgb(255,0,0)');
         this.bars.add('es', [50, 2], [50, -10], 10, 50, 'rgb(0,0,255)');
-        _game.battle = new Battle(this.parent, this);
-        _game.ui.draw();
+        this.parent.battle = new Battle(this);
+        this.parent.ui.draw();
     }
     resize() {
         this.bars.resize();

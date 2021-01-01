@@ -32,7 +32,7 @@ switch ($_POST['type']) {
         getSkillTypes($database);
         break;
     case 'savePlayer':
-        savePlayer($database, $_POST['name'], $_POST['level'], $_POST['stats']);
+        savePlayer($database, $_POST['name'], $_POST['level'], $_POST['stats'], $_POST['skills']);
         break;
 
     // save
@@ -148,6 +148,7 @@ function getPlayer($db, $name)
         $target_file = '../../Private/Player/DefaultPlayer.json';
         if (file_exists($target_file)) {
             $r = json_decode(file_get_contents($target_file));
+            $r->name = $name;
         }
         $msg = 'New Player';
     }
@@ -206,8 +207,9 @@ function getSkillTypes($db)
     }
     returnJson($msg, $result, $success);
 }
-function savePlayer($db, $name, $level, $stats)
+function savePlayer($db, $name, $level, $stats, $skills)
 {
+    $skillArray = json_decode($skills);
     $result = $db->select('player', 'uid', ['AND' => ['deleted' => 0, 'name' => $name]]);
     if ($result[0]) {
         $db->update('player', [
@@ -223,7 +225,31 @@ function savePlayer($db, $name, $level, $stats)
             'level' => $level,
             'stats' => $stats,
         ]);
+        $result = $db->select('player', 'uid', ['AND' => ['deleted' => 0, 'name' => $name]]);
         $msg = 'Player: ' . $name . ' added!';
+    }
+    if ($skillArray) {
+        for ($i = 0; $i < count($skillArray); $i++) {
+            $exp = $skillArray[$i]->exp->current . ',' . $skillArray[$i]->exp->max;
+            if ($skillArray[$i]->player_uid) {
+                // update
+                $db->update('player_skills', [
+                    'level' => $skillArray[$i]->level,
+                    'exp' => $exp,
+                ], [
+                    'player_uid' => $skillArray[$i]->player_uid,
+                    'skills_uid' => $skillArray[$i]->skills_uid,
+                ]);
+            } else {
+                // insert
+                $db->insert('player_skills', [
+                    'player_uid' => $result[0],
+                    'skills_uid' => $skillArray[$i]->skills_uid,
+                    'level' => $skillArray[$i]->level,
+                    'exp' => $exp,
+                ]);
+            }
+        }
     }
     returnJson($msg, $result[0], $success);
 }

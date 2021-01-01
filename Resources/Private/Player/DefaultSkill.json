@@ -1,9 +1,9 @@
 [{
-    "name": "Hit",
-    "text": "hit text",
-    "level": "2",
-    "type": "4",
-    "cost": "3",
-    "value": "2",
-    "turns": "0"
+    "skills_uid": "1"
+},
+{
+    "skills_uid": "2"
+},
+{
+    "skills_uid": "3"
 }]

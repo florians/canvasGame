@@ -2,9 +2,6 @@ class MouseHandler {
     constructor(parent) {
         this.parent = parent;
     }
-    // setParent(parent) {
-    //     this.parent = parent;
-    // }
     add(target, type, functionName, obj = null) {
         let el = document.querySelectorAll(target);
         for (let i = 0; i < el.length; i++) {

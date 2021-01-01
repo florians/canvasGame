@@ -30,7 +30,7 @@ class AbstractSquares {
             this.tiles[row][col] = [];
         }
     }
-    setTileInfo(data, row, col, rowY, colX){
+    setTileInfo(data, row, col, rowY, colX) {
         this.tiles[row][col].x = colX;
         this.tiles[row][col].y = rowY;
         this.tiles[row][col].col = col;
@@ -42,14 +42,14 @@ class AbstractSquares {
             this.startIsSet = true;
         }
     }
-    id(data){
+    id(data) {
         if (Array.isArray(data)) {
             return data[0];
         } else {
             return data;
         }
     }
-    level(data){
+    level(data) {
         if (Array.isArray(data)) {
             return data[1];
         } else {

@@ -1,25 +1,60 @@
 class UserInterface {
-    constructor(parent) {
-        this.parent = parent;
-        this.parent.mousehandler.add('body', 'click', 'useSkill', this);
+    constructor() {
+        _game.mousehandler.add('body', 'click', 'useSkill', this);
         this.repaint = false;
+
+        // Skill Book
+        this.skillBook = new Windows(this.generateSkillBook());
+
+        _game.keyboardHandler.add(document, 'keydown', 'showSkillBook', [80], this);
+        this.resize();
     }
 
-    draw(callback) {
+    draw() {
         _ctxUi.save();
         _ctxUi.setTransform(1, 0, 0, 1, 0, 0);
         _ctxUi.clearRect(0, 0, _ctxUi.canvas.width, _ctxUi.canvas.height);
+
         // draw player
-        if (this.parent._player) {
-            this.parent._player.drawPlayer();
+        if (_game._player) {
+            _game._player.drawPlayer();
         }
         // battle background
-        if (this.parent.battle) {
-            this.parent.battle.draw();
+        if (_game.battle) {
+            _game.battle.draw();
         } else {
-            this.parent._player.draw();
+            _game._player.draw();
+        }
+        if (this.skillBook.isVisible || _game.battle) {
+            this.skillBook.draw();
         }
         _ctxUi.restore();
+        this.repaint = false;
+    }
+    /************************
+     ****** Skillbook *******
+     ************************/
+    generateSkillBook() {
+        let layers = [],
+            background = null,
+            skillGrid = null;
+
+        // x,y,h,w in %
+        background = new Window(0, 50, 51, 100);
+        // % +- px
+        skillGrid = new Grid([0, 10], [50, 10], [50, -20], [100, -20]);
+        skillGrid.content = _game._player.skills;
+        skillGrid.hasText = true;
+        skillGrid.setGrid(5, 40, 150);
+
+        layers.push(background, skillGrid);
+
+        return layers;
+    }
+    showSkillBook(event) {
+        if (!_game.battle) {
+            this.skillBook.toggle();
+        }
     }
     addStat(target, stat, val = 1) {
         this.repaint = true;
@@ -69,7 +104,7 @@ class UserInterface {
     }
     addItem(target, type, uid) {
         this.repaint = true;
-        let item = this.parent._assets.get(uid);
+        let item = _game._assets.get(uid);
         target.items[type] = item;
     }
     removeItem(target, type, uid) {
@@ -85,15 +120,14 @@ class UserInterface {
             if (target instanceof Player) {
                 this.resetStat(target, 'hp');
                 this.resetStat(target, 'es');
-                this.parent._floors.newFloor(this.parent._floors.floorLevel, true);
+                _game._floors.newFloor(_game._floors.floorLevel, true);
             } else {
-                this.parent.stopGame = false;
-                this.addStat(this.parent.battle.currentTarget(), 'exp');
-                this.parent.battle.challengers._enemy.remove();
-                this.parent.animate();
+                this.addStat(_game.battle.currentTarget(), 'exp');
+                _game.battle.challengers._enemy.remove();
+                _game._player.savePlayer();
+                _game.start();
             }
-            document.body.classList.remove('battle');
-            delete this.parent.battle;
+            delete _game.battle;
             this.draw();
         }
     }
@@ -122,23 +156,23 @@ class UserInterface {
      ***** Use Skill ********
      ************************/
     useSkill(event) {
-        if (document.body.classList.contains('battle')) {
+        if (document.body.classList.contains('suspended')) {
             var mPos = {
                 x: event.clientX,
                 y: event.clientY
             };
-            if (this.parent.battle.turn == '_player') {
-                for (var i = 0; i < this.parent._player.skills.length; i++) {
-                    if (this.isColliding(mPos, this.parent._player.skills[i])) {
-                        this.parent.battle.addAction(this.parent._player.skills[i]);
-                        if (this.parent.battle) {
-                            this.parent.battle.changeTarget();
-                            this.parent.ui.draw();
-                            if (this.parent.battle && this.parent.battle.currentTarget().stats.hp.current > 0) {
+            if (_game.battle.turn == '_player') {
+                for (var i = 0; i < _game._player.skills.length; i++) {
+                    if (this.isColliding(mPos, _game._player.skills[i])) {
+                        _game.battle.addAction(_game._player.skills[i]);
+                        if (_game.battle) {
+                            _game.battle.changeTarget();
+                            _game.ui.draw();
+                            if (_game.battle && _game.battle.currentTarget().stats.hp.current > 0) {
                                 setTimeout(() => {
-                                    this.parent.battle.current().attack(this.parent.battle.currentTarget());
-                                    if (this.parent.battle) {
-                                        this.parent.battle.changeTarget();
+                                    _game.battle.current().attack(_game.battle.currentTarget());
+                                    if (_game.battle) {
+                                        _game.battle.changeTarget();
                                     }
                                 }, 100);
                             }
@@ -156,8 +190,10 @@ class UserInterface {
         }
     }
     resize() {
-        if (this.parent.battle) {
-            this.parent.battle.resize();
+        this.repaint = true;
+        if (_game.battle) {
+            _game.battle.resize();
         }
+        this.skillBook.resize();
     }
 }

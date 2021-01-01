@@ -1,13 +1,12 @@
 class AbstractCharacter {
-    constructor(game) {
-        this.game = game;
+    constructor() {
     }
     /************************
      **** Skill handler *****
      ************************/
     scaleSkill(result) {
         let skillContainer = {};
-        let skill = this.game._skills.get(result['skills_uid']);
+        let skill = _game._skills.get(result['skills_uid']);
         return skillContainer = {
             cost: skill.cost,
             level: result.level,

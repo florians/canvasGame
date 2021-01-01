@@ -28,9 +28,22 @@ let showHitBox = false,
     },
     cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 
+// start the game
+_game.preloader();
+
 // set fallback
 window.requestAnimationFrame = myRequestAnimationFrame;
 
-window.addEventListener('resize', function() {
+function debounce(func) {
+    var timer;
+
+    return function(event) {
+        document.body.classList.remove('loading-done');
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(func, 100, event);
+    };
+}
+window.addEventListener("resize", debounce(function(e) {
+    document.body.classList.add('loading-done');
     _game.resize();
-});
+}));

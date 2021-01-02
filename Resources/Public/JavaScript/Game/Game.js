@@ -52,6 +52,9 @@ class Game {
             if (result[i].name == "playerSkills") {
                 this._player.initSkills(result[i].data.result);
             }
+            if (result[i].name == "playerUid") {
+                this._player.setUid(result[i].data.result);
+            }
         }
         this.init();
     }

@@ -5,9 +5,9 @@ class Tiles extends AbstractSquares {
     /************************
      ***** Add Tiles *******
      ************************/
-    add(data, row, col, rowY, colX) {
+    add(data, row, col, rowY, colX, h, w) {
         this.addToArray(row, col);
         this.tiles[row][col] = new Tile(this.parent, this.id(data));
-        this.setTileInfo(data, row, col, rowY, colX);
+        this.setTileInfo(data, row, col, rowY, colX, h, w);
     }
 }

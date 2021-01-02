@@ -6,11 +6,14 @@ class UserInterface {
         // Skill Book
         this.skillBook = new Windows(this.generateSkillBook());
 
-        _game.keyboardHandler.add(document, 'keydown', 'showSkillBook', [80], this);
+        this.inventory = new Windows(this.generateInventory());
+
+
         this.resize();
     }
 
     draw() {
+        this.repaint = false;
         _ctxUi.save();
         _ctxUi.setTransform(1, 0, 0, 1, 0, 0);
         _ctxUi.clearRect(0, 0, _ctxUi.canvas.width, _ctxUi.canvas.height);
@@ -28,13 +31,16 @@ class UserInterface {
         if (this.skillBook.isVisible || _game.battle) {
             this.skillBook.draw();
         }
+        if (this.inventory.isVisible) {
+            this.inventory.draw();
+        }
         _ctxUi.restore();
-        this.repaint = false;
     }
     /************************
      ****** Skillbook *******
      ************************/
     generateSkillBook() {
+        _game.keyboardHandler.add(document, 'keydown', 'showSkillBook', [80], this);
         let layers = [],
             background = null,
             skillGrid = null;
@@ -53,55 +59,42 @@ class UserInterface {
     }
     showSkillBook(event) {
         if (!_game.battle) {
+            if(_game.stopGame == true){
+                this.inventory.hide();
+            }
             this.skillBook.toggle();
         }
     }
-    addStat(target, stat, val = 1) {
-        this.repaint = true;
-        if (target.stats[stat].max) {
-            if (target.stats[stat].current < target.stats[stat].max) {
-                target.stats[stat].current += val;
-                // reset to max if heal to big
-                if (target.stats[stat].current > target.stats[stat].max) {
-                    target.stats[stat].current = target.stats[stat].max;
-                }
-                if (stat == 'exp' && target.stats[stat].max == target.stats[stat].current) {
-                    target.levelUp();
-                }
-                return true;
-            }
-        } else {
-            target.stats[stat].current++;
-            return true;
-        }
-        return false;
+    /************************
+     ****** Inventory *******
+     ************************/
+    generateInventory() {
+        _game.keyboardHandler.add(document, 'keydown', 'showInventory', [73], this);
+        let layers = [],
+            background = null,
+            inventory = null;
+
+        // x,y,h,w in %
+        background = new Window(0, 50, 51, 100);
+        // % +- px
+        inventory = new Grid([0, 10], [50, 10], [50, -20], [100, -20]);
+        inventory.content = _game._player.items;
+        // skillGrid.hasText = true;
+        inventory.setGrid(5, 100, 100);
+
+        layers.push(background, inventory);
+
+        return layers;
     }
-    removeStat(target, stat, val = 1) {
-        this.repaint = true;
-        let switchedStat = false;
-        let current = target.stats[stat].current;
-        if (stat == 'hp' && target.stats['es'].current > 0) {
-            current = target.stats['es'].current;
-            switchedStat = true;
-        }
-        let rest = val - current;
-        if (current > 0) {
-            current -= val;
-            if (current <= 0) {
-                current = 0;
+    showInventory(event) {
+        if (!_game.battle) {
+            if(_game.stopGame == true){
+                this.skillBook.hide();
             }
-            if (switchedStat) {
-                target.stats['es'].current = current;
-            } else {
-                target.stats[stat].current = current;
-                this.deathCheck(target);
-                return;
-            }
-            if (rest > 0) {
-                this.removeStat(target, stat, rest);
-            }
+            this.inventory.toggle();
         }
     }
+
     addItem(target, type, uid) {
         this.repaint = true;
         let item = _game._assets.get(uid);
@@ -114,22 +107,6 @@ class UserInterface {
     resetStat(target, stat) {
         this.repaint = true;
         target.stats[stat].current = target.stats[stat].max || 0;
-    }
-    deathCheck(target) {
-        if (target.stats.hp.current <= 0) {
-            if (target instanceof Player) {
-                this.resetStat(target, 'hp');
-                this.resetStat(target, 'es');
-                _game._floors.newFloor(_game._floors.floorLevel, true);
-            } else {
-                this.addStat(_game.battle.currentTarget(), 'exp');
-                _game.battle.challengers._enemy.remove();
-                _game._player.savePlayer();
-                _game.start();
-            }
-            delete _game.battle;
-            this.draw();
-        }
     }
     drawSkills(skills, x, y, w, h, i) {
         for (let i = 0; i < skills.length; i++) {
@@ -161,22 +138,11 @@ class UserInterface {
                 x: event.clientX,
                 y: event.clientY
             };
-            if (_game.battle.turn == '_player') {
+            if (_game.battle && _game.battle.turn == 'player') {
                 for (var i = 0; i < _game._player.skills.length; i++) {
                     if (this.isColliding(mPos, _game._player.skills[i])) {
                         _game.battle.addAction(_game._player.skills[i]);
-                        if (_game.battle) {
-                            _game.battle.changeTarget();
-                            _game.ui.draw();
-                            if (_game.battle && _game.battle.currentTarget().stats.hp.current > 0) {
-                                setTimeout(() => {
-                                    _game.battle.current().attack(_game.battle.currentTarget());
-                                    if (_game.battle) {
-                                        _game.battle.changeTarget();
-                                    }
-                                }, 100);
-                            }
-                        }
+                        break;
                     }
                 }
             }
@@ -195,5 +161,6 @@ class UserInterface {
             _game.battle.resize();
         }
         this.skillBook.resize();
+        this.inventory.resize();
     }
 }

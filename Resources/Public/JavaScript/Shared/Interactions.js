@@ -5,9 +5,9 @@ class Interactions extends AbstractSquares {
     /************************
      ***** Add Enemy ********
      ************************/
-    add(data, row, col, rowY, colX) {
+    add(data, row, col, rowY, colX, h, w) {
         this.addToArray(row, col);
         this.tiles[row][col] = new Interaction(this.parent, this.id(data));
-        this.setTileInfo(data, row, col, rowY, colX);
+        this.setTileInfo(data, row, col, rowY, colX, h, w);
     }
 }

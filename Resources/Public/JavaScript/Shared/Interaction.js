@@ -5,7 +5,7 @@ class Interaction extends AbstractSquare {
         this.name = "ENEMY";
         this.level = 1;
         this.stats = {};
-
+        this.skills = [];
     }
     setStats() {
         this.level = this.parent._player.level;
@@ -23,39 +23,48 @@ class Interaction extends AbstractSquare {
             }
         }
     }
-    draw() {
-        var x = Math.floor(_ctxUi.canvas.width / 2) + 2;
-        var y = Math.floor(_ctxUi.canvas.height / 2);
-        this.bars.draw();
+    setSkills() {
+        let skills = _game._skills.getAll();
+        for (let i = 0; i < skills.length; i++) {
+            // remove the heals
+            if (skills[i] && skills[i].type != 2 && skills[i].type != 3) {
+                this.skills.push(skills[i]);
+            }
+        }
     }
-    attack(target) {
-        var loseHp = Math.random();
-        //if (loseHp >= 0.3) {
-        this.parent.ui.removeStat(target, 'hp', 5);
-        //}
-        this.parent.ui.draw();
+    draw() {
+        super.draw();
+        if(this.bars){
+            this.bars.draw();
+        }
     }
     trap() {
-        this.parent.ui.removeStat(this.parent._player, 'hp', 1);
+        _game._player.stats.removeHp(1);
         this.remove();
     }
     enemy() {
         this.parent.stop();
         this.setStats();
-        this.actions = new Actions(this);
+        this.stats = new StatsHandler(this.stats);
+        this.setSkills();
+        //this.actions = new Actions(this);
         this.bars = new Bars(this);
         // values type, x, y, h, w, color
         // y = [50, -20] 50% - 20
         this.bars.add('hp', [50, 2], [50, -20], 20, 50, 'rgb(255,0,0)');
         this.bars.add('es', [50, 2], [50, -10], 10, 50, 'rgb(0,0,255)');
         this.parent.battle = new Battle(this);
-        this.parent.ui.draw();
+        _game.ui.repaint = true;
+    }
+    lock(){
+        
     }
     resize() {
         this.bars.resize();
     }
-    // delete() {
-    //     //console.log(Object.getOwnPropertyNames(this));
-    //     this.remove();
-    // }
+
+    // Battle Stuff
+    retaliate() {
+        return this.skills[Math.floor(Math.random() * this.skills.length)];
+    }
 }

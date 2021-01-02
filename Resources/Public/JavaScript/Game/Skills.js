@@ -28,6 +28,9 @@ class Skills {
     get(id) {
         return this.skills[id];
     }
+    getAll(){
+        return this.skills;
+    }
     /************************
      ***** Add Skill ********
      ************************/

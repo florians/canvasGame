@@ -1,16 +1,20 @@
 class Battle {
     constructor(enemy) {
-        this.turn = '_player';
-        this.target = '_enemy';
-        this.challengers = {
-            _player: _game._player,
-            _enemy: enemy
-        }
-        this.win = false;
+        this.turn = 'player';
+        this.target = 'enemy';
+        this.challengers = this.setChallengers(enemy);
+
+        this.isOver = false;
         this.resize();
         document.body.classList.add('battle');
     }
-
+    setChallengers(enemy) {
+        let challengers = new Challengers();
+        challengers.player = _game._player;
+        challengers.enemy = enemy;
+        challengers.init();
+        return challengers;
+    }
     drawBackground() {
         _ctxUi.globalAlpha = 0.8;
         _ctxUi.fillStyle = 'rgb(0,0,0)';
@@ -19,8 +23,7 @@ class Battle {
     }
     draw() {
         this.drawBackground();
-        this.challengers._enemy.draw();
-        this.challengers._player.draw();
+        this.challengers.draw();
     }
     current() {
         return this.challengers[this.turn];
@@ -29,13 +32,16 @@ class Battle {
         return this.challengers[this.target];
     }
     changeTarget() {
-        if (this.target == '_enemy') {
-            this.target = '_player';
-            this.turn = '_enemy';
-        } else {
-            this.target = '_enemy';
-            this.turn = '_player';
+        this.target = this.target == 'player' ? 'enemy' : 'player';
+        this.turn = this.turn == 'enemy' ? 'player' : 'enemy';
+        this.triggerActions();
+        if (this.turn == 'enemy') {
+            setTimeout(() => {
+                this.addAction(this.current().retaliate());
+            }, 200);
         }
+    }
+    triggerActions() {
         this.current().actions.use();
     }
     addAction(skill) {
@@ -45,8 +51,10 @@ class Battle {
         } else {
             this.currentTarget().actions.add(skill);
         }
+        this.changeTarget();
+        _game.ui.draw();
     }
     resize() {
-        this.challengers._enemy.resize();
+        this.challengers.resize();
     }
 }

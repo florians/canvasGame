@@ -27,6 +27,7 @@ class Floor {
         }
         // click
         this.mousehandler.add('#world', 'click', 'addTile');
+        this.mousehandler.add('#world', 'contextmenu', 'removeTile');
         this.mousehandler.add('.zoom', 'click', 'doZoom');
         this.mousehandler.add('.brush', 'click', 'changeBrush');
         this.mousehandler.add('.reset', 'click', 'resetForm');
@@ -50,7 +51,6 @@ class Floor {
         this.listAssets();
         this.init(result);
     }
-
     init(result) {
         this.setZoom('reset');
         this.setBrushSize('reset');
@@ -188,7 +188,7 @@ class Floor {
     }
     fillCanvas(element) {
         if (element) {
-            this.drawAsset(this.tiles.get(element.row, element.col));
+            this.drawAsset(this.tiles.get(element.row, element.col), true);
             this.drawAsset(this.collectibles.get(element.row, element.col));
             this.drawAsset(this.interactions.get(element.row, element.col));
             this.addGrid(element);
@@ -213,13 +213,17 @@ class Floor {
             }
         }
     }
-    drawAsset(element) {
+    drawAsset(element, clear = false) {
         let x = element.x * this.zoom,
             y = element.y * this.zoom,
             h = this.zoomSize,
             w = this.zoomSize;
         if (element.asset.image) {
             _ctx.drawImage(element.asset.image, x, y, h, w);
+        }
+        if (!element.asset.image && clear) {
+            _ctx.fillStyle = '#e5e5e5';
+            _ctx.fillRect(x, y, h, w);
         }
     }
     addGrid(element) {
@@ -270,6 +274,15 @@ class Floor {
                     }
                 }
             }
+        }
+    }
+    removeTile(event) {
+        event.preventDefault();
+        let col = Math.floor((event.offsetX - this.stageOffset.x) / this.zoomSize);
+        let row = Math.floor((event.offsetY - this.stageOffset.y) / this.zoomSize);
+        if (row >= 0 && row < this.height && col >= 0 && col < this.width) {
+            this[this.selectedLayer].get(row, col).set(0);
+            this.repaint(this[this.selectedLayer].get(row, col));
         }
     }
     checkIfStart(el) {

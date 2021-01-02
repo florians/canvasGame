@@ -28,27 +28,27 @@ class AbstractCharacter {
     setLevel(level) {
         this.level = parseInt(level);
     }
-    setStat(stat, val, dir = '') {
-        if (stat.includes('.')) {
-            let splitStat = stat.split('.');
-            if (dir == '+') {
-                this.stats[splitStat[0]][splitStat[1]] += val;
-            } else if (dir == '-') {
-                this.stats[splitStat[0]][splitStat[1]] += val;
-            } else {
-                this.stats[splitStat[0]][splitStat[1]] = val;
-            }
-        } else {
-            if (dir == '+') {
-                this.stats[stat] += val;
-            } else if (dir == '-') {
-                this.stats[stat] -= val;
-            } else {
-                this.stats[stat] = val;
-            }
-        }
-    }
-    setStats(stats) {
-        this.stats = JSON.parse(stats);;
-    }
+    // setStat(stat, val, dir = '') {
+    //     if (stat.includes('.')) {
+    //         let splitStat = stat.split('.');
+    //         if (dir == '+') {
+    //             this.stats[splitStat[0]][splitStat[1]] += val;
+    //         } else if (dir == '-') {
+    //             this.stats[splitStat[0]][splitStat[1]] += val;
+    //         } else {
+    //             this.stats[splitStat[0]][splitStat[1]] = val;
+    //         }
+    //     } else {
+    //         if (dir == '+') {
+    //             this.stats[stat] += val;
+    //         } else if (dir == '-') {
+    //             this.stats[stat] -= val;
+    //         } else {
+    //             this.stats[stat] = val;
+    //         }
+    //     }
+    // }
+    // setStats(stats) {
+    //     this.stats = JSON.parse(stats);
+    // }
 }

@@ -77,10 +77,14 @@ class Floors {
      **** Canvas changes ****
      ************************/
     draw() {
-        this.getCurrent().draw();
+        if (this.getCurrent()) {
+            this.getCurrent().draw();
+        }
     }
     resize() {
-        this.getCurrent().resize();
+        if (this.getCurrent()) {
+            this.getCurrent().resize();
+        }
     }
 
     /************************

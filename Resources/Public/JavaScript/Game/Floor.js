@@ -186,14 +186,14 @@ class Floor {
                 rowY = Math.floor(this.stage.y + (this.partH * row));
                 for (let col = 0; col < this.width; col++) {
                     colX = Math.floor(this.stage.x + (this.partW * col));
-                    this.tiles.add(this.tilesArray[counter], row, col, rowY, colX);
-                    this.interactions.add(this.interactionsArray[counter], row, col, rowY, colX);
-                    this.collectibles.add(this.collectiblesArray[counter], row, col, rowY, colX);
+                    this.tiles.add(this.tilesArray[counter], row, col, rowY, colX, this.partH, this.partW);
+                    this.interactions.add(this.interactionsArray[counter], row, col, rowY, colX, this.partH, this.partW);
+                    this.collectibles.add(this.collectiblesArray[counter], row, col, rowY, colX, this.partH, this.partW);
                     this.addCollisionLayer(row, col, rowY, colX, this.tiles.get(row, col));
                     if (this.isInView(colX, rowY)) {
-                        this.drawAsset(this.tiles.get(row, col));
-                        this.drawAsset(this.collectibles.get(row, col));
-                        this.drawAsset(this.interactions.get(row, col));
+                        this.tiles.get(row, col).draw();
+                        this.collectibles.get(row, col).draw();
+                        this.interactions.get(row, col).draw();
                     }
                     counter++;
                 }
@@ -214,9 +214,9 @@ class Floor {
             // every other run
             for (let row = rStart; row < rStop; row++) {
                 for (let col = cStart; col < cStop; col++) {
-                    this.drawAsset(this.tiles.get(row, col));
-                    this.drawAsset(this.collectibles.get(row, col));
-                    this.drawAsset(this.interactions.get(row, col));
+                    this.tiles.get(row, col).draw();
+                    this.collectibles.get(row, col).draw();
+                    this.interactions.get(row, col).draw();
                 }
             }
         }
@@ -252,28 +252,6 @@ class Floor {
         ) {
             return true;
         }
-    }
-    drawAsset(element) {
-        if (element.asset.image) {
-            _ctxWorld.drawImage(element.asset.image, element.x, element.y, this.partH, this.partW);
-        }
-        // if (showHitBox) {
-        //     if (element.asset.collision.length > 1) {
-        //         for (let a = 0; a < this.collisionLayerSize; a++) {
-        //             for (let b = 0; b < this.collisionLayerSize; b++) {
-        //                 let newRow = element.row * this.collisionLayerSize + a;
-        //                 let newCol = element.col * this.collisionLayerSize + b;
-        //                 _ctxWorld.fillStyle = 'rgba(0,255,0,0.2)';
-        //                 _ctxWorld.fillRect(
-        //                     this.collisionLayer.get(newRow, newCol).getX() + 0.5,
-        //                     this.collisionLayer.get(newRow, newCol).getY() + 0.5,
-        //                     this.partW / this.collisionLayerSize - 1,
-        //                     this.partH / this.collisionLayerSize - 1
-        //                 );
-        //             }
-        //         }
-        //     }
-        // }
     }
     collision() {
         // Player Center

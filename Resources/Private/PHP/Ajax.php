@@ -232,6 +232,7 @@ function savePlayer($db, $name, $level, $stats, $skills)
         for ($i = 0; $i < count($skillArray); $i++) {
             $exp = $skillArray[$i]->exp->current . ',' . $skillArray[$i]->exp->max;
             if ($skillArray[$i]->player_uid) {
+                //echo $skillArray[$i]->player_uid. 'update to it<br />';
                 // update
                 $db->update('player_skills', [
                     'level' => $skillArray[$i]->level,
@@ -241,6 +242,7 @@ function savePlayer($db, $name, $level, $stats, $skills)
                     'skills_uid' => $skillArray[$i]->skills_uid,
                 ]);
             } else {
+                //echo $result[0]. 'insert<br />';
                 // insert
                 $db->insert('player_skills', [
                     'player_uid' => $result[0],

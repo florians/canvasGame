@@ -35,6 +35,7 @@ $jsFiles = [
             'Resources/Public/JavaScript/Shared/Interactions.js',
                 'Resources/Public/JavaScript/Shared/Interaction.js',
             // Battle
+            'Resources/Public/JavaScript/Game/Challengers.js',
             'Resources/Public/JavaScript/Game/Battle.js',
 
     // Skills
@@ -46,6 +47,7 @@ $jsFiles = [
         'Resources/Public/JavaScript/Game/Action.js',
 
     // Player
+    'Resources/Public/JavaScript/Game/StatsHandler.js',
     'Resources/Public/JavaScript/Game/Player.js',
 
     // Controls

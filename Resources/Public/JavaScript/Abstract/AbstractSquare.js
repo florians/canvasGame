@@ -22,10 +22,11 @@ class AbstractSquare {
             }
         }
     }
-
-    /************************
-     ******** Setter ********
-     ************************/
+    draw(){
+        if(this.asset.image){
+            _ctxWorld.drawImage(this.asset.image, this.x, this.y, this.h, this.w);
+        }
+    }
     set(id) {
         if (id && this.parent._assets.get(id)) {
             this.isEmpty = false;
@@ -41,6 +42,6 @@ class AbstractSquare {
     remove() {
         this.set(0);
         this.collision = false;
-        this.parent.ui.draw();
+        _game.ui.repaint = true;
     }
 }

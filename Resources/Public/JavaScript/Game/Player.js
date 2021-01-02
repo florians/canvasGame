@@ -15,7 +15,6 @@ class Player extends AbstractCharacter {
         this.name = '';
         this.level = 0;
         this.stats = {};
-        this.actions = new Actions(this);
         this.bars = new Bars(this);
         // values type, x, y, h, w, color
         // y = [0, 10] 0% + 10
@@ -41,26 +40,30 @@ class Player extends AbstractCharacter {
     savePlayer() {
         let skillArray = [];
         for (var i = 0; i < this.skills.length; i++) {
+            if (!this.skills[i].new) {
+                this.skills[i].player_uid = this.uid;
+            }
             skillArray.push(this.skills[i].db());
+            this.skills[i].new = false;
         }
-        _game.loader.add('data', '', {
+        _game.loader.add('data', 'playerUid', {
             type: 'savePlayer',
             name: this.name,
             level: this.level,
             stats: JSON.stringify(this.stats),
             skills: JSON.stringify(skillArray)
         });
+        _game.loader.run();
     }
     /************************
      ***** Loader init ******
      ************************/
     init(result) {
-        this.setStats(result.stats);
+        this.stats = new StatsHandler(JSON.parse(result.stats));
         this.setUid(result.uid);
         this.setLevel(result.level);
         this.name = result.name;
-        this.stats.hp.current = this.stats.hp.max;
-        this.stats.es.current = 0;
+        this.stats.reset();
     }
     initSkills(result) {
         for (let i = 0; i < result.length; i++) {
@@ -77,9 +80,11 @@ class Player extends AbstractCharacter {
                     max: exp[1]
                 }
             }
-            console.log(result);
             this.skills.push(new Skill(_game._skills.get(result[i]['skills_uid']), playerSkill));
         }
+    }
+    addSkill(skill_uid) {
+        this.skills.push(new Skill(_game._skills.get(skill_uid)));
     }
     /************************
      **** Canvas changes ****
@@ -118,15 +123,22 @@ class Player extends AbstractCharacter {
      ************************/
     levelUp() {
         this.setLevel(this.level + 1);
-        this.addStat('hp.max');
-        this.setStat('hp.current', this.stats.hp.max);
-        this.addStat('exp.max');
-        this.setStat('exp.current', 0);
-    }
-    addStat(stat, val = 1) {
-        this.setStat(stat, val, '+');
-    }
-    removeStat(stat, val = 1) {
-        this.setStat(stat, val, '-');
+        this.stats.hp.max++;
+        this.stats.exp.max++;
+        this.stats.exp.current = 0;
+        this.stats.fill();
+
+        // heal
+        if (this.level == 2) {
+            this.addSkill(3);
+        }
+        // hot
+        if (this.level == 3) {
+            this.addSkill(4);
+        }
+        // dot
+        if (this.level == 4) {
+            this.addSkill(5);
+        }
     }
 }

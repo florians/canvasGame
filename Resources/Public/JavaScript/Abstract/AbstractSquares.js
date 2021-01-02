@@ -30,11 +30,13 @@ class AbstractSquares {
             this.tiles[row][col] = [];
         }
     }
-    setTileInfo(data, row, col, rowY, colX) {
+    setTileInfo(data, row, col, rowY, colX, h, w) {
         this.tiles[row][col].x = colX;
         this.tiles[row][col].y = rowY;
         this.tiles[row][col].col = col;
         this.tiles[row][col].row = row;
+        this.tiles[row][col].h = h;
+        this.tiles[row][col].w = w;
         if (this.level(data)) {
             this.tiles[row][col].level = this.level(data);
         }

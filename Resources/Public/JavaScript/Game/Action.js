@@ -7,19 +7,14 @@ class Action {
         this.value = parseInt(skill.value);
     }
     use() {
-        this.addExp();
-        if (this.type == 2 || this.type == 3) {
-            _game.ui.addStat(this.target, 'hp', this.value);
-        } else {
-            _game.ui.removeStat(this.target, 'hp', this.value);
-        }
-    }
-    addExp() {
-        this.skill.exp.current++;
-        if (this.skill.exp.current >= this.skill.exp.max) {
-            this.skill.exp.max = this.skill.exp.max + 10;
-            this.skill.exp.current = 0;
-            this.skill.level++;
+        this.skill.addExp();
+        if (_game.battle) {
+            if (this.type == 2 || this.type == 3) {
+                this.target.stats.addStat('hp', this.value);
+            } else {
+                this.target.stats.removeHp(this.value);
+                _game.battle.challengers.deathCheck(this.target);
+            }
         }
     }
 }

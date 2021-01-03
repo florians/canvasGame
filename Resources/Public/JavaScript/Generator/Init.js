@@ -1,5 +1,5 @@
 const gameBaseUrl = 'Resources/Public/Images/Floor/',
-    _ctx = document.getElementById('world').getContext('2d', {
+    _ctxWorld = document.getElementById('world').getContext('2d', {
         desynchronized: true,
         alpha: false
     });

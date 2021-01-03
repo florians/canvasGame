@@ -1,8 +1,8 @@
 class Collectible extends AbstractSquare {
-    constructor(parent, id, canavs = _ctxWorld) {
+    constructor(parent, id, canavs) {
         super(parent);
         this.set(id);
-        this.canvas = canavs;
+        this.canvas = canavs || _ctxWorld;
     }
     hp() {
         if (this.parent._player.stats.hp.current < this.parent._player.stats.hp.max) {

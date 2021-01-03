@@ -34,7 +34,7 @@ class Interaction extends AbstractSquare {
     }
     draw() {
         super.draw();
-        if(this.bars){
+        if (this.bars) {
             this.bars.draw();
         }
     }
@@ -56,8 +56,20 @@ class Interaction extends AbstractSquare {
         this.parent.battle = new Battle(this);
         _game.ui.repaint = true;
     }
-    lock(){
-        
+    lock() {
+        for (let i = 0; i < _game._player.items.length; i++) {
+            if (_game._player.items[i].asset.name == "key") {
+                // sets collision layer to 0
+                _game._floors.getCurrent().removeCollisionFromLayer(this.row, this.col);
+                // removes items
+                _game._player.items.splice(i, 1);
+                // inventory has to be recalculated
+                _game.ui.inventory.resize();
+                // removes lock itself
+                this.remove();
+                return;
+            }
+        }
     }
     resize() {
         this.bars.resize();

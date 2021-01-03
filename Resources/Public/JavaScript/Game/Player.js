@@ -2,9 +2,9 @@ class Player extends AbstractCharacter {
     constructor() {
         super();
         this.w = 50;
-        this.h = 50
+        this.h = 50;
         this.offsetTop = Math.round(this.h / 2);
-        this.offsetBottom = Math.round(this.h / 2);;
+        this.offsetBottom = Math.round(this.h / 2);
         this.offsetLeft = Math.round(this.w / 2);
         this.offsetRight = Math.round(this.w / 2);
         this.x = 0;

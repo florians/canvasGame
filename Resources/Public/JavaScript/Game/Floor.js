@@ -1,5 +1,5 @@
 class Floor {
-    constructor(game,result) {
+    constructor(game, result) {
         this.dataHandler = new DataHandler(this);
         this.tiles = new Tiles(_game);
         this.collectibles = new Collectibles(_game);
@@ -222,10 +222,13 @@ class Floor {
         }
     }
     addCollisionLayer(row, col, rowY, colX, el) {
-        var collision = el.asset.collision;
-        // if(!collision && this.collectibles.get(row,col).asset.collision){
-        //     collision = this.collectibles.get(row,col).asset.collision;
-        // }
+        let collision = el.asset.collision;
+        let orig = el.asset;
+        // if it's a key
+        if (!collision && this.interactions.get(row, col).asset.collision) {
+            collision = this.interactions.get(row, col).asset.collision;
+            orig = this.interactions.get(row, col);
+        }
         let collisionNr = 0;
         for (let a = 0; a < this.collisionLayerSize; a++) {
             let cLayerRowY = rowY + (this.partH / this.collisionLayerSize * a);
@@ -236,10 +239,19 @@ class Floor {
                 this.collisionLayer.add('', newRow, newCol, cLayerRowY, cLayerColX);
 
                 this.collisionLayer.get(newRow, newCol).collision = collision[collisionNr];
-                this.collisionLayer.get(newRow, newCol).orig = el.asset;
+                this.collisionLayer.get(newRow, newCol).orig = orig;
                 if (el.asset.collision.length > 1) {
                     collisionNr++;
                 }
+            }
+        }
+    }
+    removeCollisionFromLayer(row, col) {
+        for (let a = 0; a < this.collisionLayerSize; a++) {
+            for (let b = 0; b < this.collisionLayerSize; b++) {
+                let newRow = row * this.collisionLayerSize + a;
+                let newCol = col * this.collisionLayerSize + b;
+                this.collisionLayer.get(newRow, newCol).collision = 0;
             }
         }
     }
@@ -363,6 +375,11 @@ class Floor {
         if (!this.collisionLayer.get(newBoxY, newBoxX).collision) {
             return;
         }
+        // collision with lock
+        if (this.collisionLayer.get(newBoxY, newBoxX).orig.asset && this.collisionLayer.get(newBoxY, newBoxX).orig.asset.name == "lock") {
+            this.collisionLayer.get(newBoxY, newBoxX).orig.lock();
+        }
+
         //console.log('collisionBox kolidierter Ecken:' + (playerCornerLeft ? 'Links' : 'Rechts') + ', ' + (playerCornerTop ? 'Oben' : 'Unten'));
         let playerOffsetX = (_game._player.w / 2) * (playerCornerLeft ? 1 : -1),
             playerOffsetY = (_game._player.h / 2) * (playerCornerTop ? 1 : -1),

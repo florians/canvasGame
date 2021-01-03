@@ -132,8 +132,8 @@ class Floor {
         $('.brushSize').html(this.brushSize);
     }
     setCanvasSize() {
-        _ctx.canvas.width = Math.floor($('.canvasContainer').width());
-        _ctx.canvas.height = Math.floor($('body').height() - $('#world').offset().top - 25);
+        _ctxWorld.canvas.width = Math.floor($('.canvasContainer').width());
+        _ctxWorld.canvas.height = Math.floor($('body').height() - $('#world').offset().top - 25);
     }
     /************************
      **** Canvas changes ****
@@ -175,16 +175,16 @@ class Floor {
         this.repaint();
     }
     repaint(element = '') {
-        _ctx.save();
-        _ctx.setTransform(1, 0, 0, 1, 0, 0);
+        _ctxWorld.save();
+        _ctxWorld.setTransform(1, 0, 0, 1, 0, 0);
         if (element == '') {
-            _ctx.fillStyle = '#e5e5e5';
-            _ctx.fillRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
-            //_ctx.clearRect(0, 0, _ctx.canvas.width, _ctx.canvas.height);
+            _ctxWorld.fillStyle = '#e5e5e5';
+            _ctxWorld.fillRect(0, 0, _ctxWorld.canvas.width, _ctxWorld.canvas.height);
+            //_ctxWorld.clearRect(0, 0, _ctxWorld.canvas.width, _ctxWorld.canvas.height);
         }
-        _ctx.translate(this.stageOffset.x, this.stageOffset.y)
+        _ctxWorld.translate(this.stageOffset.x, this.stageOffset.y)
         this.fillCanvas(element);
-        _ctx.restore();
+        _ctxWorld.restore();
     }
     fillCanvas(element) {
         if (element) {
@@ -195,8 +195,8 @@ class Floor {
         } else {
             let cStart = Math.floor(-this.stageOffset.x / this.zoomSize);
             let rStart = Math.floor(-this.stageOffset.y / this.zoomSize);
-            let cStop = Math.floor((_ctx.canvas.width + this.zoomSize * 2) / this.zoomSize);
-            let rStop = Math.floor((_ctx.canvas.height + this.zoomSize * 2) / this.zoomSize);
+            let cStop = Math.floor((_ctxWorld.canvas.width + this.zoomSize * 2) / this.zoomSize);
+            let rStop = Math.floor((_ctxWorld.canvas.height + this.zoomSize * 2) / this.zoomSize);
 
             cStart = cStart > 0 ? cStart : 0;
             rStart = rStart > 0 ? rStart : 0;
@@ -219,18 +219,18 @@ class Floor {
             h = this.zoomSize,
             w = this.zoomSize;
         if (element.asset.image) {
-            _ctx.drawImage(element.asset.image, x, y, h, w);
+            _ctxWorld.drawImage(element.asset.image, x, y, h, w);
         }
         if (!element.asset.image && clear) {
-            _ctx.fillStyle = '#e5e5e5';
-            _ctx.fillRect(x, y, h, w);
+            _ctxWorld.fillStyle = '#e5e5e5';
+            _ctxWorld.fillRect(x, y, h, w);
         }
     }
     addGrid(element) {
-        _ctx.beginPath();
-        _ctx.strokeStyle = 'rgb(0,0,0)';
-        _ctx.rect(element.x * this.zoom, element.y * this.zoom, this.zoomSize, this.zoomSize);
-        _ctx.stroke();
+        _ctxWorld.beginPath();
+        _ctxWorld.strokeStyle = 'rgb(0,0,0)';
+        _ctxWorld.rect(element.x * this.zoom, element.y * this.zoom, this.zoomSize, this.zoomSize);
+        _ctxWorld.stroke();
     }
     resize() {
         this.setCanvasSize();
@@ -281,6 +281,9 @@ class Floor {
         let col = Math.floor((event.offsetX - this.stageOffset.x) / this.zoomSize);
         let row = Math.floor((event.offsetY - this.stageOffset.y) / this.zoomSize);
         if (row >= 0 && row < this.height && col >= 0 && col < this.width) {
+            if(this[this.selectedLayer].get(row, col).asset.type  == 'start'){
+                this.startIsSet = false;
+            }
             this[this.selectedLayer].get(row, col).set(0);
             this.repaint(this[this.selectedLayer].get(row, col));
         }

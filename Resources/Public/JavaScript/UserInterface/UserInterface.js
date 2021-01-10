@@ -1,6 +1,7 @@
 class UserInterface {
     constructor() {
         _game.mousehandler.add('body', 'click', 'useSkill', this);
+        _game.mousehandler.add('body', 'touchstart', 'useSkill', this);
         this.repaint = false;
 
         // Skill Book

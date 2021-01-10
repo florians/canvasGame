@@ -34,7 +34,7 @@ class KeyboardHandler {
     add(target, type, functionName, keys = null, obj = null) {
         let el = '';
         if (target != document) {
-            el = document.querySelector(target);
+            el = document.querySelectorAll(target);
         } else {
             el = document;
         }

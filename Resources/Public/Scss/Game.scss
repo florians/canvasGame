@@ -147,10 +147,13 @@ body {
     right: 0;
     bottom: 0;
     z-index: 1;
-
-    .suspended & canvas {
-        display: none !important;
+    .suspended &{
+        z-index: -100;
     }
+
+    // .suspended & canvas {
+    //     display: none !important;
+    // }
 }
 /***********************************
 *********** fullscreen *************

@@ -120,8 +120,8 @@ body {
   right: 0;
   bottom: 0;
   z-index: 1; }
-  .suspended #mobileControls canvas {
-    display: none !important; }
+  .suspended #mobileControls {
+    z-index: -100; }
 
 /***********************************
 *********** fullscreen *************

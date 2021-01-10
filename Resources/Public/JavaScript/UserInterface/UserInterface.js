@@ -28,7 +28,7 @@ class UserInterface {
             }
             this.recipes[newRecipe.uid] = newRecipe;
         }
-        this.craftingStation.recipes = this.recipes;
+        this.craftingStation.recipes = _game._assets;
     }
 
     draw() {
@@ -103,6 +103,7 @@ class UserInterface {
         inventory.setGrid(5, 100, 100);
 
         this.craftingStation = new CraftingHandler([50, 10], [50, 10], [50, -20], [50, -20]);
+        this.craftingStation.recipes = _game._assets.assets;
 
         layers.push(background, inventory, this.craftingStation);
 

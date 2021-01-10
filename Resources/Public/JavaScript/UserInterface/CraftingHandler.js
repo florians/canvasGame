@@ -22,7 +22,7 @@ class CraftingHandler {
         if (recipe.req.stone) {
             _game._player.items.getByTypeAndItem('material', 'stone').amount -= recipe.req.stone;
         }
-        _game._player.items.addToCategory(recipe.asset);
+        _game._player.items.addToCategory(recipe);
         this.reload();
         _game.ui.inventory.resize();
         _game.ui.draw();
@@ -30,6 +30,7 @@ class CraftingHandler {
     reload() {
         this.wood = _game._player.items.getByTypeAndItem('material', 'wood').amount;
         this.stone = _game._player.items.getByTypeAndItem('material', 'stone').amount;
+        
         // MORE MATERIALS HERE
         let show = 0;
         for (let i = 0; i < this.recipes.length; i++) {
@@ -38,7 +39,7 @@ class CraftingHandler {
             }
             this.recipes[i].show = false;
             show = 0;
-            if (this.recipes[i].req) {
+            if (this.recipes[i].req != null) {
                 // MORE MATERIAL CHECKS HERE
                 if (this.recipes[i].req.wood && this.recipes[i].req.wood <= this.wood) {
                     show++;
@@ -50,7 +51,8 @@ class CraftingHandler {
                     this.recipes[i].show = true;
                 }
             } else {
-                this.recipes[i].show = true;
+                // was true ???
+                this.recipes[i].show = false;
             }
         }
     }

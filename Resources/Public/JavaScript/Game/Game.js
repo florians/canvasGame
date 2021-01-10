@@ -26,12 +26,11 @@ class Game {
      ************************/
     preloader() {
         this._assets.load();
-        this._floors.load(1);
+        this._floors.load(11);
         this._skills.load();
         this._player.load(playerName);
         this._player.loadSkills(playerName);
         this.ui = new UserInterface(this);
-        this.ui.load();
         // calls > preloaderResult
         this.loader.run();
     }
@@ -58,9 +57,6 @@ class Game {
             if (result[i].name == "playerUid") {
                 this._player.setUid(result[i].data.result);
             }
-            if (result[i].name == "getAllRecipes") {
-                this.ui.setRecipe(result[i].data.result);
-            }
         }
         this.init();
     }
@@ -68,8 +64,6 @@ class Game {
         document.body.classList.add('loading-done');
         // hide the loader
         this.loader.hide();
-        // create ui
-        //this.ui = new UserInterface(this);
         this.ui.repaint = true;
         this.resize();
         this.start();

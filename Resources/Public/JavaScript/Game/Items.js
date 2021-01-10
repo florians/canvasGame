@@ -13,8 +13,6 @@ class Items {
         }
         if (!this.items[item.type][item.name]) {
             this.items[item.type][item.name] = new Item(item);
-            //this.items[item.type][item.name].asset = item;
-            //this.items[item.type][item.name].amount = 0;
         }
         this.items[item.type][item.name].amount += amount;
     }

@@ -119,6 +119,16 @@ CREATE TABLE IF NOT EXISTS `florian_game`.`passives` (
 );
 
 -- -----------------------------------------------------
+-- Table `florian_game`.`recipes`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `florian_game`.`recipes` (
+  `uid` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `name` VARCHAR(255) NOT NULL,
+  `deleted` TINYINT(1) NULL DEFAULT 0
+  `req` TEXT NOT NULL,
+);
+
+-- -----------------------------------------------------
 -- set FOREIGN KEY
 -- -----------------------------------------------------
 ALTER TABLE `assets` ADD FOREIGN KEY (`type`) REFERENCES `florian_game`.`assets_type` (`uid`);

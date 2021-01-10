@@ -8,6 +8,8 @@ class KeyboardHandler {
             left: false,
             right: false
         }
+    }
+    setDefault(){
         this.add(document, 'keydown', 'defaultKeydown', [38, 87, 40, 83, 37, 65, 39, 68], this);
         this.add(document, 'keyup', 'defaultKeyup', [38, 87, 40, 83, 37, 65, 39, 68], this);
     }

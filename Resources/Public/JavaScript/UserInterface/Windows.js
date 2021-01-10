@@ -54,6 +54,9 @@ class Windows {
             if (this.layer[i] instanceof Grid) {
                 this.layer[i].resize();
             }
+            if (this.layer[i] instanceof CraftingHandler) {
+                this.layer[i].reload();
+            }
         }
     }
 }

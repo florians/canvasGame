@@ -35,6 +35,7 @@ class Floor {
         this.mousehandler.add('.saveFloor', 'click', 'save');
         this.mousehandler.add('.layer', 'click', 'changeLayer');
         this.mousehandler.add('aside .custom .save-to-element', 'click', 'saveToElement')
+        this.mousehandler.add('aside .custom .close', 'click', 'hideCustomBox')
 
         // mouse event
         this.mousehandler.add('#world', 'mousedown', 'mousedown');
@@ -47,7 +48,7 @@ class Floor {
         this.mousehandler.add('.floorSelect', 'change', 'changeFloor');
 
         // keyboard
-        this.keyboardHandler.add(document, 'keydown', 'keydown');
+        this.keyboardHandler.add(document, 'keydown', 'keydown', [38, 87, 40, 83, 37, 65, 39, 68]);
         this.listAssets();
         this.init(result);
     }
@@ -240,38 +241,44 @@ class Floor {
         let ignoreBrushTiles = ['start', 'portal', 'trap', 'enemy', 'item'];
         let col = Math.floor((event.offsetX - this.stageOffset.x) / this.zoomSize);
         let row = Math.floor((event.offsetY - this.stageOffset.y) / this.zoomSize);
-        if (this.selectedAsset && row >= 0 && row < this.height && col >= 0 && col < this.width) {
-            if (ignoreBrushTiles.includes(this.parent._assets.get(this.selectedAsset).type)) {
-                this.checkIfStart(this[this.selectedLayer].get(row, col));
-                if (this.parent._assets.get(this.selectedAsset).type == 'start' && this.startIsSet == false) {
-                    this.startIsSet = true;
-                    this.setStart('x', col);
-                    this.setStart('y', row);
-                    this[this.selectedLayer].get(row, col).set(this.selectedAsset);
-                    this.repaint(this[this.selectedLayer].get(row, col));
-                }
-                if (this.parent._assets.get(this.selectedAsset).type == 'portal') {
-                    this.showCustomBox(this[this.selectedLayer].get(row, col));
-                }
-                if (this.parent._assets.get(this.selectedAsset).type != 'start') {
-                    this[this.selectedLayer].get(row, col).set(this.selectedAsset);
-                    this.repaint(this[this.selectedLayer].get(row, col));
-                }
-            } else {
-                for (let r = row - Math.floor(this.brushSize / 2); r < row + Math.ceil(this.brushSize / 2); r++) {
-                    for (let c = col - Math.floor(this.brushSize / 2); c < col + Math.ceil(this.brushSize / 2); c++) {
-                        if (c < 0 || r < 0) {
-                            continue;
-                        }
-                        if (r >= 0 && r < this.height && c >= 0 && c < this.width) {
-                            this.checkIfStart(this[this.selectedLayer].get(r, c));
+        if (row >= 0 && row < this.height && col >= 0 && col < this.width) {
+            if (this.selectedAsset) {
+                if (ignoreBrushTiles.includes(this.parent._assets.get(this.selectedAsset).type)) {
+                    this.checkIfStart(this[this.selectedLayer].get(row, col));
+                    if (this.parent._assets.get(this.selectedAsset).type == 'start' && this.startIsSet == false) {
+                        this.startIsSet = true;
+                        this.setStart('x', col);
+                        this.setStart('y', row);
+                        this[this.selectedLayer].get(row, col).set(this.selectedAsset);
+                        this.repaint(this[this.selectedLayer].get(row, col));
+                    }
+                    if (this.parent._assets.get(this.selectedAsset).type == 'portal') {
+                        this.showCustomBox(this[this.selectedLayer].get(row, col));
+                    }
+                    if (this.parent._assets.get(this.selectedAsset).type != 'start') {
+                        this[this.selectedLayer].get(row, col).set(this.selectedAsset);
+                        this.repaint(this[this.selectedLayer].get(row, col));
+                    }
+                } else {
+                    for (let r = row - Math.floor(this.brushSize / 2); r < row + Math.ceil(this.brushSize / 2); r++) {
+                        for (let c = col - Math.floor(this.brushSize / 2); c < col + Math.ceil(this.brushSize / 2); c++) {
+                            if (c < 0 || r < 0) {
+                                continue;
+                            }
+                            if (r >= 0 && r < this.height && c >= 0 && c < this.width) {
+                                this.checkIfStart(this[this.selectedLayer].get(r, c));
 
-                            if (c < this.width && r < this.height) {
-                                this[this.selectedLayer].get(r, c).set(this.selectedAsset);
-                                this.repaint(this[this.selectedLayer].get(r, c));
+                                if (c < this.width && r < this.height) {
+                                    this[this.selectedLayer].get(r, c).set(this.selectedAsset);
+                                    this.repaint(this[this.selectedLayer].get(r, c));
+                                }
                             }
                         }
                     }
+                }
+            } else {
+                if (this[this.selectedLayer].get(row, col) && this[this.selectedLayer].get(row, col).asset.name == "portal") {
+                    this.showCustomBox(this[this.selectedLayer].get(row, col));
                 }
             }
         }
@@ -281,7 +288,7 @@ class Floor {
         let col = Math.floor((event.offsetX - this.stageOffset.x) / this.zoomSize);
         let row = Math.floor((event.offsetY - this.stageOffset.y) / this.zoomSize);
         if (row >= 0 && row < this.height && col >= 0 && col < this.width) {
-            if(this[this.selectedLayer].get(row, col).asset.type  == 'start'){
+            if (this[this.selectedLayer].get(row, col).asset.type == 'start') {
                 this.startIsSet = false;
             }
             this[this.selectedLayer].get(row, col).set(0);
@@ -345,7 +352,7 @@ class Floor {
     }
     changeAsset(event) {
         $('.asset.active').removeClass('active');
-        $(event.target).parent().addClass('active');
+        $(event.target).parent().toggleClass('active');
         this.selectedAsset = $(event.target).parent().data('uid');
     }
     changeAssetGroup(event) {
@@ -354,21 +361,21 @@ class Floor {
         $('.assetGroup.show').removeClass('show');
         $(event.target).parent().addClass('show');
     }
-    keydown() {
+    keydown(e) {
         let repaint = false;
-        if (this.keyboardHandler.get('left')) {
+        if (e.keyCode == 37 || e.keyCode == 65) {
             this.setStageOffset('x', this.stageOffset.x - this.zoomSize);
             repaint = true;
         }
-        if (this.keyboardHandler.get('right')) {
+        if (e.keyCode == 39 || e.keyCode == 68) {
             this.setStageOffset('x', this.stageOffset.x + this.zoomSize);
             repaint = true;
         }
-        if (this.keyboardHandler.get('up')) {
+        if (e.keyCode == 38 || e.keyCode == 87) {
             this.setStageOffset('y', this.stageOffset.y - this.zoomSize);
             repaint = true;
         }
-        if (this.keyboardHandler.get('down')) {
+        if (e.keyCode == 40 || e.keyCode == 83) {
             this.setStageOffset('y', this.stageOffset.y + this.zoomSize);
             repaint = true;
         }
@@ -393,6 +400,7 @@ class Floor {
             this.parent.loader.setObj(this);
             this.parent._floors.load(event.target.value);
             this.parent.loader.run();
+            this.hideCustomBox();
         }
     }
     save(event) {
@@ -475,7 +483,7 @@ class Floor {
         let row = $('aside .custom .custom-hidden').attr('data-row'),
             col = $('aside .custom .custom-hidden').attr('data-col'),
             level = $('aside .custom .level').val();
-        this.tiles.get(row, col).setLevel(level);
+        this.tiles.get(row, col).level = parseInt(level);
         this.parent.msg('success', 'Level ' + level + ' has been set');
         $('aside .custom').removeClass('active');
     }
@@ -487,30 +495,41 @@ class Floor {
         $('aside .custom .level').val(asset.level);
         $('aside .custom .custom-hidden').attr('data-col', asset.col).attr('data-row', asset.row);
     }
+    hideCustomBox() {
+        $('aside .custom').removeClass('active');
+    }
     listAssets() {
-        let types = this.parent._assets.getTypes();
         let htmlArray = [];
-        htmlArray.push('<div class="asset-layer active layer-tiles">');
-        for (let i = 0; i < types.length; i++) {
-            if (types[i] == 'collectible') {
-                htmlArray.push('</div><div class="asset-layer layer-collectibles">');
+        let typeArray = [{
+                key: 'tiles',
+                items: this.parent._assets.getTypes('tiles')
+            },
+            {
+                key: 'collectibles',
+                items: this.parent._assets.getTypes('collectibles')
+            },
+            {
+                key: 'interactions',
+                items: this.parent._assets.getTypes('interactions')
             }
-            if (types[i] == 'trap') {
-                htmlArray.push('</div><div class="asset-layer layer-interactions">');
-            }
-
-            htmlArray.push('<div class="assetGroup accordion padding-lr-m padding-tb-m block flex-m">');
-            htmlArray.push('<div class="title">' + types[i] + '</div>');
-            let typeAssets = this.parent._assets.getByType(types[i]);
-            if (typeAssets) {
-                for (let i = 0; i < typeAssets.length; i++) {
-                    htmlArray.push('<div class="asset" data-uid="' + typeAssets[i].uid + '"><img src="' + typeAssets[i].image.src + '" /></div>');
+        ];
+        let extraClass = '';
+        for (let layerI = 0; layerI < typeArray.length; layerI++) {
+            extraClass = layerI == 0 ? 'active' : '';
+            htmlArray.push('<div class="asset-layer ' + extraClass + ' layer-' + typeArray[layerI].key + '">');
+            for (let typeI = 0; typeI < typeArray[layerI].items.length; typeI++) {
+                htmlArray.push('<div class="assetGroup accordion padding-lr-m padding-tb-m block flex-m">');
+                htmlArray.push('<div class="title">' + typeArray[layerI].items[typeI] + '</div>');
+                let assets = this.parent._assets.getByType(typeArray[layerI].items[typeI]);
+                if (assets) {
+                    for (let assetI = 0; assetI < assets.length; assetI++) {
+                        htmlArray.push('<div class="asset" data-uid="' + assets[assetI].uid + '"><img src="' + assets[assetI].image.src + '" /></div>');
+                    }
                 }
+                htmlArray.push('</div>');
             }
             htmlArray.push('</div>');
         }
-        // closes last open div
-        htmlArray.push('</div>');
         $('aside .accordion-container').append(htmlArray.join(''));
         this.mousehandler.add('.assetGroup .title', 'click', 'changeAssetGroup');
         $('aside .asset-layer.active .assetGroup .title').first().click();

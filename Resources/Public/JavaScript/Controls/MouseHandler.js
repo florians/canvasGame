@@ -6,6 +6,8 @@ class MouseHandler {
         let el = document.querySelectorAll(target);
         for (let i = 0; i < el.length; i++) {
             el[i].addEventListener(type, (event) => {
+                event.stopPropagation();
+                event.preventDefault();
                 if (obj) {
                     obj[functionName](event);
                 } else {

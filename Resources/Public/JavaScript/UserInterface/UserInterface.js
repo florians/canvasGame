@@ -5,11 +5,29 @@ class UserInterface {
 
         // Skill Book
         this.skillBook = new Windows(this.generateSkillBook());
-
+        // Inventory
         this.inventory = new Windows(this.generateInventory());
-
-
+        // recipes
+        this.recipes = [];
         this.resize();
+    }
+    load() {
+        _game.loader.add('data', 'getAllRecipes', {
+            type: 'getAllRecipes'
+        });
+    }
+    setRecipe(result) {
+        for (let i = 0; i < result.length; i++) {
+            let newRecipe = {
+                name: result[i].name,
+                uid: parseInt(result[i].uid),
+                asset: _game._assets.get(result[i].asset),
+                req: JSON.parse(result[i].req),
+                show: false,
+            }
+            this.recipes[newRecipe.uid] = newRecipe;
+        }
+        this.craftingStation.recipes = this.recipes;
     }
 
     draw() {
@@ -59,7 +77,7 @@ class UserInterface {
     }
     showSkillBook(event) {
         if (!_game.battle) {
-            if(_game.stopGame == true){
+            if (_game.stopGame == true) {
                 this.inventory.hide();
             }
             this.skillBook.toggle();
@@ -72,25 +90,29 @@ class UserInterface {
         _game.keyboardHandler.add(document, 'keydown', 'showInventory', [73], this);
         let layers = [],
             background = null,
-            inventory = null;
+            inventory = null,
+            craftingStation = null;
 
         // x,y,h,w in %
         background = new Window(0, 50, 51, 100);
         // % +- px
-        inventory = new Grid([0, 10], [50, 10], [50, -20], [100, -20]);
-        inventory.content = _game._player.items;
+        inventory = new Grid([0, 10], [50, 10], [50, -10], [50, -10]);
+        inventory.items = _game._player.items;
         // skillGrid.hasText = true;
         inventory.setGrid(5, 100, 100);
 
-        layers.push(background, inventory);
+        this.craftingStation = new CraftingHandler([50, 10], [50, 10], [50, -20], [50, -20]);
+
+        layers.push(background, inventory, this.craftingStation);
 
         return layers;
     }
     showInventory(event) {
         if (!_game.battle) {
-            if(_game.stopGame == true){
+            if (_game.stopGame == true) {
                 this.skillBook.hide();
             }
+            this.inventory.resize();
             this.inventory.toggle();
         }
     }
@@ -113,22 +135,6 @@ class UserInterface {
             skills[i].draw(x, y, w, h, i);
         }
     }
-
-    drawItem(items, x, y, w, h) {
-        let count = 0;
-        _ctxUi.save();
-        // $.each(Object.keys(items), function(index, type) {
-        //     if (type) {
-        //         _ctxUi.fillStyle = 'rgb(255,255,255)';
-        //         _ctxUi.globalAlpha = 0.8;
-        //         _ctxUi.fillRect(x + (w * count), y, w, h);
-        //         _ctxUi.globalAlpha = 1;
-        //         _ctxUi.drawImage(items[type].image, x + (w * count), 25, w, h);
-        //         count++;
-        //     }
-        // });
-        _ctxUi.restore();
-    }
     /************************
      ***** Use Skill ********
      ************************/
@@ -142,6 +148,18 @@ class UserInterface {
                 for (var i = 0; i < _game._player.skills.length; i++) {
                     if (this.isColliding(mPos, _game._player.skills[i])) {
                         _game.battle.addAction(_game._player.skills[i]);
+                        break;
+                    }
+                }
+            }
+            if (!_game.battle && _game.ui.inventory.show) {
+                for (var i = 0; i < this.craftingStation.recipes.length; i++) {
+                    if (!this.craftingStation.recipes[i]) {
+                        continue;
+                    }
+                    if (this.isColliding(mPos, this.craftingStation.recipes[i])) {
+
+                        this.craftingStation.use(this.craftingStation.recipes[i]);
                         break;
                     }
                 }

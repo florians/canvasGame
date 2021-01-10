@@ -6,6 +6,7 @@ class Grid {
         this.hArr = h;
         this.wArr = w;
         this.content = [];
+        this.items = [];
         this.hasText = false;
         this.color = color || 'rgb(50,50,50)';
         this.alpha = alpha || 1;
@@ -34,8 +35,23 @@ class Grid {
         let maxRows = Math.floor(this.h / (this.grid.h + this.grid.spacing * 1.1)) || 1;
 
         let rowCounter = 0;
+        let itemCounter = 0;
+
+        let inventoryItems = [];
+        if (this.items instanceof Items && this.items.types.length > 0) {
+            this.content = [];
+            for (let typeCouter = 0; typeCouter < this.items.types.length; typeCouter++) {
+                let subTypes = _game._player.items.getTypeKeys(this.items.types[typeCouter]);
+                for (let i = 0; i < subTypes.length; i++) {
+                    this.content.push(this.items.items[this.items.types[typeCouter]][subTypes[i]]);
+                }
+            }
+        }
         for (let i = 0; i < this.content.length; i++) {
-            this.content[i].x = this.x + (i % maxCols * this.grid.w) + (this.grid.spacing * (i % maxCols));
+            if (this.content[i].amount == 0) {
+                continue;
+            }
+            this.content[i].x = this.x + (itemCounter % maxCols * this.grid.w) + (this.grid.spacing * (itemCounter % maxCols));
             this.content[i].y = this.y + (rowCounter * this.grid.h) + (this.grid.spacing * rowCounter);
             this.content[i].h = this.grid.h;
             this.content[i].w = this.grid.w;
@@ -45,6 +61,7 @@ class Grid {
             if (i % maxCols == maxCols - 1) {
                 rowCounter++;
             }
+            itemCounter++;
         }
     }
     draw() {

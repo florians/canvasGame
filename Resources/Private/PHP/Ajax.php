@@ -13,6 +13,9 @@ switch ($_POST['type']) {
     case 'getAssets':
         getAssets($database, $_POST['name']);
         break;
+    case 'getAllRecipes':
+        getAllRecipes($database);
+        break;
     case 'getAllFloors':
         getAllFloors($database);
         break;
@@ -40,7 +43,10 @@ switch ($_POST['type']) {
         saveFloor($database, $_POST['json']);
         break;
     case 'saveAssets':
-        saveAssets($database, $_POST['json'], $_FILES['file']);
+        saveAssets($database, $_POST['json'], $_REQUEST['file']);
+        break;
+    case 'saveSpriteSheet':
+        saveSpriteSheet($database, $_REQUEST['file']);
         break;
     // delete
     case 'delAssets':
@@ -81,8 +87,12 @@ function getAllAssets($db)
             'assets.name',
             'assets.source',
             'assets.collision',
+            'assets.req',
+            'assets.pos',
+            'assets.type(typeuid)',
             'assets_type.name(type)',
             'assets_type.factor(factor)',
+            'assets_type.layer(layer)',
         ],
         [
             'assets.deleted' => 0,
@@ -109,11 +119,17 @@ function getAsset($db, $name)
             '[>]assets_type' => ['assets.type' => 'uid'],
         ],
         [
+            'assets.uid',
+            'assets.sorting',
             'assets.name',
             'assets.source',
             'assets.collision',
+            'assets.req',
+            'assets.pos',
+            'assets.type(typeuid)',
             'assets_type.name(type)',
             'assets_type.factor(factor)',
+            'assets_type.layer(layer)',
         ],
         [
             'AND' => [
@@ -129,6 +145,12 @@ function getAllFloors($db)
 {
     $result = $db->select('floor', '*', ['deleted' => 0, 'ORDER' => 'level']);
     $msg = 'Floors loaded';
+    returnJson($msg, $result, $success);
+}
+function getAllRecipes($db)
+{
+    $result = $db->select('recipes', '*', ['deleted' => 0]);
+    $msg = 'Recipes loaded';
     returnJson($msg, $result, $success);
 }
 function getAssetsType($db)
@@ -315,61 +337,66 @@ function saveFloor($db, $json)
 
 function saveAssets($db, $json, $file)
 {
-    $allowedTypes = array(IMAGETYPE_PNG, IMAGETYPE_JPEG, IMAGETYPE_GIF);
     $jsonObj = json_decode($json);
 
+    $uid = $jsonObj->{'uid'};
     $name = $jsonObj->{'name'};
+    $factor = $jsonObj->{'factor'};
     $source = $jsonObj->{'source'};
     $collision = $jsonObj->{'collision'};
     $type = $jsonObj->{'type'};
+    $typeuid = $jsonObj->{'typeuid'};
+    $req = $jsonObj->{'req'};
+    $pos = $jsonObj->{'pos'};
 
-    $dbTypeUid = $db->select('assets_type', 'uid', ['deleted' => 0, 'name' => $type]);
-    $selectByNameUid = $db->select('assets', '*', ['deleted' => 0, 'name' => $name]);
-
-    if ($dbTypeUid[0] && $selectByNameUid[0] == '') {
-        $sorting = $db->select('assets', 'sorting', ['type' => $dbTypeUid[0], 'ORDER' => ['sorting' => 'DESC'], 'LIMIT' => 1]);
-        $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-        $target_file = '../../Public/Images/Floor/' . $type . '/' . $source . '.' . $ext;
-        if (!in_array(exif_imagetype($file['tmp_name']), $allowedTypes)) {
-            $type = 'error';
-            $msg = mime_content_type($file['tmp_name']) . ' format is not allowed';
-        } else {
-            $db->insert('assets', [
-                'name' => $name,
-                'source' => $source . '.' . $ext,
-                'collision' => $collision,
-                'sorting' => $sorting[0] + 1,
-                'type' => $dbTypeUid[0],
-            ]);
-            move_uploaded_file($file["tmp_name"], $target_file);
-            $type = 'success';
-            $msg = 'Assets ' . $name . ' was saved!';
-        }
+    if (!$type) {
+        $type = $db->select('assets_type', 'name', ['deleted' => 0, 'uid' => $typeuid])[0];
     }
-    // if already in db
-    if ($dbTypeUid[0] && $selectByNameUid[0] != '') {
-        if ($file && in_array(exif_imagetype($file['tmp_name']), $allowedTypes)) {
-            $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-            $target_file = '../../Public/Images/Floor/' . $type . '/' . $source . '.' . $ext;
-            move_uploaded_file($file["tmp_name"], $target_file);
-        }
-        if ($ext) {
-            $source = $name . '.' . $ext;
-        } else {
-            $source = $selectByNameUid[0]['source'];
-        }
+    $target_file = '../../Public/Images/Floor/' . $type . '/' . $name . '.webp';
+
+    $file = base64_decode(explode(',', $file)[1]);
+    file_put_contents($target_file, $file);
+
+    if ($uid) {
+        $db->update('assets_type', [
+            'factor' => $factor,
+        ], [
+            'uid' => $typeuid,
+        ]);
         $db->update('assets', [
             'name' => $name,
-            'source' => $source,
+            'source' => $name . '.webp',
             'collision' => $collision,
-            'type' => $dbTypeUid[0],
+            'type' => $typeuid,
+            'req' => $req,
+            'pos' => $pos,
         ], [
-            'uid' => $selectByNameUid[0]['uid'],
+            'uid' => $uid,
         ]);
-        $type = 'success';
+        $msg = 'Assets ' . $name . ' was updated!';
+    } else {
+        $sorting = $db->select('assets', 'sorting', ['type' => $typeuid, 'ORDER' => ['sorting' => 'DESC'], 'LIMIT' => 1]);
+        $db->insert('assets', [
+            'name' => $name,
+            'source' => $name . '.png',
+            'collision' => $collision,
+            'sorting' => $sorting[0] + 1,
+            'type' => $typeuid,
+            'req' => $req,
+            'pos' => $pos,
+        ]);
         $msg = 'Assets ' . $name . ' was saved!';
     }
-    echo json_encode(['type' => $type, 'msg' => $msg]);
+    returnJson($msg, '', $success);
+}
+function saveSpriteSheet($db, $file)
+{
+    $target_file = '../../Public/Images/Floor/SpriteSheet.webp';
+
+    $file = base64_decode(explode(',', $file)[1]);
+    file_put_contents($target_file, $file);
+    $msg = 'SpriteSheet saved!';
+    returnJson($msg, '', $success);
 }
 
 function delAssets($db, $name)

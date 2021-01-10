@@ -10,6 +10,7 @@ class AbstractSquare {
         this.asset = [];
         this.collision = [];
         this.orig = '';
+        this.isLooted = false;
     }
     /************************
      ***** Hit action *******
@@ -19,12 +20,31 @@ class AbstractSquare {
         if (this.isEmpty == false) {
             if (this[this.asset.name] instanceof Function) {
                 this[this.asset.name]();
+            } else {
+                if (this instanceof Collectible) {
+                    this.newItem();
+                }
             }
         }
     }
-    draw(){
-        if(this.asset.image){
-            _ctxWorld.drawImage(this.asset.image, this.x, this.y, this.h, this.w);
+    draw() {
+        // if (_game.spriteSheet) {
+        //     if (this.asset.pos) {
+        //         _ctxWorld.drawImage(
+        //             _game.spriteSheet,
+        //             this.asset.pos.col * this.w,
+        //             this.asset.pos.row * this.h,
+        //             this.w,
+        //             this.h,
+        //             this.x,
+        //             this.y,
+        //             this.w,
+        //             this.h
+        //         );
+        //     }
+        // }
+        if (this.asset.image) {
+            _ctxWorld.drawImage(this.asset.image, this.x, this.y, this.w, this.h);
         }
     }
     set(id) {
@@ -38,6 +58,12 @@ class AbstractSquare {
                 factor: 0
             }
         }
+    }
+    newItem() {
+        _game._player.items.addToCategory(this.asset);
+        this.remove();
+        _game.ui.inventory.resize();
+
     }
     remove() {
         this.set(0);

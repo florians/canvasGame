@@ -15,16 +15,9 @@ class Collectible extends AbstractSquare {
         _game._player.stats.addStat('es');
         this.remove();
     }
-    key() {
-        let key = new Collectible(this.parent, this.uid, _ctxUi);
-        key.asset = this.asset;
-        this.remove();
-        _game._player.items.push(key);
-        _game.ui.inventory.resize();
-    }
-    draw(){
-        if(this.asset.image){
-            this.canvas.drawImage(this.asset.image, this.x, this.y, this.h, this.w);
-        }
-    }
+    // draw(){
+    //     if(this.asset.image){
+    //         this.canvas.drawImage(this.asset.image, this.x, this.y, this.h, this.w);
+    //     }
+    // }
 }

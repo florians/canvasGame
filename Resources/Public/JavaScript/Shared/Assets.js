@@ -1,8 +1,21 @@
+
 class Assets {
     constructor(parent) {
         this.parent = parent;
         this.assets = [];
         this.assetsType = [];
+        this.assetLayers = [];
+        this.parent.spriteSheet = null;
+        this.generateSpriteSheet();
+    }
+    generateSpriteSheet() {
+        let image = new Image();
+        image.src = gameBaseUrl + 'SpriteSheet.webp';
+        image.onload = () => {
+            this.parent.preloader();
+        };
+        this.parent.spriteSheet = image;
+
     }
     /************************
      **** Setup Loader ******
@@ -11,7 +24,7 @@ class Assets {
         this.parent.loader.add('data', 'assets', {
             type: 'getAllAssets'
         });
-        this.parent.loader.add('data', 'assetsType', {
+        this.parent.loader.add('data', 'initAssetLayerTypes', {
             type: 'getAssetsType'
         });
     }
@@ -27,20 +40,23 @@ class Assets {
         }
         return this;
     }
-    initType(result) {
+    initAssetLayerTypes(result) {
         for (let i = 0; i < result.length; i++) {
-            this.assetsType.push(result[i].name);
+            if (!this.assetLayers[result[i].layer]) {
+                this.assetLayers[result[i].layer] = [];
+            }
+            this.assetLayers[result[i].layer].push(result[i].name);
         }
     }
     /************************
      ******** Getter ********
      ************************/
-    getTypes() {
-        return this.assetsType;
+    getTypes(type) {
+        return this.assetLayers[type];
     }
-    getTypeGroups(type) {
-        return this.typeGroups[type];
-    }
+    // getTypeGroups(type) {
+    //     return this.typeGroups[type];
+    // }
     getByType(type) {
         let assetArray = [];
         for (var i = 0; i < this.assets.length; i++) {
@@ -50,11 +66,23 @@ class Assets {
         }
         return assetArray;
     }
+    getByLayer(type) {
+        let assetArray = [];
+        for (var i = 0; i < this.assets.length; i++) {
+            if (this.assets[i] && this.assets[i].layer == type) {
+                assetArray.push(this.assets[i]);
+            }
+        }
+        return assetArray;
+    }
     get(id) {
         return this.assets[id];
     }
+    count() {
+        return this.assets.length;
+    }
     /************************
-     ****** Add Tile ********
+     ****** Add Asset ********
      ************************/
     add(result) {
         return new Asset(this.parent, result);

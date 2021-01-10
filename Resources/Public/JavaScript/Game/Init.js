@@ -6,7 +6,13 @@ const gameBaseUrl = 'Resources/Public/Images/Floor/',
     _ctxUi = document.getElementById('ui').getContext('2d', {
         desynchronized: true
     }),
+    _ctxLoader = document.getElementById('loader').getContext('2d', {
+        desynchronized: true
+    }),
     playerName = playerGet || prompt("Please enter your name");
+
+_ctxLoader.canvas.width = 100;
+_ctxLoader.canvas.height = 100;
 
 let showHitBox = false,
     _game = new Game(),
@@ -29,7 +35,7 @@ let showHitBox = false,
     cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 
 // start the game
-_game.preloader();
+//_game.preloader();
 
 // set fallback
 window.requestAnimationFrame = myRequestAnimationFrame;

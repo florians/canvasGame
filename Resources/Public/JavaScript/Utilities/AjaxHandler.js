@@ -49,14 +49,12 @@ class AjaxHandler {
     // needs fixing
     getFile(name, params) {
         return new Promise((resolve, reject) => {
-            return $.ajax({
-                method: 'POST',
-                url: this.url,
-                data: params,
-                processData: false,
-                contentType: false,
-                success: function(r) {
-                    let result = JSON.parse(r);
+            let xhr = new XMLHttpRequest();
+            xhr.open("POST", this.url, true);
+            //xhr.setRequestHeader("Content-Type", "multipart/form-data");
+            xhr.onreadystatechange = function() {
+                if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+                    let result = JSON.parse(this.responseText);
                     if (result.type == 'success') {
                         resolve({
                             name: name,
@@ -65,11 +63,12 @@ class AjaxHandler {
                     } else {
                         reject(result.msg);
                     }
-                },
-                error: function(err) {
-                    reject(err);
                 }
-            });
+            }
+            xhr.onerror = function() {
+                reject(this);
+            };
+            xhr.send(params);
         });
     }
 }

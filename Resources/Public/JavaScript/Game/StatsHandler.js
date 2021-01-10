@@ -47,7 +47,7 @@ class StatsHandler {
     }
     removeHp(damage) {
         if (this.es.current > 0) {
-            if (this.es.current > damage) {
+            if (this.es.current >= damage) {
                 this.es.current -= damage;
             } else {
                 damage -= this.es.current;

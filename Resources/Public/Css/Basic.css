@@ -1,5 +1,5 @@
 /*
-sassc /var/www/florian/www/Resources/Public/Scss/Basic.scss > /var/www/florian/www/Resources/Public/Css/Basic.css;sassc /var/www/florian/www/Resources/Public/Scss/Floor.scss > /var/www/florian/www/Resources/Public/Css/Floor.css;sassc /var/www/florian/www/Resources/Public/Scss/Game.scss > /var/www/florian/www/Resources/Public/Css/Game.css;sassc /var/www/florian/www/Resources/Public/Scss/Generator.scss > /var/www/florian/www/Resources/Public/Css/Generator.css;sassc /var/www/florian/www/Resources/Public/Scss/Assets.scss > /var/www/florian/www/Resources/Public/Css/Assets.css
+sassc /var/www/florian/www/Resources/Public/Scss/Basic.scss > /var/www/florian/www/Resources/Public/Css/Basic.css;sassc /var/www/florian/www/Resources/Public/Scss/Floor.scss > /var/www/florian/www/Resources/Public/Css/Floor.css;sassc /var/www/florian/www/Resources/Public/Scss/Game.scss > /var/www/florian/www/Resources/Public/Css/Game.css;sassc /var/www/florian/www/Resources/Public/Scss/Generator.scss > /var/www/florian/www/Resources/Public/Css/Generator.css;sassc /var/www/florian/www/Resources/Public/Scss/AssetGenerator.scss > /var/www/florian/www/Resources/Public/Css/AssetGenerator.css
 */
 /***********************************
 *************** reset **************
@@ -12,3 +12,7 @@ sassc /var/www/florian/www/Resources/Public/Scss/Basic.scss > /var/www/florian/w
 body {
   height: 100vh;
   display: block; }
+
+#loader {
+  position: fixed;
+  left: -1000px; }

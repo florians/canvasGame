@@ -9,7 +9,7 @@ class Player extends AbstractCharacter {
         this.offsetRight = Math.round(this.w / 2);
         this.x = 0;
         this.y = 0;
-        this.items = [];
+        this.items = new Items();
         this.skills = [];
         this.uid = 0;
         this.name = '';

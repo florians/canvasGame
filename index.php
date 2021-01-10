@@ -10,6 +10,7 @@ $jsFiles = [
         'Resources/Public/JavaScript/UserInterface/Windows.js',
         'Resources/Public/JavaScript/UserInterface/Window.js',
         'Resources/Public/JavaScript/UserInterface/Grid.js',
+        'Resources/Public/JavaScript/UserInterface/CraftingHandler.js',
         'Resources/Public/JavaScript/UserInterface/Bars.js',
         'Resources/Public/JavaScript/UserInterface/Bar.js',
 
@@ -20,27 +21,31 @@ $jsFiles = [
     // Floors
     'Resources/Public/JavaScript/Shared/Floors.js',
         'Resources/Public/JavaScript/Game/Floor.js',
-            // Abstract
-            'Resources/Public/JavaScript/Abstract/AbstractSquares.js',
-                'Resources/Public/JavaScript/Abstract/AbstractSquare.js',
-            'Resources/Public/JavaScript/Abstract/AbstractCharacter.js',
+        // Abstract
+        'Resources/Public/JavaScript/Abstract/AbstractSquares.js',
+            'Resources/Public/JavaScript/Abstract/AbstractSquare.js',
+        'Resources/Public/JavaScript/Abstract/AbstractCharacter.js',
 
-            // Tiles
-            'Resources/Public/JavaScript/Shared/Tiles.js',
-                'Resources/Public/JavaScript/Shared/Tile.js',
-            // Collectibles
-            'Resources/Public/JavaScript/Shared/Collectibles.js',
-                'Resources/Public/JavaScript/Shared/Collectible.js',
-            // Interactions
-            'Resources/Public/JavaScript/Shared/Interactions.js',
-                'Resources/Public/JavaScript/Shared/Interaction.js',
-            // Battle
-            'Resources/Public/JavaScript/Game/Challengers.js',
-            'Resources/Public/JavaScript/Game/Battle.js',
+        // Tiles
+        'Resources/Public/JavaScript/Shared/Tiles.js',
+            'Resources/Public/JavaScript/Shared/Tile.js',
+        // Collectibles
+        'Resources/Public/JavaScript/Shared/Collectibles.js',
+            'Resources/Public/JavaScript/Shared/Collectible.js',
+        // Interactions
+        'Resources/Public/JavaScript/Shared/Interactions.js',
+            'Resources/Public/JavaScript/Shared/Interaction.js',
+        // Battle
+        'Resources/Public/JavaScript/Game/Challengers.js',
+        'Resources/Public/JavaScript/Game/Battle.js',
 
     // Skills
     'Resources/Public/JavaScript/Game/Skills.js',
         'Resources/Public/JavaScript/Game/Skill.js',
+
+    // Items
+    'Resources/Public/JavaScript/Game/Items.js',
+        'Resources/Public/JavaScript/Game/Item.js',
 
     // Actions
     'Resources/Public/JavaScript/Game/Actions.js',
@@ -89,6 +94,7 @@ $cssFiles = [
 		<div class='rect3'></div>
 		<div class='rect4'></div>
 		<div class='rect5'></div>
+        <canvas id="loader"></canvas>
 	</div>
 	<div id='mobileControls'></div>
 

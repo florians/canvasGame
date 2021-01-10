@@ -1,8 +1,9 @@
 class Windows {
-    constructor(objs = null) {
+    constructor(parent, objs = null) {
+        this.parent = parent;
         this.layer = [];
         this.isVisible = false;
-        if(objs){
+        if (objs) {
             this.addMultiple(objs);
         }
     }
@@ -28,8 +29,9 @@ class Windows {
     }
     show() {
         _game.stop();
-        this.draw();
+        //this.draw();
         this.isVisible = true;
+        this.parent.draw();
     }
     hide() {
         this.isVisible = false;

@@ -5,30 +5,13 @@ class UserInterface {
         this.repaint = false;
 
         // Skill Book
-        this.skillBook = new Windows(this.generateSkillBook());
+        this.skillBook = new Windows(this, this.generateSkillBook());
         // Inventory
-        this.inventory = new Windows(this.generateInventory());
-        // recipes
-        this.recipes = [];
+        this.inventory = new Windows(this, this.generateInventory());
+        this.buttonBar = ["SkillBook", "Inventory"];
+        this.buttons = [];
+        this.generateButtons();
         this.resize();
-    }
-    load() {
-        _game.loader.add('data', 'getAllRecipes', {
-            type: 'getAllRecipes'
-        });
-    }
-    setRecipe(result) {
-        for (let i = 0; i < result.length; i++) {
-            let newRecipe = {
-                name: result[i].name,
-                uid: parseInt(result[i].uid),
-                asset: _game._assets.get(result[i].asset),
-                req: JSON.parse(result[i].req),
-                show: false,
-            }
-            this.recipes[newRecipe.uid] = newRecipe;
-        }
-        this.craftingStation.recipes = _game._assets;
     }
 
     draw() {
@@ -52,6 +35,9 @@ class UserInterface {
         }
         if (this.inventory.isVisible) {
             this.inventory.draw();
+        }
+        if (!_game.battle) {
+            this.drawButtons();
         }
         _ctxUi.restore();
     }
@@ -119,6 +105,32 @@ class UserInterface {
         }
     }
 
+    /************************
+     ****** Buttons *******
+     ************************/
+    generateButtons() {
+        this.buttons = [];
+        for (let i = 0; i < this.buttonBar.length; i++) {
+            let button = {
+                name: this.buttonBar[i],
+                el: this[this.buttonBar[i].charAt(0).toLowerCase() + this.buttonBar[i].substring(1)],
+                x: (150 * i) + (i * 5),
+                y: _ctxUi.canvas.height - 40,
+                w: 150,
+                h: 40,
+            }
+            this.buttons.push(button);
+        }
+    }
+    drawButtons() {
+        for (let i = 0; i < this.buttons.length; i++) {
+            _ctxUi.fillStyle = '#00F';
+            _ctxUi.fillRect(this.buttons[i].x, this.buttons[i].y, this.buttons[i].w, this.buttons[i].h);
+            _ctxUi.font = '30px Arial';
+            _ctxUi.fillStyle = '#000';
+            _ctxUi.fillText(this.buttons[i].name, this.buttons[i].x + 5, this.buttons[i].y + 30);
+        }
+    }
     addItem(target, type, uid) {
         this.repaint = true;
         let item = _game._assets.get(uid);
@@ -141,13 +153,13 @@ class UserInterface {
      ***** Use Skill ********
      ************************/
     useSkill(event) {
+        var mPos = {
+            x: event.clientX,
+            y: event.clientY
+        };
         if (document.body.classList.contains('suspended')) {
-            var mPos = {
-                x: event.clientX,
-                y: event.clientY
-            };
             if (_game.battle && _game.battle.turn == 'player') {
-                for (var i = 0; i < _game._player.skills.length; i++) {
+                for (let i = 0; i < _game._player.skills.length; i++) {
                     if (this.isColliding(mPos, _game._player.skills[i])) {
                         _game.battle.addAction(_game._player.skills[i]);
                         break;
@@ -155,7 +167,7 @@ class UserInterface {
                 }
             }
             if (!_game.battle && _game.ui.inventory.show) {
-                for (var i = 0; i < this.craftingStation.recipes.length; i++) {
+                for (let i = 0; i < this.craftingStation.recipes.length; i++) {
                     if (!this.craftingStation.recipes[i]) {
                         continue;
                     }
@@ -163,6 +175,20 @@ class UserInterface {
 
                         this.craftingStation.use(this.craftingStation.recipes[i]);
                         break;
+                    }
+                }
+            }
+        }
+        // buttons
+        if (!_game.battle) {
+            for (let i = 0; i < this.buttons.length; i++) {
+                if (this.isColliding(mPos, this.buttons[i])) {
+                    // ugly
+                    if (this.buttons[i].name == 'Inventory') {
+                        this.showInventory();
+                    }
+                    if (this.buttons[i].name == 'SkillBook') {
+                        this.showSkillBook();
                     }
                 }
             }
@@ -180,6 +206,7 @@ class UserInterface {
         if (_game.battle) {
             _game.battle.resize();
         }
+        this.generateButtons();
         this.skillBook.resize();
         this.inventory.resize();
     }

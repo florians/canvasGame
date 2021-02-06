@@ -1,4 +1,4 @@
-assets-- DROP DATABASE `Game`;
+-- DROP DATABASE `Game`;
 -- CREATE DATABASE IF NOT EXISTS `Game`;
 -- USE `Game`;
 

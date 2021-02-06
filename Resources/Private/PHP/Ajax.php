@@ -378,7 +378,7 @@ function saveAssets($db, $json, $file)
         $sorting = $db->select('assets', 'sorting', ['type' => $typeuid, 'ORDER' => ['sorting' => 'DESC'], 'LIMIT' => 1]);
         $db->insert('assets', [
             'name' => $name,
-            'source' => $name . '.png',
+            'source' => $name . '.webp',
             'collision' => $collision,
             'sorting' => $sorting[0] + 1,
             'type' => $typeuid,

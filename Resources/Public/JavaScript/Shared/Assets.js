@@ -66,6 +66,14 @@ class Assets {
         }
         return assetArray;
     }
+    getByName(name) {
+        let assetArray = [];
+        for (var i = 0; i < this.assets.length; i++) {
+            if (this.assets[i] && this.assets[i].name == name) {
+                return this.assets[i];
+            }
+        }
+    }
     getByLayer(type) {
         let assetArray = [];
         for (var i = 0; i < this.assets.length; i++) {
@@ -87,8 +95,4 @@ class Assets {
     add(result) {
         return new Asset(this.parent, result);
     }
-
-    // garbage collection
-    // remove(){
-    // }
 }

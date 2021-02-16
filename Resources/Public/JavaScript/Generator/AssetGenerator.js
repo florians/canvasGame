@@ -13,6 +13,8 @@ class AssetGenerator {
         this.mousehandler.add('.saveAsset', 'click', 'saveFile');
         this.mousehandler.add('#grid', 'click', 'loadAsset');
         this.mousehandler.add('.addToGrid', 'click', 'addToGrid');
+        this.mousehandler.add('.requirements .new', 'click', 'showRequirements');
+        this.mousehandler.add('.custom .close', 'click', 'hideRequirements');
 
         // change
         this.mousehandler.add('#file', 'change', 'readImage');
@@ -124,6 +126,7 @@ class AssetGenerator {
             oldType = data[i].type;
         }
         $('select.' + className).append(array.join(''));
+        this.listAssets();
     }
     loadAsset(e) {
         var mPos = {
@@ -153,6 +156,13 @@ class AssetGenerator {
         this.fillForm();
         this.drawSingle();
     }
+    prepareRequirements() {
+        let reqArray = [];
+        for (let i = 0; i < this.upload.req.length; i++) {
+            reqArray.push('#' + this.upload.req[i].amount + '*' + this.upload.req[i].asset.uid);
+        }
+        return reqArray.join(',');
+    }
     saveFile(event) {
         if (this.upload.image) {
             let upload = {
@@ -161,7 +171,7 @@ class AssetGenerator {
                 //layer: "tiles"
                 name: $('.tile-name').val(),
                 typeuid: parseInt($('select.tile-type').val()),
-                req: $('input.tile-req').val() || null,
+                req: this.prepareRequirements(),
                 type: this.upload.type,
                 uid: parseInt(this.upload.uid)
             };
@@ -208,12 +218,41 @@ class AssetGenerator {
             $('input.tile-name').val(this.upload.name);
             $('span.tile-name').text(this.upload.name);
         }
-        if (this.upload.image) {
-            $('span.tile-extension').text('.' + this.upload.image.src.replace(/^.*\./, ''));
-        }
         $('.tile-collision').val(this.upload.collision);
-        $('.tile-req').val(JSON.stringify(this.upload.req));
+        $('.req-container').html('');
+        this.setRequirements();
         $('.tile-pos').val(JSON.stringify(this.upload.pos));
+    }
+    addRequirements(e) {
+        let amount = parseInt($('.custom .amount').val());
+        if (amount) {
+            let uid = $(e.target).parent().data('uid');
+            this.upload.addRequirements(uid, amount);
+            this.hideRequirements();
+            $('.req-container').html('');
+            this.setRequirements();
+        }
+    }
+    showRequirements(e) {
+        $('.custom').show();
+    }
+    hideRequirements() {
+        $('.custom').hide();
+        $('.custom .amount').val('');
+    }
+    setRequirements() {
+        let html = [];
+        if (this.upload.req.length > 0) {
+            for (var i = 0; i < this.upload.req.length; i++) {
+                html.push('<div class="req g100 block padding-tb-s">');
+                html.push('<img class="g10 padding-lr-s" src="' + this.upload.req[i].asset.image.src + '" />');
+                html.push('<span class="g30 padding-lr-s">' + this.upload.req[i].asset.name + '</span>');
+                html.push('<input type="number" value="' + this.upload.req[i].amount + '" class="req-amount g20" />');
+                html.push('<div class="del inline">D</div>');
+                html.push('</div>');
+            }
+        }
+        $('.req-container').append(html.join(''));
     }
     setUploadSize() {
         this.upload.h = this.upload.image.height * (this.h / 100);
@@ -234,6 +273,33 @@ class AssetGenerator {
         _ctxWorld.canvas.width = this.w;
         _ctxWorld.canvas.height = this.h;
         this.drawSingle();
+    }
+    listAssets() {
+        let htmlArray = [];
+        let typeArray = [{
+                key: 'Material',
+                items: this.parent._assets.getByType('material')
+            },
+            {
+                key: 'Craftable',
+                items: this.parent._assets.getByType('craftable')
+            }
+        ];
+        let extraClass = '';
+        for (let typeI = 0; typeI < typeArray.length; typeI++) {
+            let items = typeArray[typeI].items;
+            extraClass = typeI == 0 ? 'active' : '';
+            htmlArray.push('<div class="asset-layer layer-' + typeArray[typeI].key + '">');
+            htmlArray.push('<div class="title">' + typeArray[typeI].key + '</div>');
+            for (let itemsI = 0; itemsI < items.length; itemsI++) {
+                htmlArray.push('<div class="asset inline" data-uid="' + items[itemsI].uid + '"><img src="' + items[itemsI].image.src + '" /></div>');
+            }
+            htmlArray.push('</div>');
+        }
+        $('.custom-container').append(htmlArray.join(''));
+        this.mousehandler.add('.custom-container .asset', 'click', 'addRequirements');
+        //$('.asset-layer.active .assetGroup .title').first().click();
+        //this.mousehandler.add('aside .asset', 'click', 'changeAsset');
     }
     /**********************************
      * keyboardHandler & mousehandler *

@@ -10,7 +10,7 @@ class DataHandler {
             compressed = [];
         for (let row = 0; row < this.parent.height; row++) {
             for (let col = 0; col < this.parent.width; col++) {
-                if (data.get(row, col).isEmpty) {
+                if (data.get(row, col).isEmpty) { // & data.get(row, col).req == 0
                     counter++;
                     uid = '';
                 } else {
@@ -19,6 +19,10 @@ class DataHandler {
                     } else {
                         uid = data.get(row, col).asset.uid;
                     }
+                    //console.log(data.get(row, col));
+                    // if(data.get(row, col).req) {
+                    //     // do stuff
+                    // }
                 }
                 if (uid) {
                     if (counter > 0) {
@@ -58,27 +62,49 @@ class DataHandler {
         let decompressedData = [],
             counter = 0,
             amount = 0,
-            uid = 0;
+            uid = 0,
+            req = {},
+            reqArray = [];
         data = data.split(',');
         for (let i = 0; i < data.length; i++) {
+            req = {};
             // add emtpy fields when #number
-            if (data[i].includes('#')) {
+            let firstChar = data[i].substring(0, 1);
+            if (firstChar == "#") {
                 if (data[i].includes('|')) {
                     data[i] = data[i].slice(1);
-                    amount = data[i].split('|')[0];
-                    uid = data[i].split('|')[1];
+                    amount = data[i].split('|')[0]; // *
+                    uid = data[i].split('|')[1]; // *
+                    reqArray = data[i].split('|')[2];
+                    if (reqArray) {
+                        req = this.extractRequirements(reqArray);
+                    }
                 } else {
                     amount = data[i].slice(1);
                     uid = '';
                 }
                 for (let includes = 0; includes < amount; includes++) {
-                    decompressedData[counter] = uid.trim();
+                    let dataArray = [];
+                    if (Object.keys(req).length !== 0) {
+                        dataArray.push(uid.trim());
+                        dataArray.push(req);
+                    } else {
+                        dataArray = uid.trim();
+                    }
+                    decompressedData[counter] = dataArray;
                     counter++;
                 }
             } else {
                 // split on | when more data
                 if (data[i].includes('|')) {
-                    decompressedData[counter] = data[i].split('|');
+                    let dataArray = data[i].split('|');
+                    if (dataArray[1].includes('#')) {
+                        reqArray = data[i].split('|')[1];
+                        if (reqArray) {
+                            dataArray[1] = this.extractRequirements(reqArray);
+                        }
+                    }
+                    decompressedData[counter] = dataArray;
                 } else {
                     decompressedData[counter] = data[i].trim();
                 }
@@ -86,5 +112,15 @@ class DataHandler {
             }
         }
         return decompressedData;
+    }
+
+    extractRequirements(reqArray) {
+        let req = {};
+        reqArray = reqArray.split(';');
+        for (let reqI = 0; reqI < reqArray.length; reqI++) {
+            let newReq = reqArray[reqI].slice(1);
+            req[newReq.split('*')[1]] = newReq.split('*')[0];
+        }
+        return req;
     }
 }

@@ -44,9 +44,15 @@
                     <label class="g30 inline">Collision</label>
                     <input class="tile-collision g70 inline" />
                 </div>
-                <div class="g100 inline padding-tb-s">
-                    <label class="g30 inline">Requirements</label>
-                    <input class="tile-req g70 inline" />
+                <div class="g100 requirements padding-tb-s">
+                    <div class="g100 inline padding-tb-s">
+                        <label class="g30 inline">Requirements</label>
+                        <div class="new g70 inline padding-tb-s">New Requirements</div>
+                    </div>
+                    <div class="g100 inline padding-tb-s">
+                        <label class="g30 inline"></label>
+                        <div class="req-container g70"></div>
+                    </div>
                 </div>
                 <div class="g100 inline padding-tb-s">
                     <label class="g30 inline">Position</label>
@@ -55,7 +61,7 @@
                 <div class="g100 inline padding-tb-s spacer">
                     <label class="g30 inline">Save Path:</label>
                     <label class="inline">
-                        Resources/Images/Floor/<span class="tile-folder"></span>/<span class="tile-name"></span><span class="tile-extension"></span>
+                        Resources/Images/Floor/<span class="tile-folder"></span>/<span class="tile-name"></span>.webp
                     </label>
                 </div>
                 <!-- <div class="g100 inline padding-tb-s">
@@ -83,6 +89,22 @@
                 </div>
                 <div class="inputContainer g100 inline padding-tb-s">
                     <input type="submit" class="deleteAsset" value="Delete Asset" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="custom block padding-tb padding-lr">
+        <div class="g100 inline">
+            <div class="g100">
+                <div class="inputContainer g100 inline padding-tb-s">
+                    <label class="g30 inline">Amount</label>
+                    <input class="amount g70 inline" type="number" min="0" />
+                </div>
+                <div class="custom-container"></div>
+                <div class="flex flex-s">
+                    <div class="g50 inline padding-lr-s">
+                        <input type="submit" class="close" value="Close" />
+                    </div>
                 </div>
             </div>
         </div>

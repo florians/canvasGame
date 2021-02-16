@@ -1,4 +1,3 @@
-
 class Assets {
     constructor(parent) {
         this.parent = parent;
@@ -15,7 +14,6 @@ class Assets {
             this.parent.preloader();
         };
         this.parent.spriteSheet = image;
-
     }
     /************************
      **** Setup Loader ******
@@ -38,6 +36,7 @@ class Assets {
         for (let i = 0; i < result.length; i++) {
             this.assets[result[i].uid] = this.add(result[i]);
         }
+        this.setRequirements();
         return this;
     }
     initAssetLayerTypes(result) {
@@ -88,6 +87,18 @@ class Assets {
     }
     count() {
         return this.assets.length;
+    }
+    setRequirements() {
+        for (var i = 0; i < this.assets.length; i++) {
+            if (!this.assets[i]) {
+                continue;
+            }
+            if (this.assets[i].req !== null && this.assets[i].req != 'null') {
+                this.assets[i].setRequirements();
+            } else {
+                this.assets[i].req = [];
+            }
+        }
     }
     /************************
      ****** Add Asset ********

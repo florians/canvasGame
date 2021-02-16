@@ -76,3 +76,21 @@
 .subtypeInfo.active {
     display: block;
 }
+
+.custom {
+    display: none;
+    top: 50%;
+    transform: translateY(-50%);
+    margin: auto;
+    background-color: #b7b7b7;
+    position: fixed;
+    max-width: 300px;
+    margin: auto;
+    left: 0;
+    right: 0;
+    padding: 20px;
+
+    &.active {
+        display: block;
+    }
+}

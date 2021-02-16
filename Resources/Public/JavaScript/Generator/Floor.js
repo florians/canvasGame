@@ -422,13 +422,13 @@ class Floor {
         if (this.interactions.getCount()) {
             floor.interactions = this.dataHandler.compress(this.interactions);
         }
-        if (this.level > 0) {
-            this.parent.loader.add('data', 'assets', {
-                type: 'saveFloor',
-                json: JSON.stringify(floor)
-            });
-            this.parent.loader.run();
-        }
+        // if (this.level > 0) {
+        //     this.parent.loader.add('data', 'assets', {
+        //         type: 'saveFloor',
+        //         json: JSON.stringify(floor)
+        //     });
+        //     this.parent.loader.run();
+        // }
     }
     resetForm() {
         this.setHeight(20);

@@ -96,10 +96,6 @@ function getAllAssets($db)
         ],
         [
             'assets.deleted' => 0,
-            'ORDER' => [
-                'assets.sorting',
-                'assets_type.name',
-            ],
         ]
     );
     if (count($result)) {

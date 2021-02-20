@@ -422,13 +422,13 @@ class Floor {
         if (this.interactions.getCount()) {
             floor.interactions = this.dataHandler.compress(this.interactions);
         }
-        // if (this.level > 0) {
-        //     this.parent.loader.add('data', 'assets', {
-        //         type: 'saveFloor',
-        //         json: JSON.stringify(floor)
-        //     });
-        //     this.parent.loader.run();
-        // }
+        if (this.level > 0) {
+            this.parent.loader.add('data', 'assets', {
+                type: 'saveFloor',
+                json: JSON.stringify(floor)
+            });
+            this.parent.loader.run();
+        }
     }
     resetForm() {
         this.setHeight(20);
@@ -483,7 +483,8 @@ class Floor {
         let row = $('aside .custom .custom-hidden').attr('data-row'),
             col = $('aside .custom .custom-hidden').attr('data-col'),
             level = $('aside .custom .level').val();
-        this.tiles.get(row, col).level = parseInt(level);
+
+        this.interactions.get(row, col).level = parseInt(level);
         this.parent.msg('success', 'Level ' + level + ' has been set');
         $('aside .custom').removeClass('active');
     }

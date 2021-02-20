@@ -16,8 +16,10 @@ class AssetGenerator {
         this.mousehandler.add('.requirements .new', 'click', 'showRequirements');
         this.mousehandler.add('.custom .close', 'click', 'hideRequirements');
 
+
         // change
         this.mousehandler.add('#file', 'change', 'readImage');
+        this.mousehandler.add('.tile-type', 'change', 'fillAssetTypeInfo');
         //this.mousehandler.add('.tiles', 'change', 'loadAsset');
         // drag & drop
         this.mousehandler.add('body', 'dragover', 'dragover');
@@ -83,9 +85,9 @@ class AssetGenerator {
         this.generateGrid(1);
     }
     load() {
-        this.parent.loader.add('data', 'fillAssetTypeSelect', {
-            type: 'getAssetsType'
-        });
+        // this.parent.loader.add('data', 'fillAssetTypeSelect', {
+        //     type: 'getAssetsType'
+        // });
     }
     readImage(e) {
         let file = null;
@@ -159,16 +161,22 @@ class AssetGenerator {
     prepareRequirements() {
         let reqArray = [];
         for (let i = 0; i < this.upload.req.length; i++) {
-            reqArray.push('#' + this.upload.req[i].amount + '*' + this.upload.req[i].asset.uid);
+            if (this.upload.req[i].amount > 0) {
+                reqArray.push(this.upload.req[i].amount + '*' + this.upload.req[i].asset.uid);
+            }
         }
-        return reqArray.join(',');
+        if (reqArray.length > 0) {
+            return reqArray.join(',');
+        } else {
+            return null;
+        }
     }
     saveFile(event) {
         if (this.upload.image) {
             let upload = {
                 collision: $('.tile-collision').val() || "false",
-                factor: $('.tile-factor').val(),
-                //layer: "tiles"
+                factor: parseFloat($('.tile-factor').val()),
+                layer: $('.tile-layer').val(),
                 name: $('.tile-name').val(),
                 typeuid: parseInt($('select.tile-type').val()),
                 req: this.prepareRequirements(),
@@ -182,9 +190,9 @@ class AssetGenerator {
             formData.append('type', 'saveAssets');
             formData.append('json', JSON.stringify(upload));
             formData.append('file', imgDataUrl);
-            this.parent.loader.add('file', 'assets', formData);
-            //$('#newImg').attr('src', image);
+            this.parent.loader.add('file', '', formData);
             this.parent.loader.run();
+            this.parent.loader.clear();
 
             let dataUrlToImage = new Image();
             dataUrlToImage.src = imgDataUrl;
@@ -200,16 +208,29 @@ class AssetGenerator {
         var formData = new FormData();
         formData.append('type', 'saveSpriteSheet');
         formData.append('file', imgDataUrl);
-        this.parent.loader.add('file', 'assets', formData);
+        this.parent.loader.add('file', '', formData);
         this.parent.loader.run();
+    }
+    fillAssetTypeInfo(e) {
+        let asset = this.parent._assets.getLayerWidthTypeuid(e.target.value);
+        if (asset.layer) {
+            $('.tile-layer').val(asset.layer);
+        }
+        if (asset.factor) {
+            $('.tile-factor').val(asset.factor);
+        }
     }
     fillForm() {
         $('input.tile-name').val('new');
+        $('span.tile-name').text($('input.tile-name').val());
         if (this.upload.typeuid) {
             $('select.tile-type').val(this.upload.typeuid);
         }
         if (this.upload.type) {
             $('.tile-folder').text(this.upload.type);
+        }
+        if (this.upload.layer) {
+            $('.tile-layer').val(this.upload.layer);
         }
         if (this.upload.factor) {
             $('.tile-factor').val(this.upload.factor);
@@ -219,40 +240,34 @@ class AssetGenerator {
             $('span.tile-name').text(this.upload.name);
         }
         $('.tile-collision').val(this.upload.collision);
-        $('.req-container').html('');
-        this.setRequirements();
+        if (this.upload.req) {
+            this.setRequirements();
+        }
         $('.tile-pos').val(JSON.stringify(this.upload.pos));
     }
     addRequirements(e) {
-        let amount = parseInt($('.custom .amount').val());
-        if (amount) {
-            let uid = $(e.target).parent().data('uid');
-            this.upload.addRequirements(uid, amount);
-            this.hideRequirements();
-            $('.req-container').html('');
-            this.setRequirements();
-        }
+        let uid = e.target.parentElement.parentElement.dataset.uid;
+        this.upload.addRequirements(uid);
+        this.setRequirements();
+    }
+    removeRequirements(e) {
+        let uid = e.target.parentElement.parentElement.dataset.uid;
+        this.upload.removeRequirements(uid);
+        this.setRequirements();
     }
     showRequirements(e) {
         $('.custom').show();
+        this.setRequirements();
     }
     hideRequirements() {
         $('.custom').hide();
         $('.custom .amount').val('');
     }
     setRequirements() {
-        let html = [];
-        if (this.upload.req.length > 0) {
-            for (var i = 0; i < this.upload.req.length; i++) {
-                html.push('<div class="req g100 block padding-tb-s">');
-                html.push('<img class="g10 padding-lr-s" src="' + this.upload.req[i].asset.image.src + '" />');
-                html.push('<span class="g30 padding-lr-s">' + this.upload.req[i].asset.name + '</span>');
-                html.push('<input type="number" value="' + this.upload.req[i].amount + '" class="req-amount g20" />');
-                html.push('<div class="del inline">D</div>');
-                html.push('</div>');
-            }
+        $('.custom-container .asset .counter').html('0');
+        for (let i = 0; i < this.upload.req.length; i++) {
+            $('.custom-container .asset[data-uid=' + this.upload.req[i].asset.uid + '] .counter').html(this.upload.req[i].amount);
         }
-        $('.req-container').append(html.join(''));
     }
     setUploadSize() {
         this.upload.h = this.upload.image.height * (this.h / 100);
@@ -289,17 +304,22 @@ class AssetGenerator {
         for (let typeI = 0; typeI < typeArray.length; typeI++) {
             let items = typeArray[typeI].items;
             extraClass = typeI == 0 ? 'active' : '';
-            htmlArray.push('<div class="asset-layer layer-' + typeArray[typeI].key + '">');
-            htmlArray.push('<div class="title">' + typeArray[typeI].key + '</div>');
+            htmlArray.push('<div class="asset-layer spacer padding-lr-s padding-tb-s g50 flex layer-' + typeArray[typeI].key + '">');
+            htmlArray.push('<div class="title"><strong>' + typeArray[typeI].key + '</strong></div>');
             for (let itemsI = 0; itemsI < items.length; itemsI++) {
-                htmlArray.push('<div class="asset inline" data-uid="' + items[itemsI].uid + '"><img src="' + items[itemsI].image.src + '" /></div>');
+                htmlArray.push('<div class="asset flex flex-align-center flex-space-between g100 padding-tb-s" data-uid="' + items[itemsI].uid + '">');
+                htmlArray.push('<img width="40" src="' + items[itemsI].image.src + '" />');
+                htmlArray.push('<span class="padding-tb-s padding-lr-s">' + items[itemsI].name + '</span>');
+                htmlArray.push('<div class="flex"><button class="remove padding-tb-s padding-lr-s">-</button>');
+                htmlArray.push('<span class="counter padding-tb-s padding-lr-s">0</span>');
+                htmlArray.push('<button class="add padding-tb-s padding-lr-s">+</button></div>');
+                htmlArray.push('</div>');
             }
             htmlArray.push('</div>');
         }
         $('.custom-container').append(htmlArray.join(''));
-        this.mousehandler.add('.custom-container .asset', 'click', 'addRequirements');
-        //$('.asset-layer.active .assetGroup .title').first().click();
-        //this.mousehandler.add('aside .asset', 'click', 'changeAsset');
+        this.mousehandler.add('.custom-container .asset .remove', 'click', 'removeRequirements');
+        this.mousehandler.add('.custom-container .asset .add', 'click', 'addRequirements');
     }
     /**********************************
      * keyboardHandler & mousehandler *

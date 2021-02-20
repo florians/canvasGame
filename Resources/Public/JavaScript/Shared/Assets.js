@@ -66,17 +66,23 @@ class Assets {
         return assetArray;
     }
     getByName(name) {
-        let assetArray = [];
         for (var i = 0; i < this.assets.length; i++) {
             if (this.assets[i] && this.assets[i].name == name) {
                 return this.assets[i];
             }
         }
     }
-    getByLayer(type) {
+    getLayerWidthTypeuid(typeuid) {
+        for (var i = 0; i < this.assets.length; i++) {
+            if (this.assets[i] && this.assets[i].typeuid == typeuid) {
+                return this.assets[i];
+            }
+        }
+    }
+    getByLayer(layer) {
         let assetArray = [];
         for (var i = 0; i < this.assets.length; i++) {
-            if (this.assets[i] && this.assets[i].layer == type) {
+            if (this.assets[i] && this.assets[i].layer == layer) {
                 assetArray.push(this.assets[i]);
             }
         }
@@ -93,7 +99,7 @@ class Assets {
             if (!this.assets[i]) {
                 continue;
             }
-            if (this.assets[i].req !== null && this.assets[i].req != 'null') {
+            if (this.assets[i].req !== null && this.assets[i].req != 'null' && this.assets[i].req.length !== 0) {
                 this.assets[i].setRequirements();
             } else {
                 this.assets[i].req = [];

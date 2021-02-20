@@ -21,12 +21,10 @@ class Generator {
         }
         if (this.generatorType == 'AssetGenerator') {
             this._assets.load();
-            // run earlier so it can load all images
-            this.loader.run();
-            this.assetGenerator.load();
         }
         // calls > preloaderResult
         this.loader.run();
+        this.loader.clear();
     }
     /************************
      ***** Loader init ******
@@ -34,17 +32,18 @@ class Generator {
     preloaderResult(result) {
         if (result.length == 1) {
             this.msg(result[0].data.type, result[0].data.msg);
+            return;
         }
         for (let i = 0; i < result.length; i++) {
             if (result[i].name == 'assets') {
                 this._assets.init(result[i].data.result);
             }
-            if (result[i].name == 'fillAssetTypeSelect') {
-                this.assetGenerator.fillAssetTypeSelect(result[i].data.result, 'tile-type');
-                this.assetGenerator.generateGrid();
-            }
             if (result[i].name == 'initAssetLayerTypes') {
                 this._assets.initAssetLayerTypes(result[i].data.result);
+                if (this.generatorType == 'AssetGenerator') {
+                    this.assetGenerator.fillAssetTypeSelect(result[i].data.result, 'tile-type');
+                    this.assetGenerator.generateGrid();
+                }
             }
             if (result[i].name == 'floors') {
                 this._floors.init(result[i].data.result);

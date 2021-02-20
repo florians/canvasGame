@@ -337,6 +337,7 @@ function saveAssets($db, $json, $file)
 
     $uid = $jsonObj->{'uid'};
     $name = $jsonObj->{'name'};
+    $layer = $jsonObj->{'layer'};
     $factor = $jsonObj->{'factor'};
     $source = $jsonObj->{'source'};
     $collision = $jsonObj->{'collision'};
@@ -356,6 +357,7 @@ function saveAssets($db, $json, $file)
     if ($uid) {
         $db->update('assets_type', [
             'factor' => $factor,
+            'layer' => $layer,
         ], [
             'uid' => $typeuid,
         ]);

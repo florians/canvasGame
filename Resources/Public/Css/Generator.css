@@ -109,7 +109,9 @@ input[type="file"],
 
 .flex {
   display: flex;
-  flex-wrap: wrap; }
+  flex-wrap: wrap;
+  box-sizing: border-box;
+  align-items: baseline; }
 
 .block {
   display: block; }
@@ -137,6 +139,12 @@ input[type="file"],
 
 .flex-min {
   min-width: 250px; }
+
+.flex-space-between {
+  justify-content: space-between; }
+
+.flex-align-center {
+  align-items: center; }
 
 .g10 {
   width: 10%; }

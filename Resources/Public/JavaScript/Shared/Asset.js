@@ -3,6 +3,7 @@ class Asset {
         this.parent = parent;
         this.factor = parseFloat(result.factor);
         this.name = result.name;
+        this.layer = result.layer;
         this.sorting = parseInt(result.sorting);
         this.source = result.source;
         this.type = result.type;
@@ -16,7 +17,7 @@ class Asset {
         }
         this.h = 100;
         this.w = 100;
-        
+
         this.setUid(result.uid);
         this.setCollision(result.collision);
         this.loadImage();
@@ -73,27 +74,43 @@ class Asset {
         }
         return false;
     }
-    addRequirements(uid, amount) {
+    addRequirements(uid) {
         let newReq = {
             asset: this.parent._assets.get(uid),
-            amount: parseInt(amount)
+            amount: 1
         }
         let reqExsists = this.getRequirements(newReq.asset.name);
         if (reqExsists) {
-            reqExsists.amount += newReq.amount;
+            reqExsists.amount += 1;
         } else {
             this.req.push(newReq);
         }
     }
+    removeRequirements(uid) {
+        let reqExsists = this.getRequirements(this.parent._assets.get(uid).name);
+        if (reqExsists) {
+            reqExsists.amount -= 1;
+        }
+    }
     setRequirements() {
         let requirements = [];
-        let reqParts = this.req.split(',');
+        let reqParts = [];
+        if (this.req.includes(',')) {
+            reqParts = this.req.split(',');
+        } else {
+            reqParts.push(this.req);
+        }
         let newReq = {};
         for (let i = 0; i < reqParts.length; i++) {
-            let part = reqParts[i].slice(1);
+            let parts = [];
+            if (reqParts[i].includes('*')) {
+                parts = reqParts[i].split('*')
+            } else {
+                parts = reqParts[i];
+            }
             newReq = {
-                asset: this.parent._assets.get(part.split('*')[1]),
-                amount: parseInt(part.split('*')[0])
+                asset: this.parent._assets.get(parts[1]),
+                amount: parseInt(parts[0])
             }
             requirements.push(newReq);
         }

@@ -33,6 +33,15 @@
                     <select class="tile-type g70 inline"></select>
                 </div>
                 <div class="g100 inline padding-tb-s">
+                    <label class="g30 inline">Layer</label>
+                    <select class="tile-layer g70 inline">
+                        <option></option>
+                        <option value="tiles">tiles</option>
+                        <option value="collectibles">collectibles</option>
+                        <option value="interactions">interactions</option>
+                    </select>
+                </div>
+                <div class="g100 inline padding-tb-s">
                     <label class="g30 inline">Factor</label>
                     <input class="tile-factor g70 inline" />
                 </div>
@@ -47,11 +56,7 @@
                 <div class="g100 requirements padding-tb-s">
                     <div class="g100 inline padding-tb-s">
                         <label class="g30 inline">Requirements</label>
-                        <div class="new g70 inline padding-tb-s">New Requirements</div>
-                    </div>
-                    <div class="g100 inline padding-tb-s">
-                        <label class="g30 inline"></label>
-                        <div class="req-container g70"></div>
+                        <div class="new g70 inline padding-tb-s"><button class="padding-tb-s padding-lr-s">✎</button></div>
                     </div>
                 </div>
                 <div class="g100 inline padding-tb-s">
@@ -96,13 +101,13 @@
     <div class="custom block padding-tb padding-lr">
         <div class="g100 inline">
             <div class="g100">
-                <div class="inputContainer g100 inline padding-tb-s">
+                <!-- <div class="inputContainer g100 inline padding-tb-s">
                     <label class="g30 inline">Amount</label>
                     <input class="amount g70 inline" type="number" min="0" />
-                </div>
-                <div class="custom-container"></div>
+                </div> -->
+                <div class="custom-container flex"></div>
                 <div class="flex flex-s">
-                    <div class="g50 inline padding-lr-s">
+                    <div class="g100 inline padding-lr-s">
                         <input type="submit" class="close" value="Close" />
                     </div>
                 </div>

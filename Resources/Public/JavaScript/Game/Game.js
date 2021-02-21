@@ -26,7 +26,7 @@ class Game {
      ************************/
     preloader() {
         this._assets.load();
-        this._floors.load(11);
+        this._floors.load(2);
         this._skills.load();
         this._player.load(playerName);
         this._player.loadSkills(playerName);

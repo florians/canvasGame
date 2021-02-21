@@ -3,12 +3,6 @@ class Tile extends AbstractSquare {
         super(parent);
         this.set(id);
     }
-    portal() {
-        _game.keyboardHandler.reset();
-        _game._player.savePlayer();
-        _game._floors.newFloor(this.level);
-        _game.loader.run();
-    }
     forest() {
         this.addToItems(38);
     }
@@ -19,7 +13,7 @@ class Tile extends AbstractSquare {
         if (!this.isLooted) {
             let item = _game._assets.get(id);
             this.isLooted = true;
-            let randomNr = Math.floor(Math.random() * 5) + 1;
+            let randomNr = Math.floor(Math.random() * 2) + 1;
             _game._player.items.addToCategory(item, randomNr);
         }
     }

@@ -12,6 +12,7 @@ class AbstractSquare {
         this.orig = '';
         this.isLooted = false;
         this.req = [];
+        this.requirementsMet = false;
     }
     /************************
      ***** Hit action *******
@@ -32,8 +33,13 @@ class AbstractSquare {
         if (this.asset.image) {
             _ctxWorld.drawImage(this.asset.image, this.x, this.y, this.w, this.h);
             if (this.req.length > 0) {
-                _ctxWorld.fillStyle = '#e5e5e5';
-                _ctxWorld.fillRect(this.x + Math.floor(this.w / 5), this.y + Math.floor(this.h / 5), Math.floor(this.w / 5), Math.floor(this.h / 5))
+                this.testRequirements();
+                if (this.requirementsMet == false) {
+                    _ctxWorld.fillStyle = '#ff0000';
+                } else {
+                    _ctxWorld.fillStyle = '#008000';
+                }
+                _ctxWorld.fillRect(this.x + this.w - Math.floor(this.w / 5) * 1.2, this.y + this.h - Math.floor(this.h / 5) * 1.2, Math.floor(this.w / 5), Math.floor(this.h / 5))
             }
         }
     }
@@ -50,10 +56,10 @@ class AbstractSquare {
         }
     }
     newItem() {
+        _game._player.items.getByTypeAndItem('material', 'stone');
         _game._player.items.addToCategory(this.asset);
         this.remove();
         _game.ui.inventory.resize();
-
     }
     remove() {
         this.set(0);
@@ -112,5 +118,24 @@ class AbstractSquare {
             requirements.push(newReq);
         }
         this.req = requirements;
+    }
+    testRequirements() {
+        this.requirementsMet = false;
+        let itemCat = ['material', 'craftable'];
+        for (let reqI = 0; reqI < this.req.length; reqI++) {
+            let elName = this.req[reqI].asset.name;
+            let amount = this.req[reqI].amount;
+            for (let i = 0; i < itemCat.length; i++) {
+                let itemTypes = Object.keys(_game._player.items.getByType(itemCat[i]));
+                if (itemTypes.length > 0) {
+                    if (
+                        itemTypes.includes(elName) &&
+                        amount <= _game._player.items.getByTypeAndItem(itemCat[i], itemTypes[itemTypes.indexOf(elName)]).amount
+                    ) {
+                        this.requirementsMet = true;
+                    }
+                }
+            }
+        }
     }
 }

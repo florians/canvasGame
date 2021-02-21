@@ -56,19 +56,17 @@ class AbstractSquares {
         }
     }
     level(data) {
-        if (Array.isArray(data)) {
+        if (Array.isArray(data) && !data[1].includes('*')) {
             return data[1];
         } else {
             return false;
         }
     }
     req(data) {
-        if (Array.isArray(data)) {
-            if (data[1].includes('*')) {
-                return data[1];
-            } else {
-                return '';
-            }
+        if (Array.isArray(data) && data[1].includes('*')) {
+            return data[1];
+        } else {
+            return '';
         }
     }
     /************************

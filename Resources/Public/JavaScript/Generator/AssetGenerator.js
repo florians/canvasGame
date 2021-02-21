@@ -4,6 +4,7 @@ class AssetGenerator {
         this.mousehandler = new MouseHandler(this);
         this.keyboardHandler = new KeyboardHandler(this);
         this.reader = new FileReader();
+        this.requirements = new Requirements(parent);
         this.h = 100;
         this.w = 100;
         this.upload = {};
@@ -15,7 +16,6 @@ class AssetGenerator {
         this.mousehandler.add('.addToGrid', 'click', 'addToGrid');
         this.mousehandler.add('.requirements .new', 'click', 'showRequirements');
         this.mousehandler.add('.custom .close', 'click', 'hideRequirements');
-
 
         // change
         this.mousehandler.add('#file', 'change', 'readImage');
@@ -128,7 +128,7 @@ class AssetGenerator {
             oldType = data[i].type;
         }
         $('select.' + className).append(array.join(''));
-        this.listAssets();
+        this.requirements.load();
     }
     loadAsset(e) {
         var mPos = {
@@ -241,33 +241,21 @@ class AssetGenerator {
         }
         $('.tile-collision').val(this.upload.collision);
         if (this.upload.req) {
-            this.setRequirements();
+            this.requirements.set(this.requirements);
         }
         $('.tile-pos').val(JSON.stringify(this.upload.pos));
     }
     addRequirements(e) {
-        let uid = e.target.parentElement.parentElement.dataset.uid;
-        this.upload.addRequirements(uid);
-        this.setRequirements();
+        this.requirements.add(e, this.upload);
     }
     removeRequirements(e) {
-        let uid = e.target.parentElement.parentElement.dataset.uid;
-        this.upload.removeRequirements(uid);
-        this.setRequirements();
+        this.requirements.remove(e, this.upload);
     }
-    showRequirements(e) {
-        $('.custom').show();
-        this.setRequirements();
+    showRequirements() {
+        this.requirements.show(this.upload);
     }
     hideRequirements() {
-        $('.custom').hide();
-        $('.custom .amount').val('');
-    }
-    setRequirements() {
-        $('.custom-container .asset .counter').html('0');
-        for (let i = 0; i < this.upload.req.length; i++) {
-            $('.custom-container .asset[data-uid=' + this.upload.req[i].asset.uid + '] .counter').html(this.upload.req[i].amount);
-        }
+        this.requirements.hide();
     }
     setUploadSize() {
         this.upload.h = this.upload.image.height * (this.h / 100);
@@ -288,38 +276,6 @@ class AssetGenerator {
         _ctxWorld.canvas.width = this.w;
         _ctxWorld.canvas.height = this.h;
         this.drawSingle();
-    }
-    listAssets() {
-        let htmlArray = [];
-        let typeArray = [{
-                key: 'Material',
-                items: this.parent._assets.getByType('material')
-            },
-            {
-                key: 'Craftable',
-                items: this.parent._assets.getByType('craftable')
-            }
-        ];
-        let extraClass = '';
-        for (let typeI = 0; typeI < typeArray.length; typeI++) {
-            let items = typeArray[typeI].items;
-            extraClass = typeI == 0 ? 'active' : '';
-            htmlArray.push('<div class="asset-layer spacer padding-lr-s padding-tb-s g50 flex layer-' + typeArray[typeI].key + '">');
-            htmlArray.push('<div class="title"><strong>' + typeArray[typeI].key + '</strong></div>');
-            for (let itemsI = 0; itemsI < items.length; itemsI++) {
-                htmlArray.push('<div class="asset flex flex-align-center flex-space-between g100 padding-tb-s" data-uid="' + items[itemsI].uid + '">');
-                htmlArray.push('<img width="40" src="' + items[itemsI].image.src + '" />');
-                htmlArray.push('<span class="padding-tb-s padding-lr-s">' + items[itemsI].name + '</span>');
-                htmlArray.push('<div class="flex"><button class="remove padding-tb-s padding-lr-s">-</button>');
-                htmlArray.push('<span class="counter padding-tb-s padding-lr-s">0</span>');
-                htmlArray.push('<button class="add padding-tb-s padding-lr-s">+</button></div>');
-                htmlArray.push('</div>');
-            }
-            htmlArray.push('</div>');
-        }
-        $('.custom-container').append(htmlArray.join(''));
-        this.mousehandler.add('.custom-container .asset .remove', 'click', 'removeRequirements');
-        this.mousehandler.add('.custom-container .asset .add', 'click', 'addRequirements');
     }
     /**********************************
      * keyboardHandler & mousehandler *

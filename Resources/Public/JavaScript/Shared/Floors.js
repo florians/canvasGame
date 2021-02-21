@@ -97,5 +97,10 @@ class Floors {
         }
         $('select.floorSelect').val(this.floorLevel);
         $('.controls input.level').val(this.floorLevel);
+
+        $('.portal-to').html('<option></option>');
+        for (let i = 0; i < result.length; i++) {
+            $('.portal-to').append('<option value="' + result[i].level + '">Level ' + result[i].level + '</option>');
+        }
     }
 }

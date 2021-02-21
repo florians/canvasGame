@@ -5,6 +5,7 @@ class Floor {
         this.collectibles = new Collectibles(this.parent);
         this.interactions = new Interactions(this.parent);
         this.dataHandler = new DataHandler(this);
+        this.requirements = new Requirements(parent);
         this.mousehandler = new MouseHandler(this);
         this.keyboardHandler = new KeyboardHandler(this);
 
@@ -12,7 +13,7 @@ class Floor {
         this.isDrawing = false;
         // when it was loaded
         this.defaultWidth = result.width;
-        this.selectedLayer = 'tiles';
+        this.selectedLayer = 'all';
         this.selectedAsset = 0;
         this.startIsSet = false;
         // start position
@@ -34,7 +35,7 @@ class Floor {
         this.mousehandler.add('.dimension .sizeSubmit', 'click', 'setDimensions');
         this.mousehandler.add('.saveFloor', 'click', 'save');
         this.mousehandler.add('.layer', 'click', 'changeLayer');
-        this.mousehandler.add('aside .custom .save-to-element', 'click', 'saveToElement')
+        // this.mousehandler.add('aside .custom .save-to-element', 'click', 'saveToElement')
         this.mousehandler.add('aside .custom .close', 'click', 'hideCustomBox')
 
         // mouse event
@@ -74,6 +75,8 @@ class Floor {
 
         this.setCanvasSize();
         this.generateGrid();
+        this.requirements.clear();
+        this.requirements.load();
     }
     /************************
      ******** Setter ********
@@ -206,9 +209,15 @@ class Floor {
             rStop = rStart + rStop < this.height ? rStart + rStop : this.height;
             for (let row = rStart; row < rStop; row++) {
                 for (let col = cStart; col < cStop; col++) {
-                    this.drawAsset(this.tiles.get(row, col));
-                    this.drawAsset(this.collectibles.get(row, col));
-                    this.drawAsset(this.interactions.get(row, col));
+                    if ($('.layer[data-change="tiles"].active').length > 0 || $('.layer[data-change="all"].active').length > 0) {
+                        this.drawAsset(this.tiles.get(row, col));
+                    }
+                    if ($('.layer[data-change="collectibles"].active').length > 0 || $('.layer[data-change="all"].active').length > 0) {
+                        this.drawAsset(this.collectibles.get(row, col));
+                    }
+                    if ($('.layer[data-change="interactions"].active').length > 0 || $('.layer[data-change="all"].active').length > 0) {
+                        this.drawAsset(this.interactions.get(row, col));
+                    }
                     this.addGrid(this.tiles.get(row, col));
                 }
             }
@@ -221,6 +230,10 @@ class Floor {
             w = this.zoomSize;
         if (element.asset.image) {
             _ctxWorld.drawImage(element.asset.image, x, y, h, w);
+        }
+        if (element.req.length > 0) {
+            _ctxWorld.fillStyle = '#e5e5e5';
+            _ctxWorld.fillRect(x + w - Math.floor(w / 5) * 1.2, y + h - Math.floor(h / 5) * 1.2, Math.floor(w / 5), Math.floor(h / 5))
         }
         if (!element.asset.image && clear) {
             _ctxWorld.fillStyle = '#e5e5e5';
@@ -238,6 +251,7 @@ class Floor {
         this.repaint();
     }
     addTile(event) {
+        if (this.selectedLayer == 'all') return;
         let ignoreBrushTiles = ['start', 'portal', 'trap', 'enemy', 'item'];
         let col = Math.floor((event.offsetX - this.stageOffset.x) / this.zoomSize);
         let row = Math.floor((event.offsetY - this.stageOffset.y) / this.zoomSize);
@@ -277,7 +291,7 @@ class Floor {
                     }
                 }
             } else {
-                if (this[this.selectedLayer].get(row, col) && this[this.selectedLayer].get(row, col).asset.name == "portal") {
+                if (this[this.selectedLayer].get(row, col) && this[this.selectedLayer].get(row, col).isEmpty == false) {
                     this.showCustomBox(this[this.selectedLayer].get(row, col));
                 }
             }
@@ -349,6 +363,7 @@ class Floor {
         $('.asset-layer').removeClass('active');
         $('.asset-layer.layer-' + this.selectedLayer).addClass('active');
         $('aside .asset-layer.active .assetGroup .title').first().click();
+        this.repaint();
     }
     changeAsset(event) {
         $('.asset.active').removeClass('active');
@@ -395,12 +410,12 @@ class Floor {
         }
     }
     changeFloor(event) {
+        this.hideCustomBox();
         if (event.target.value) {
             this.parent.loader.clear();
             this.parent.loader.setObj(this);
             this.parent._floors.load(event.target.value);
             this.parent.loader.run();
-            this.hideCustomBox();
         }
     }
     save(event) {
@@ -451,7 +466,7 @@ class Floor {
         $('aside .custom').removeClass('active');
 
         this.selectedAsset = 0;
-        this.selectedLayer = 'tiles';
+        this.selectedLayer = 'all';
         this.tilesArray = [];
         this.collectiblesArray = [];
         this.interactionsArray = [];
@@ -479,25 +494,25 @@ class Floor {
             this.generateGrid();
         }
     }
-    saveToElement() {
-        let row = $('aside .custom .custom-hidden').attr('data-row'),
-            col = $('aside .custom .custom-hidden').attr('data-col'),
-            level = $('aside .custom .level').val();
-
-        this.interactions.get(row, col).level = parseInt(level);
-        this.parent.msg('success', 'Level ' + level + ' has been set');
-        $('aside .custom').removeClass('active');
-    }
     /************************
      ***** HTML changes *****
      ************************/
-    showCustomBox(asset) {
-        $('aside .custom').addClass('active');
-        $('aside .custom .level').val(asset.level);
-        $('aside .custom .custom-hidden').attr('data-col', asset.col).attr('data-row', asset.row);
+    showCustomBox(element) {
+        $('.custom-container').show();
+        if (element.asset.name == 'portal') {
+            $('.is-portal').show();
+            $('.custom-container').hide();
+        } else {
+            $('.is-portal').hide();
+        }
+        this.requirements.element = element;
+        //$('aside .custom').addClass('active');
+        $('aside .custom .portal-to').val(element.level);
+        $('aside .custom .custom-hidden').attr('data-col', element.col).attr('data-row', element.row);
+        this.requirements.show();
     }
     hideCustomBox() {
-        $('aside .custom').removeClass('active');
+        this.requirements.hide();
     }
     listAssets() {
         let htmlArray = [];
@@ -514,10 +529,8 @@ class Floor {
                 items: this.parent._assets.getTypes('interactions')
             }
         ];
-        let extraClass = '';
         for (let layerI = 0; layerI < typeArray.length; layerI++) {
-            extraClass = layerI == 0 ? 'active' : '';
-            htmlArray.push('<div class="asset-layer ' + extraClass + ' layer-' + typeArray[layerI].key + '">');
+            htmlArray.push('<div class="asset-layer layer-' + typeArray[layerI].key + '">');
             for (let typeI = 0; typeI < typeArray[layerI].items.length; typeI++) {
                 htmlArray.push('<div class="assetGroup accordion padding-lr-m padding-tb-m block flex-m">');
                 htmlArray.push('<div class="title">' + typeArray[layerI].items[typeI] + '</div>');

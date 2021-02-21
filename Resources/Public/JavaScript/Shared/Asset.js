@@ -90,6 +90,9 @@ class Asset {
         let reqExsists = this.getRequirements(this.parent._assets.get(uid).name);
         if (reqExsists) {
             reqExsists.amount -= 1;
+            if (reqExsists.amount <= 0) {
+                reqExsists.amount = 0;
+            }
         }
     }
     setRequirements() {

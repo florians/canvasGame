@@ -40,6 +40,10 @@ class AbstractSquares {
         if (this.level(data)) {
             this.tiles[row][col].level = this.level(data);
         }
+        if (this.req(data)) {
+            this.tiles[row][col].req = this.req(data);
+            this.tiles[row][col].setRequirements();
+        }
         if (!this.tiles[row][col].isEmpty && this.tiles[row][col].asset.type == 'start') {
             this.startIsSet = true;
         }
@@ -56,6 +60,15 @@ class AbstractSquares {
             return data[1];
         } else {
             return false;
+        }
+    }
+    req(data) {
+        if (Array.isArray(data)) {
+            if (data[1].includes('*')) {
+                return data[1];
+            } else {
+                return '';
+            }
         }
     }
     /************************

@@ -31,6 +31,7 @@ $jsFiles = [
     // Interactions
     'Resources/Public/JavaScript/Shared/Interactions.js',
     'Resources/Public/JavaScript/Shared/Interaction.js',
+    'Resources/Public/JavaScript/Generator/Requirements.js',
     'Resources/Public/JavaScript/Generator/' . $pageName . '.js',
     'Resources/Public/JavaScript/Generator/Generator.js',
     'Resources/Public/JavaScript/Generator/Init.js',

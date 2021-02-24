@@ -4,25 +4,6 @@ class AjaxHandler {
     }
     getData(name, params) {
         return new Promise((resolve, reject) => {
-            // return $.ajax({
-            //     method: 'POST',
-            //     url: this.url,
-            //     data: params,
-            //     success: function(r) {
-            //         let result = JSON.parse(r);
-            //         if (result.type == 'success') {
-            //             resolve({
-            //                 name: name,
-            //                 data: result
-            //             });
-            //         } else {
-            //             reject(result.msg);
-            //         }
-            //     },
-            //     error: function(err) {
-            //         reject(err);
-            //     }
-            // });
             let xhr = new XMLHttpRequest();
             xhr.open("POST", this.url, true);
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");

@@ -34,7 +34,6 @@ class Requirements {
     }
     set() {
         let req = this.asset().req;
-        console.log(req);
         if (!req) return;
         $('.custom-container .asset .counter').html('0');
         for (let i = 0; i < req.length; i++) {
@@ -50,6 +49,10 @@ class Requirements {
             {
                 key: 'Craftable',
                 items: this.parent._assets.getByType('craftable')
+            },
+            {
+                key: 'Keys',
+                items: this.parent._assets.getByType('keys')
             }
         ];
         let extraClass = '';

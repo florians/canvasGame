@@ -35,11 +35,10 @@ class AbstractSquare {
             if (this.req.length > 0) {
                 this.testRequirements();
                 if (this.requirementsMet == false) {
-                    _ctxWorld.fillStyle = '#ff0000';
+                    _ctxWorld.drawImage(this.parent._assets.get(53).image, this.x + (this.w * 0.5), this.y + (this.h * 0.5), this.h * 0.5, this.w * 0.5);
                 } else {
-                    _ctxWorld.fillStyle = '#008000';
+                    _ctxWorld.drawImage(this.parent._assets.get(68).image, this.x + (this.w * 0.5), this.y + (this.h * 0.5), this.h * 0.5, this.w * 0.5);
                 }
-                _ctxWorld.fillRect(this.x + this.w - Math.floor(this.w / 5) * 1.2, this.y + this.h - Math.floor(this.h / 5) * 1.2, Math.floor(this.w / 5), Math.floor(this.h / 5))
             }
         }
     }
@@ -121,7 +120,7 @@ class AbstractSquare {
     }
     testRequirements() {
         this.requirementsMet = false;
-        let itemCat = ['material', 'craftable'];
+        let itemCat = ['material', 'craftable', 'keys'];
         for (let reqI = 0; reqI < this.req.length; reqI++) {
             let elName = this.req[reqI].asset.name;
             let amount = this.req[reqI].amount;
@@ -136,6 +135,21 @@ class AbstractSquare {
                     }
                 }
             }
+        }
+    }
+    use() {
+        for (let reqI = 0; reqI < this.req.length; reqI++) {
+            let amount = this.req[reqI].amount;
+            let asset = this.req[reqI].asset;
+            if (_game._player.items.getByTypeAndItem(asset.type, asset.name)) {
+                _game._player.items.getByType(asset.type)[asset.name].amount -= amount;
+            }
+        }
+        this.req = [];
+        _game.ui.inventory.resize();
+        _game._floors.getCurrent().removeCollisionFromLayer(this.row, this.col);
+        if (this.asset.layer != 'tiles') {
+            this.remove();
         }
     }
 }

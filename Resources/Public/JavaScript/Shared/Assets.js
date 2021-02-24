@@ -72,6 +72,13 @@ class Assets {
             }
         }
     }
+    getTypeWidthTypeuid(typeuid){
+        for (var i = 0; i < this.assets.length; i++) {
+            if (this.assets[i] && this.assets[i].typeuid == typeuid) {
+                return this.assets[i].type;
+            }
+        }
+    }
     getLayerWidthTypeuid(typeuid) {
         for (var i = 0; i < this.assets.length; i++) {
             if (this.assets[i] && this.assets[i].typeuid == typeuid) {

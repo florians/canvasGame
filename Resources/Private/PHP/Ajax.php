@@ -372,6 +372,7 @@ function saveAssets($db, $json, $file)
             'uid' => $uid,
         ]);
         $msg = 'Assets ' . $name . ' was updated!';
+        $result = $db->id();
     } else {
         $sorting = $db->select('assets', 'sorting', ['type' => $typeuid, 'ORDER' => ['sorting' => 'DESC'], 'LIMIT' => 1]);
         $db->insert('assets', [
@@ -384,8 +385,9 @@ function saveAssets($db, $json, $file)
             'pos' => $pos,
         ]);
         $msg = 'Assets ' . $name . ' was saved!';
+        $result = $db->id();
     }
-    returnJson($msg, '', $success);
+    returnJson($msg, $result, $success);
 }
 function saveSpriteSheet($db, $file)
 {

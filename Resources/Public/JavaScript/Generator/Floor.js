@@ -232,12 +232,10 @@ class Floor {
             _ctxWorld.drawImage(element.asset.image, x, y, h, w);
         }
         if (element.req.length > 0) {
-            _ctxWorld.fillStyle = '#e5e5e5';
-            _ctxWorld.fillRect(x + w - Math.floor(w / 5) * 1.2, y + h - Math.floor(h / 5) * 1.2, Math.floor(w / 5), Math.floor(h / 5))
+            _ctxWorld.drawImage(this.parent._assets.get(53).image, x + (w * 0.5), y + (h * 0.5), h * 0.5, w * 0.5);
         }
         if (!element.asset.image && clear) {
-            _ctxWorld.fillStyle = '#e5e5e5';
-            _ctxWorld.fillRect(x, y, h, w);
+            _ctxWorld.drawImage(this.parent._assets.get(68).image, x + (w * 0.5), y + (h * 0.5), h * 0.5, w * 0.5);
         }
     }
     addGrid(element) {

@@ -17,6 +17,7 @@ class DataHandler {
                     if (data.get(row, col).asset.type == 'portal') {
                         elementString = data.get(row, col).asset.uid + '|' + data.get(row, col).level;
                     } else if (data.get(row, col).req.length > 0) {
+                        elementString = data.get(row, col).asset.uid;
                         let req = data.get(row, col).req;
                         let reqArray = [];
                         for (let i = 0; i < req.length; i++) {
@@ -25,9 +26,7 @@ class DataHandler {
                             }
                         }
                         if (reqArray.length > 0) {
-                            elementString = elementString + '|' + reqArray.join('/');
-                        } else {
-                            elementString = data.get(row, col).asset.uid;
+                            elementString += '|' + reqArray.join('/');
                         }
                     } else {
                         elementString = data.get(row, col).asset.uid;
@@ -42,7 +41,6 @@ class DataHandler {
                 }
             }
         }
-
         if (counter > 0) {
             dataArray.push(counter + '*0');
             counter = 0;

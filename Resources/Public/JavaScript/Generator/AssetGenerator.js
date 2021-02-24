@@ -84,11 +84,6 @@ class AssetGenerator {
     addToGrid() {
         this.generateGrid(1);
     }
-    load() {
-        // this.parent.loader.add('data', 'fillAssetTypeSelect', {
-        //     type: 'getAssetsType'
-        // });
-    }
     readImage(e) {
         let file = null;
         if (e.target.files && e.target.files[0]) {
@@ -160,6 +155,7 @@ class AssetGenerator {
     }
     prepareRequirements() {
         let reqArray = [];
+        if(!this.upload.req) return null;
         for (let i = 0; i < this.upload.req.length; i++) {
             if (this.upload.req[i].amount > 0) {
                 reqArray.push(this.upload.req[i].amount + '*' + this.upload.req[i].asset.uid);

@@ -224,10 +224,19 @@ class Floor {
     addCollisionLayer(row, col, rowY, colX, el) {
         let collision = el.asset.collision;
         let orig = el.asset;
-        // if it's a key
-        if (!collision && this.interactions.get(row, col).asset.collision) {
-            collision = this.interactions.get(row, col).asset.collision;
-            orig = this.interactions.get(row, col);
+        let reqEl = null;
+        // if it has requirments > set collision
+        if (this.tiles.get(row, col).req.length || this.collectibles.get(row, col).req.length || this.interactions.get(row, col).req.length) {
+            collision = [1, 1, 1, 1];
+            if (this.tiles.get(row, col).req.length) {
+                orig = this.tiles.get(row, col);
+            }
+            if (this.collectibles.get(row, col).req.length) {
+                orig = this.collectibles.get(row, col);
+            }
+            if (this.interactions.get(row, col).req.length) {
+                orig = this.interactions.get(row, col);
+            }
         }
         let collisionNr = 0;
         for (let a = 0; a < this.collisionLayerSize; a++) {
@@ -375,11 +384,10 @@ class Floor {
         if (!this.collisionLayer.get(newBoxY, newBoxX).collision) {
             return;
         }
-        // collision with lock
-        if (this.collisionLayer.get(newBoxY, newBoxX).orig.asset && this.collisionLayer.get(newBoxY, newBoxX).orig.asset.name == "lock") {
-            this.collisionLayer.get(newBoxY, newBoxX).orig.lock();
+        // collision with field that has requirments
+        if (this.collisionLayer.get(newBoxY, newBoxX).orig.req.length > 0 && this.collisionLayer.get(newBoxY, newBoxX).orig.requirementsMet == true) {
+            this.collisionLayer.get(newBoxY, newBoxX).orig.use();
         }
-
         //console.log('collisionBox kolidierter Ecken:' + (playerCornerLeft ? 'Links' : 'Rechts') + ', ' + (playerCornerTop ? 'Oben' : 'Unten'));
         let playerOffsetX = (_game._player.w / 2) * (playerCornerLeft ? 1 : -1),
             playerOffsetY = (_game._player.h / 2) * (playerCornerTop ? 1 : -1),

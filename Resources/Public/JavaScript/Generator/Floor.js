@@ -209,9 +209,9 @@ class Floor {
             rStop = rStart + rStop < this.height ? rStart + rStop : this.height;
             for (let row = rStart; row < rStop; row++) {
                 for (let col = cStart; col < cStop; col++) {
-                    if ($('.layer[data-change="tiles"].active').length > 0 || $('.layer[data-change="all"].active').length > 0) {
+                    //if ($('.layer[data-change="tiles"].active').length > 0 || $('.layer[data-change="all"].active').length > 0) {
                         this.drawAsset(this.tiles.get(row, col));
-                    }
+                    //}
                     if ($('.layer[data-change="collectibles"].active').length > 0 || $('.layer[data-change="all"].active').length > 0) {
                         this.drawAsset(this.collectibles.get(row, col));
                     }

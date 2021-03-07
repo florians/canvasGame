@@ -97,8 +97,8 @@ class AbstractSquare {
     setRequirements() {
         let requirements = [];
         let reqParts = [];
-        if (this.req.includes(',')) {
-            reqParts = this.req.split(',');
+        if (this.req.includes('/')) {
+            reqParts = this.req.split('/');
         } else {
             reqParts.push(this.req);
         }
@@ -119,9 +119,11 @@ class AbstractSquare {
         this.req = requirements;
     }
     testRequirements() {
+        let requirementsMet = 0;
         this.requirementsMet = false;
         let itemCat = ['material', 'craftable', 'keys'];
         for (let reqI = 0; reqI < this.req.length; reqI++) {
+            if (!this.req[reqI].asset) return;
             let elName = this.req[reqI].asset.name;
             let amount = this.req[reqI].amount;
             for (let i = 0; i < itemCat.length; i++) {
@@ -131,10 +133,13 @@ class AbstractSquare {
                         itemTypes.includes(elName) &&
                         amount <= _game._player.items.getByTypeAndItem(itemCat[i], itemTypes[itemTypes.indexOf(elName)]).amount
                     ) {
-                        this.requirementsMet = true;
+                        requirementsMet++;
                     }
                 }
             }
+        }
+        if(requirementsMet == this.req.length){
+            this.requirementsMet = true;
         }
     }
     use() {
@@ -150,6 +155,38 @@ class AbstractSquare {
         _game._floors.getCurrent().removeCollisionFromLayer(this.row, this.col);
         if (this.asset.layer != 'tiles') {
             this.remove();
+        }
+    }
+    showInfo() {
+        let maxInCol = 2;
+        let reqAmount = this.req.length;
+        let rows = Math.ceil(reqAmount / maxInCol);
+        let cols = maxInCol > reqAmount ? reqAmount : maxInCol;
+
+        let h = (this.h * 0.5) * rows + (rows + 1) * 5;
+        let w = (this.h * 0.5) * cols + (cols + 1) * 5;
+        let x = this.x + (this.w / 2) - (w / 2);
+        let y = this.y + (this.h / 2) - (h / 2);
+
+        _ctxWorld.fillStyle = '#3e3e3e';
+        _ctxWorld.fillRect(x, y, w, h);
+        let listRow = 0;
+        let listCol = 0;
+        for (let i = 0; i < this.req.length; i++) {
+            let assetX = Math.floor(x + 5 + (listCol * 5) + (listCol * this.w * 0.5));
+            let assetY = Math.floor(y + 5 + (listRow * 5) + (listRow * this.h * 0.5));
+            _ctxWorld.drawImage(this.req[i].asset.image, assetX, assetY, this.h * 0.5, this.w * 0.5);
+            _ctxWorld.fillStyle = '#b3b3b3';
+            _ctxWorld.strokeRect(assetX, assetY, this.h * 0.5, this.w * 0.5);
+            _ctxWorld.font = '20px Arial';
+            _ctxWorld.fillStyle = '#FFF';
+            _ctxWorld.fillText(this.req[i].amount, assetX + 5, assetY + this.h * 0.5 - 5);
+            if (listCol < maxInCol - 1) {
+                listCol++;
+            } else {
+                listCol = 0;
+                listRow++;
+            }
         }
     }
 }

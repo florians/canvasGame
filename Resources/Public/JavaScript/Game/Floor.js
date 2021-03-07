@@ -385,7 +385,9 @@ class Floor {
             return;
         }
         // collision with field that has requirments
-        if (this.collisionLayer.get(newBoxY, newBoxX).orig.req.length > 0 && this.collisionLayer.get(newBoxY, newBoxX).orig.requirementsMet == true) {
+        if (this.collisionLayer.get(newBoxY, newBoxX).orig.req.length > 0 && this.collisionLayer.get(newBoxY, newBoxX).orig.requirementsMet == false) {
+            this.collisionLayer.get(newBoxY, newBoxX).orig.showInfo();
+        } else if (this.collisionLayer.get(newBoxY, newBoxX).orig.req.length > 0 && this.collisionLayer.get(newBoxY, newBoxX).orig.requirementsMet == true) {
             this.collisionLayer.get(newBoxY, newBoxX).orig.use();
         }
         //console.log('collisionBox kolidierter Ecken:' + (playerCornerLeft ? 'Links' : 'Rechts') + ', ' + (playerCornerTop ? 'Oben' : 'Unten'));

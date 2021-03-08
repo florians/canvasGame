@@ -51,8 +51,8 @@ class Requirements {
                 items: this.parent._assets.getByType('craftable')
             },
             {
-                key: 'Keys',
-                items: this.parent._assets.getByType('keys')
+                key: 'Unlocker',
+                items: this.parent._assets.getByType('unlocker')
             }
         ];
         let extraClass = '';

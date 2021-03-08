@@ -15,6 +15,7 @@ class DataHandler {
                     elementString = '';
                 } else {
                     if (data.get(row, col).asset.type == 'portal') {
+                        console.log(data.get(row, col).level);
                         elementString = data.get(row, col).asset.uid + '|' + data.get(row, col).level;
                     } else if (data.get(row, col).req.length > 0) {
                         elementString = data.get(row, col).asset.uid;

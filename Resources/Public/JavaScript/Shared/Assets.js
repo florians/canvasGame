@@ -18,6 +18,7 @@ class Assets {
     /************************
      **** Setup Loader ******
      ************************/
+     // change in gen
     load() {
         this.parent.loader.add('data', 'assets', {
             type: 'getAllAssets'
@@ -30,11 +31,27 @@ class Assets {
      ***** Loader init ******
      ************************/
     init(result) {
-        this.parent.loader.reset();
-        this.parent.loader.addMax(result.length);
-        this.parent.loader.addText('Loading assets...');
-        for (let i = 0; i < result.length; i++) {
-            this.assets[result[i].uid] = this.add(result[i]);
+        let assets = '';
+        let assetsType = '';
+        if (result.assets) {
+            assets = result.assets;
+            assetsType = result.assetsType;
+        } else {
+            assets = result;
+        }
+        // this.parent.loader.reset();
+        // this.parent.loader.addMax(result.length);
+        // this.parent.loader.addText('Loading assets...');
+        // init all assets
+        for (let i = 0; i < assets.length; i++) {
+            this.assets[assets[i].uid] = this.add(assets[i]);
+        }
+        // init assetLayers
+        for (let i = 0; i < assetsType.length; i++) {
+            if (!this.assetLayers[assetsType[i].layer]) {
+                this.assetLayers[assetsType[i].layer] = [];
+            }
+            this.assetLayers[assetsType[i].layer].push(assetsType[i].name);
         }
         this.setRequirements();
         return this;
@@ -72,7 +89,7 @@ class Assets {
             }
         }
     }
-    getTypeWidthTypeuid(typeuid){
+    getTypeWidthTypeuid(typeuid) {
         for (var i = 0; i < this.assets.length; i++) {
             if (this.assets[i] && this.assets[i].typeuid == typeuid) {
                 return this.assets[i].type;

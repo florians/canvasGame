@@ -60,6 +60,7 @@ class Player extends AbstractCharacter {
      ************************/
     init(result) {
         this.stats = new StatsHandler(JSON.parse(result.stats));
+        this.initSkills(result.skills);
         this.setUid(result.uid);
         this.setLevel(result.level);
         this.name = result.name;
@@ -80,7 +81,7 @@ class Player extends AbstractCharacter {
                     max: exp[1]
                 }
             }
-            this.skills.push(new Skill(_game._skills.get(result[i]['skills_uid']), playerSkill));
+            this.skills.push(new Skill(_game._skills.get(result[i]['uid']), playerSkill));
         }
     }
     addSkill(skill_uid) {

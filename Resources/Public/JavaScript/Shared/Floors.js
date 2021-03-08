@@ -2,7 +2,7 @@ class Floors {
     constructor(parent) {
         this.parent = parent;
         this.floors = [];
-        this.floorLevel = 1;
+        this.floorLevel = 2;
         this.counter = 0;
     }
     /************************

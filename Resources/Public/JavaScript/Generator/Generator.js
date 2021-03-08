@@ -31,25 +31,25 @@ class Generator {
      ************************/
     preloaderResult(result) {
         if (result.length == 1) {
-            this.msg(result[0].data.type, result[0].data.msg);
+            this.msg(result[0].state, result[0].msg);
             return;
         }
         for (let i = 0; i < result.length; i++) {
             if (result[i].name == 'assets') {
-                this._assets.init(result[i].data.result);
+                this._assets.init(result[i].result);
             }
             if (result[i].name == 'initAssetLayerTypes') {
-                this._assets.initAssetLayerTypes(result[i].data.result);
+                this._assets.initAssetLayerTypes(result[i].result);
                 if (this.generatorType == 'AssetGenerator') {
-                    this.assetGenerator.fillAssetTypeSelect(result[i].data.result, 'tile-type');
+                    this.assetGenerator.fillAssetTypeSelect(result[i].result, 'tile-type');
                     this.assetGenerator.generateGrid();
                 }
             }
             if (result[i].name == 'floors') {
-                this._floors.init(result[i].data.result);
+                this._floors.init(result[i].result);
             }
             if (result[i].name == 'allFloors') {
-                this._floors.fillFloorSelect(result[i].data.result);
+                this._floors.fillFloorSelect(result[i].result);
             }
         }
     }

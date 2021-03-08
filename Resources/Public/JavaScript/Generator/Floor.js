@@ -47,6 +47,8 @@ class Floor {
 
         // change
         this.mousehandler.add('.floorSelect', 'change', 'changeFloor');
+        this.mousehandler.add('.portal-to', 'change', 'setPortalTo');
+
 
         // keyboard
         this.keyboardHandler.add(document, 'keydown', 'keydown', [38, 87, 40, 83, 37, 65, 39, 68]);
@@ -398,12 +400,12 @@ class Floor {
     }
     preloaderResult(result) {
         if (result.length == 1) {
-            this.parent.msg(result[0].data.type, result[0].data.msg);
+            this.parent.msg(result[0].state, result[0].msg);
         }
         for (let i = 0; i < result.length; i++) {
             if (result[i].name == "floors") {
-                this.defaultWidth = result[i].data.result.width;
-                this.init(result[i].data.result);
+                this.defaultWidth = result[i].result.width;
+                this.init(result[i].result);
             }
         }
     }
@@ -414,6 +416,14 @@ class Floor {
             this.parent.loader.setObj(this);
             this.parent._floors.load(event.target.value);
             this.parent.loader.run();
+        }
+    }
+    setPortalTo(e){
+        let layer = $('.layer.active').attr('data-change');
+        let col = $('.custom-hidden').attr('data-col');
+        let row = $('.custom-hidden').attr('data-row');
+        if(this[layer]){
+            this[layer].get(row, col).level = $(e.target).val();
         }
     }
     save(event) {

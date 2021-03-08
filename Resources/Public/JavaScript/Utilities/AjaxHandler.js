@@ -9,12 +9,11 @@ class AjaxHandler {
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             xhr.onreadystatechange = function() {
                 if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-                    let result = JSON.parse(this.responseText);
-                    if (result.type == 'success') {
-                        resolve({
-                            name: name,
-                            data: result
-                        });
+                    let result = JSON.parse(this.response);
+                    if (result.state == 'success') {
+                        result.name = name;
+                        //
+                        resolve(result);
                     } else {
                         reject(result.msg);
                     }
@@ -35,8 +34,8 @@ class AjaxHandler {
             //xhr.setRequestHeader("Content-Type", "multipart/form-data");
             xhr.onreadystatechange = function() {
                 if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-                    let result = JSON.parse(this.responseText);
-                    if (result.type == 'success') {
+                    let result = JSON.parse(this.response);
+                    if (result.state == 'success') {
                         resolve({
                             name: name,
                             data: result

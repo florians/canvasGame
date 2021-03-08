@@ -55,7 +55,7 @@ class AbstractSquare {
         }
     }
     newItem() {
-        _game._player.items.getByTypeAndItem('material', 'stone');
+        _game._player.items.getByTypeAndItem('material', 'stone', 'unlocker');
         _game._player.items.addToCategory(this.asset);
         this.remove();
         _game.ui.inventory.resize();
@@ -121,7 +121,7 @@ class AbstractSquare {
     testRequirements() {
         let requirementsMet = 0;
         this.requirementsMet = false;
-        let itemCat = ['material', 'craftable', 'keys'];
+        let itemCat = ['material', 'craftable', 'unlocker'];
         for (let reqI = 0; reqI < this.req.length; reqI++) {
             if (!this.req[reqI].asset) return;
             let elName = this.req[reqI].asset.name;
@@ -138,7 +138,7 @@ class AbstractSquare {
                 }
             }
         }
-        if(requirementsMet == this.req.length){
+        if (requirementsMet == this.req.length) {
             this.requirementsMet = true;
         }
     }

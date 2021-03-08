@@ -25,11 +25,16 @@ class Game {
      **** Setup Loader ******
      ************************/
     preloader() {
-        this._assets.load();
-        this._floors.load(2);
-        this._skills.load();
-        this._player.load(playerName);
-        this._player.loadSkills(playerName);
+        this.loader.add('data', 'initLoad', {
+            type: 'initLoad',
+            level: this._floors.floorLevel,
+            name: playerName
+        });
+        //this._assets.load();
+        //this._floors.load(2);
+        //this._skills.load();
+        //this._player.load(playerName);
+        //this._player.loadSkills(playerName);
         this.ui = new UserInterface(this);
         // calls > preloaderResult
         this.loader.run();
@@ -38,24 +43,37 @@ class Game {
      ***** Loader init ******
      ************************/
     preloaderResult(result) {
-        for (let i = 0; i < result.length; i++) {
-            if (result[i].name == "assets") {
-                this._assets.init(result[i].data.result);
+        // new force all to that
+        if (result[0].type == 'group') {
+            let data = result[0].result;
+            for (const property in data) {
+                if (typeof this[property] === 'object') {
+                    this[property].init(data[property]);
+                } else {
+                    console.log(property + ' not defined');
+                }
             }
-            if (result[i].name == "floors") {
-                this._floors.init(result[i].data.result);
-            }
-            if (result[i].name == "skills") {
-                this._skills.init(result[i].data.result);
-            }
-            if (result[i].name == "player") {
-                this._player.init(result[i].data.result);
-            }
-            if (result[i].name == "playerSkills") {
-                this._player.initSkills(result[i].data.result);
-            }
-            if (result[i].name == "playerUid") {
-                this._player.setUid(result[i].data.result);
+        } else {
+            // old way > change in gen (used for single operations atm)
+            for (let i = 0; i < result.length; i++) {
+                if (result[i].name == "assets") {
+                    this._assets.init(result[i].result);
+                }
+                if (result[i].name == "floors") {
+                    this._floors.init(result[i].result);
+                }
+                if (result[i].name == "skills") {
+                    this._skills.init(result[i].result);
+                }
+                if (result[i].name == "player") {
+                    this._player.init(result[i].result);
+                }
+                if (result[i].name == "playerSkills") {
+                    this._player.initSkills(result[i].result);
+                }
+                if (result[i].name == "playerUid") {
+                    this._player.setUid(result[i].result);
+                }
             }
         }
         this.init();

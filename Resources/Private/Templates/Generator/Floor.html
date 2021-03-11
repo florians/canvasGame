@@ -1,0 +1,87 @@
+<main>
+    <div class="controls flex flex-m">
+        <div class="g30 dimension inline padding-lr-m padding-tb flex-min">
+            <div class="dimension g100">
+                <div class="inputContainer g100 inline padding-tb-s">
+                    <label for="height" class="g30 inline">Height:</label>
+                    <input id="height" class="dimension-h g70 inline" min="1" max="500" type="number" value="20" />
+                </div>
+                <div class="inputContainer g100 inline padding-tb-s">
+                    <label for="width" class="g30 inline">Width:</label>
+                    <input id="width" class="dimension-w g70 inline" min="1" max="500" type="number" value="20" />
+                </div>
+                <input type="submit" class="sizeSubmit" value="Set Dimension" />
+            </div>
+        </div>
+        <div class="g70 inline padding-lr-m padding-tb">
+            <div class="g100">
+                <div class="inputContainer g100 inline padding-tb-s">
+                    <label class="g30 inline">Load Floor</label>
+                    <select class="floorSelect g70 inline">
+                        <option></option>
+                    </select>
+                </div>
+                <div class="inputContainer g100 inline padding-tb-s">
+                    <label class="g30 inline">Floor Level</label>
+                    <input class="level g70 inline" type="number" />
+                </div>
+            </div>
+        </div>
+        <div class="g100 inline padding-lr-m padding-tb-m">
+            <div class="g50 inline">
+                <div class="inputContainer g100 inline padding-tb-s">
+                    <label class="g70 inline">Zoom Level:&nbsp; <span class="zoomLevel">100</span>%</label>
+                    <span class="smallbtn zoom" data-change="+">+</span>
+                    <span class="smallbtn zoom" data-change="-">-</span>
+                </div>
+            </div>
+            <div class="g50 inline">
+                <div class="inputContainer g100 inline padding-tb-s">
+                    <label class="g70 inline">Brush Size:&nbsp; <span class="brushSize">1</span></label>
+                    <span class="smallbtn brush" data-change="+">+</span>
+                    <span class="smallbtn brush" data-change="-">-</span>
+                </div>
+            </div>
+            <div class="g50 inline">
+                <div class="inputContainer g100 inline padding-tb-s">
+                    <button class="layer active padding-lr-s" data-change="all">All</button>
+                    <button class="layer padding-lr-s" data-change="tiles">Tiles</button>
+                    <button class="layer padding-lr-s" data-change="collectibles">Collectibles</button>
+                    <button class="layer padding-lr-s" data-change="interactions">Interactions</button>
+                </div>
+            </div>
+        </div>
+        <div class="g100 inline padding-tb">
+            <div class="g70 padding-lr-m">
+                <input class="isLoded" type="hidden" value="0" />
+                <input type="submit" class="saveFloor g100" value="Save Floor" />
+            </div>
+            <div class="g30 padding-lr-m">
+                <input type="reset" class="reset" value="Reset" />
+            </div>
+        </div>
+    </div>
+    <div class="canvasContainer">
+        <canvas id="world"></canvas>
+    </div>
+</main>
+<aside>
+    <div class="accordion-container"></div>
+    <div class="custom block padding-tb padding-lr">
+        <div class="g100 inline">
+            <div class="g100">
+                <div class="inputContainer is-portal g100 inline padding-tb-s">
+                    <label class="g30 inline">Portal to:</label>
+                    <input class="custom-hidden" type="hidden" />
+                    <select class="portal-to g70 inline"></select>
+                </div>
+                <div class="custom-container flex"></div>
+                <div class="flex flex-s">
+                    <div class="g100 inline padding-lr-s">
+                        <input type="submit" class="close" value="Close" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</aside>

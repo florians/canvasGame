@@ -1,0 +1,149 @@
+/*
+sassc /var/www/florian/www/Resources/Public/Scss/Basic.scss > /var/www/florian/www/Resources/Public/Css/Basic.css;sassc /var/www/florian/www/Resources/Public/Scss/Floor.scss > /var/www/florian/www/Resources/Public/Css/Floor.css;sassc /var/www/florian/www/Resources/Public/Scss/Game.scss > /var/www/florian/www/Resources/Public/Css/Game.css;sassc /var/www/florian/www/Resources/Public/Scss/Generator.scss > /var/www/florian/www/Resources/Public/Css/Generator.css;sassc /var/www/florian/www/Resources/Public/Scss/AssetGenerator.scss > /var/www/florian/www/Resources/Public/Css/AssetGenerator.css
+*/
+/***********************************
+*************** reset **************
+***********************************/
+body {
+    overflow-x: hidden;
+}
+/***********************************
+************** assets ***************
+***********************************/
+main {
+    .canvasContainer {
+        width: 100%;
+        height: auto;
+    }
+}
+
+.layer {
+    padding: 5px 10px;
+    margin-right: 10px;
+    border: 0;
+    outline: 0;
+
+    &:focus {
+        outline: 0;
+    }
+
+    &.active {
+        background-color: #a4a4a4;
+        color: #FFF;
+    }
+}
+
+aside {
+    .asset-layer {
+        display: none;
+
+        &.active {
+            display: block;
+        }
+    }
+
+    .assetGroup {
+        margin-bottom: 30px;
+        background: rgba(0,0,0,0.1);
+        box-sizing: border-box;
+        border-radius: 3px;
+
+        &.accordion > .asset {
+            display: none;
+        }
+
+        &.accordion.show {
+            background: rgba(0,0,0,0.2);
+
+            .title {
+                padding-bottom: 10px;
+            }
+
+            > .asset {
+                display: inline-block;
+            }
+        }
+
+        .title {
+            font-size: 20px;
+            display: block;
+            text-transform: capitalize;
+            color: #FFF;
+            cursor: pointer;
+        }
+
+        .asset {
+            height: 100px;
+            display: inline-block;
+            width: 100px;
+            box-sizing: border-box;
+            cursor: pointer;
+            position: relative;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            border-radius: 3px;
+            overflow: hidden;
+
+            &.active {
+                border: 5px solid red;
+            }
+
+            > img {
+                position: absolute;
+                width: 100%;
+            }
+        }
+    }
+
+    .custom {
+        display: none;
+        top: 50%;
+        transform: translateY(-50%);
+        margin: auto;
+        background-color: #b7b7b7;
+        position: fixed;
+        max-width: 500px;
+        margin: auto;
+        left: 0;
+        right: 0;
+
+        &.active {
+            display: block;
+        }
+    }
+}
+
+.assetsButton {
+    content: "";
+    position: absolute;
+    height: 50px;
+    width: 40px;
+    right: 0;
+    background: #000;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    border-radius: 25px 0 0 25px;
+    background-repeat: no-repeat;
+    background-size: 50%;
+    background-position: center;
+    background-image: url("/Resources/Public/Images/Icons/left.svg");
+
+    body.open & {
+        background-image: url("/Resources/Public/Images/Icons/right.svg");
+        right: 40%;
+    }
+}
+
+.smallbtn {
+    background-color: rgba(0, 0, 0, 0.2);
+    margin-right: 5px;
+    height: 25px;
+    width: 25px;
+    text-align: center;
+    line-height: 25px;
+    font-weight: bold;
+    color: #FFF;
+    border-radius: 3px;
+    cursor: pointer;
+}

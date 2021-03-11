@@ -1,0 +1,182 @@
+/*
+sassc /var/www/florian/www/Resources/Public/Scss/Basic.scss > /var/www/florian/www/Resources/Public/Css/Basic.css;sassc /var/www/florian/www/Resources/Public/Scss/Floor.scss > /var/www/florian/www/Resources/Public/Css/Floor.css;sassc /var/www/florian/www/Resources/Public/Scss/Game.scss > /var/www/florian/www/Resources/Public/Css/Game.css;sassc /var/www/florian/www/Resources/Public/Scss/Generator.scss > /var/www/florian/www/Resources/Public/Css/Generator.css;sassc /var/www/florian/www/Resources/Public/Scss/AssetGenerator.scss > /var/www/florian/www/Resources/Public/Css/AssetGenerator.css
+*/
+/***********************************
+*************** reset **************
+***********************************/
+body {
+    overflow: hidden;
+    background-color: #000;
+    width: 100vw;
+}
+/***********************************
+************** canvas **************
+***********************************/
+.game canvas {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    image-rendering: crisp-edges;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    -ms-interpolation-mode: nearest-neighbor;
+}
+/***********************************
+************** loader **************
+***********************************/
+.loaderBar {
+    position: absolute;
+    bottom: 0;
+    height: 30px;
+    left: 0;
+    background: #797979;
+    right: 0;
+    z-index: 11;
+    width: 100%;
+
+    .loading-done &,
+    .remove-loaderBar & {
+        display: none;
+    }
+
+    .bar {
+        width: 0;
+        height: 100%;
+        background: #252121;
+    }
+
+    .text {
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        position: absolute;
+        top: 0;
+        color: #FFF;
+        line-height: 30px;
+    }
+}
+
+.loader {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    width: 100%;
+    height: 20vh;
+    text-align: center;
+    font-size: 10px;
+    z-index: 10;
+
+    .loading-done & {
+        display: none;
+    }
+
+    &:after {
+        content: "";
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        background: #000;
+        left: 0;
+        right: 0;
+        z-index: -1;
+    }
+
+    > div {
+        background-color: #797979;
+        height: 100%;
+        width: 20px;
+        display: inline-block;
+        -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
+        animation: sk-stretchdelay 1.2s infinite ease-in-out;
+    }
+
+    .rect2 {
+        -webkit-animation-delay: -1.1s;
+        animation-delay: -1.1s;
+    }
+
+    .rect3 {
+        -webkit-animation-delay: -1.0s;
+        animation-delay: -1.0s;
+    }
+
+    .rect4 {
+        -webkit-animation-delay: -0.9s;
+        animation-delay: -0.9s;
+    }
+
+    .rect5 {
+        -webkit-animation-delay: -0.8s;
+        animation-delay: -0.8s;
+    }
+}
+@-webkit-keyframes sk-stretchdelay {
+    0%,
+    100%,
+    40% {
+        -webkit-transform: scaleY(0.4);
+    }
+
+    20% {
+        -webkit-transform: scaleY(1.0);
+    }
+}
+@keyframes sk-stretchdelay {
+    0%,
+    100%,
+    40% {
+        transform: scaleY(0.4);
+        -webkit-transform: scaleY(0.4);
+    }
+
+    20% {
+        transform: scaleY(1.0);
+        -webkit-transform: scaleY(1.0);
+    }
+}
+/***********************************
+********* mobileControls ***********
+***********************************/
+#mobileControls {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    // not 0 or you can't click the buttons.... ugly
+    bottom: 40px;
+    z-index: 1;
+    .suspended &{
+        z-index: -100;
+    }
+
+    // .suspended & canvas {
+    //     display: none !important;
+    // }
+}
+/***********************************
+*********** fullscreen *************
+***********************************/
+.fullscreen {
+    display: inline-block;
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    max-height: 50px;
+    max-width: 50px;
+    height: 10vh;
+    width: 10vh;
+    cursor: pointer;
+    background: green;
+    background-repeat: no-repeat;
+    background-size: 50%;
+    background-position: center;
+    background-image: url("/Resources/Public/Images/Icons/fullscreen.svg");
+    z-index: 1;
+
+    body.isFullscreen & {
+        background-image: url("/Resources/Public/Images/Icons/fullscreen_off.svg");
+    }
+}

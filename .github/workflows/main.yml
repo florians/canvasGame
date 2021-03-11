@@ -17,6 +17,7 @@ jobs:
         uses: andstor/jsdoc-action@v1.2.0
         with:
           source_dir: ./Resources/Public/JavaScript/
+          recurse: true
           output_dir: ./Doc
           #config_file: conf.json
           template: minami

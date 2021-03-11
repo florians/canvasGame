@@ -23,7 +23,7 @@ jobs:
       - uses: andstor/jsdoc-action@v1.2.0
         with:
          # Source directory to build documentation from
-         source_dir-path: './home/runner/work/canvasGame/Resources/Public/JavaScript'
+         source_dir: './home/runner/work/canvasGame/Resources/Public/JavaScript'
          recurse: true
          # Output folder for the generated documentation
          output_dir: Doc

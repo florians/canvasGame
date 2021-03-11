@@ -19,7 +19,7 @@ jobs:
           source_dir: ./Resources/Public/JavaScript/
           recurse: true
           output_dir: ./Doc
-          template: tui-jsdoc-template
+          #template: tui-jsdoc-template
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:

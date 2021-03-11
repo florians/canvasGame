@@ -20,10 +20,10 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - uses: andstor/jsdoc-action@v1.2.0
+      - uses: brunokrauss/jsdoc-action@3
         with:
          # Source directory to build documentation from
-         source_dir: Resources/Public/JavaScript
-         recurse: true
+         jsdoc-path: 'Resources/Public/JavaScript'
+         #recurse: true
          # Output folder for the generated documentation
-         output_dir: Doc
+         #output_dir: Doc

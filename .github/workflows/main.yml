@@ -23,7 +23,7 @@ jobs:
       - uses: brunokrauss/jsdoc-action@3
         with:
          # Source directory to build documentation from
-         jsdoc-path: './Resources/Public/JavaScript'
+         jsdoc-path: './home/runner/work/canvasGame/canvasGame/Resources/Public/JavaScript'
          #recurse: true
          # Output folder for the generated documentation
          #output_dir: Doc

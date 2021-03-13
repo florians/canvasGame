@@ -1,11 +1,11 @@
 /**
- * [Action description]
+ * Includes an Action of Player/Enemy
+ * @class
  */
 class Action {
     /**
-     * [constructor description]
-     * @param {[type]} target [description]
-     * @param {[type]} skill  [description]
+     * @param {object} target some target
+     * @param {object} skill some skill
      */
     constructor(target, skill) {
         this.target = target;

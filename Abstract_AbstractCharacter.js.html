@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: Game/Action.js</title>
+    <title>JSDoc: Source: Abstract/AbstractCharacter.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: Game/Action.js</h1>
+    <h1 class="page-title">Source: Abstract/AbstractCharacter.js</h1>
 
     
 
@@ -27,31 +27,46 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>/**
- * Includes an Action of Player/Enemy
+ * Abstact Character, defines Player and Enemy> not yet done
  * @class
  */
-class Action {
-    /**
-     * @param {object} target some target
-     * @param {object} skill some skill
-     */
-    constructor(target, skill) {
-        this.target = target;
-        this.skill = skill;
-        this.turns = parseInt(skill.turns);
-        this.type = parseInt(skill.type);
-        this.value = parseInt(skill.value);
+class AbstractCharacter {
+    constructor() {
+        this.name = '';
+        this.stats = {};
+        this.skills = [];
+        this.bars = new Bars(this);
     }
-    use() {
-        this.skill.addExp();
-        if (_game.battle) {
-            if (this.type == 2 || this.type == 3) {
-                this.target.stats.addStat('hp', this.value);
-            } else {
-                this.target.stats.removeHp(this.value);
-                _game.battle.challengers.deathCheck(this.target);
-            }
+    /**
+     * @param  {array} result
+     * @return {array} skillContainer contains up/downscaled skill
+     */
+    scaleSkill(result) {
+        let skillContainer = {};
+        let skill = _game._skills.get(result['skills_uid']);
+        return skillContainer = {
+            cost: skill.cost,
+            level: result.level,
+            name: skill.name,
+            text: skill.text,
+            turns: skill.turns,
+            type: skill.type,
+            uid: skill.uid,
+            value: skill.value,
+            exp: result.exp
         }
+    }
+    /**
+     * @param {string} uid set the uid > parsed to int
+     */
+    setUid(uid) {
+        this.uid = parseInt(uid);
+    }
+    /**
+     * @param {string} level set level > parsed to int
+     */
+    setLevel(level) {
+        this.level = parseInt(level);
     }
 }
 </code></pre>

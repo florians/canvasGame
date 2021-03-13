@@ -135,6 +135,7 @@ class Floor {
     resetStart() {
         this.oldStageOffset.x = 0;
         this.oldStageOffset.y = 0;
+        this.init();
     }
     /************************
      ***** Loader init ******
@@ -151,7 +152,7 @@ class Floor {
             this.stage.y = this.oldStageOffset.y;
         }
         this.setStageCenter();
-        this.resetOffset()
+        this.resetOffset();
     }
     /************************
      **** Canvas changes ****
@@ -164,6 +165,7 @@ class Floor {
         // move canvas content
         let stageOffsetXInt = Math.round(this.stageOffset.x);
         let stageOffsetYInt = Math.round(this.stageOffset.y);
+        
         _ctxWorld.translate(this.oldStageOffset.x - stageOffsetXInt, this.oldStageOffset.y - stageOffsetYInt);
         this.oldStageOffset.x = stageOffsetXInt;
         this.oldStageOffset.y = stageOffsetYInt;

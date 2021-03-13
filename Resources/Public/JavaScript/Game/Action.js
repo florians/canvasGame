@@ -1,4 +1,12 @@
+/**
+ * [Action description]
+ */
 class Action {
+    /**
+     * [constructor description]
+     * @param {[type]} target [description]
+     * @param {[type]} skill  [description]
+     */
     constructor(target, skill) {
         this.target = target;
         this.skill = skill;

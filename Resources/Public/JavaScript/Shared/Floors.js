@@ -29,22 +29,15 @@ class Floors {
                 this.floors[result.level] = this.add(result);
             }
         } else {
-            this.fallback();
+            this.floorLevel = 1;
+            this.getCurrent().resetStart();
         }
-        return this;
     }
     /************************
      ***** Add Floor ********
      ************************/
     add(result) {
         return new Floor(this.parent, result);
-    }
-    /************************
-     ****** Fallback ********
-     ************************/
-    fallback() {
-        this.floorLevel = 1;
-        this.getCurrent().resetStart();
     }
     /************************
      ******** Getter ********
@@ -77,14 +70,10 @@ class Floors {
      **** Canvas changes ****
      ************************/
     draw() {
-        if (this.getCurrent()) {
-            this.getCurrent().draw();
-        }
+        this.getCurrent().draw();
     }
     resize() {
-        if (this.getCurrent()) {
-            this.getCurrent().resize();
-        }
+        this.getCurrent().resize();
     }
 
     /************************

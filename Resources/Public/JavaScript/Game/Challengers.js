@@ -34,7 +34,8 @@ class Challengers {
                 this.enemyDeath();
             }
             delete _game.battle;
-            _game.ui.repaint = true;
+            //_game.ui.repaint = true;
+            //_game.start();
         }
     }
     playerDeath() {
@@ -44,7 +45,7 @@ class Challengers {
     enemyDeath() {
         this.player.stats.addStat('exp');
         _game.battle.challengers.remove();
-        _game._player.savePlayer();
-        _game.start();
+        _game._player.savePlayer(); // > runs game init
+        //_game.start();
     }
 }

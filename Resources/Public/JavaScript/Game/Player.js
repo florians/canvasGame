@@ -10,12 +10,12 @@ class Player extends AbstractCharacter {
         this.x = 0;
         this.y = 0;
         this.items = new Items();
-        this.skills = [];
+        //this.skills = [];
         this.uid = 0;
-        this.name = '';
+        //this.name = '';
         this.level = 0;
-        this.stats = {};
-        this.bars = new Bars(this);
+        //this.stats = {};
+        //this.bars = new Bars(this);
         // values type, x, y, h, w, color
         // y = [0, 10] 0% + 10
         this.bars.add('hp', 0, 0, 20, 50, 'rgb(255,0,0)');
@@ -25,18 +25,18 @@ class Player extends AbstractCharacter {
     /************************
      **** Setup Loader ******
      ************************/
-    load(playerName) {
-        _game.loader.add('data', 'player', {
-            type: 'getPlayer',
-            name: playerName
-        });
-    }
-    loadSkills(playerName) {
-        _game.loader.add('data', 'playerSkills', {
-            type: 'getPlayerSkills',
-            name: playerName
-        });
-    }
+    // load(playerName) {
+    //     _game.loader.add('data', 'player', {
+    //         type: 'getPlayer',
+    //         name: playerName
+    //     });
+    // }
+    // loadSkills(playerName) {
+    //     _game.loader.add('data', 'playerSkills', {
+    //         type: 'getPlayerSkills',
+    //         name: playerName
+    //     });
+    // }
     savePlayer() {
         let skillArray = [];
         for (var i = 0; i < this.skills.length; i++) {

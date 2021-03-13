@@ -29,11 +29,10 @@ class Loader {
         if (this.promises) {
             Promise.all(this.promises).then((result) => {
                 this.getObj().preloaderResult(result);
-            }).then((result) => {
-                this.clear();
             }).catch((error) => {
                 console.error(error);
             });
+            this.clear();
         }
     }
     // max steps the progressbar can have
@@ -56,8 +55,8 @@ class Loader {
             document.querySelector('.loaderBar .text').innerHTML = '';
         }
     }
-    hide(){
-        document.body.classList.add('remove-loaderBar');
+    hide() {
+        document.body.classList.add('remove-loaderBar', 'loading-done');
     }
     reset() {
         this.progress = 0;

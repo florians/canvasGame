@@ -1,3 +1,7 @@
+/**
+ * Container for images
+ * @class
+ */
 class Assets {
     constructor(parent) {
         this.parent = parent;

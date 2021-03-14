@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Shared/Assets.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Shared/Assets.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Container for images
+ * @class
+ */
+class Assets {
+    constructor(parent) {
+        this.parent = parent;
+        this.assets = [];
+        this.assetsType = [];
+        this.assetLayers = [];
+        this.parent.spriteSheet = null;
+        this.generateSpriteSheet();
+    }
+    generateSpriteSheet() {
+        let image = new Image();
+        image.src = gameBaseUrl + 'SpriteSheet.webp';
+        image.onload = () => {
+            this.parent.preloader();
+        };
+        this.parent.spriteSheet = image;
+    }
+    /************************
+     **** Setup Loader ******
+     ************************/
+     // change in gen
+    load() {
+        this.parent.loader.add('data', 'assets', {
+            type: 'getAllAssets'
+        });
+        this.parent.loader.add('data', 'initAssetLayerTypes', {
+            type: 'getAssetsType'
+        });
+    }
+    /************************
+     ***** Loader init ******
+     ************************/
+    init(result) {
+        let assets = '';
+        let assetsType = '';
+        if (result.assets) {
+            assets = result.assets;
+            assetsType = result.assetsType;
+        } else {
+            assets = result;
+        }
+        // this.parent.loader.reset();
+        // this.parent.loader.addMax(result.length);
+        // this.parent.loader.addText('Loading assets...');
+        // init all assets
+        for (let i = 0; i &lt; assets.length; i++) {
+            this.assets[assets[i].uid] = this.add(assets[i]);
+        }
+        // init assetLayers
+        for (let i = 0; i &lt; assetsType.length; i++) {
+            if (!this.assetLayers[assetsType[i].layer]) {
+                this.assetLayers[assetsType[i].layer] = [];
+            }
+            this.assetLayers[assetsType[i].layer].push(assetsType[i].name);
+        }
+        this.setRequirements();
+        return this;
+    }
+    initAssetLayerTypes(result) {
+        for (let i = 0; i &lt; result.length; i++) {
+            if (!this.assetLayers[result[i].layer]) {
+                this.assetLayers[result[i].layer] = [];
+            }
+            this.assetLayers[result[i].layer].push(result[i].name);
+        }
+    }
+    /************************
+     ******** Getter ********
+     ************************/
+    getTypes(type) {
+        return this.assetLayers[type];
+    }
+    // getTypeGroups(type) {
+    //     return this.typeGroups[type];
+    // }
+    getByType(type) {
+        let assetArray = [];
+        for (var i = 0; i &lt; this.assets.length; i++) {
+            if (this.assets[i] &amp;&amp; this.assets[i].type == type) {
+                assetArray.push(this.assets[i]);
+            }
+        }
+        return assetArray;
+    }
+    getByName(name) {
+        for (var i = 0; i &lt; this.assets.length; i++) {
+            if (this.assets[i] &amp;&amp; this.assets[i].name == name) {
+                return this.assets[i];
+            }
+        }
+    }
+    getTypeWidthTypeuid(typeuid) {
+        for (var i = 0; i &lt; this.assets.length; i++) {
+            if (this.assets[i] &amp;&amp; this.assets[i].typeuid == typeuid) {
+                return this.assets[i].type;
+            }
+        }
+    }
+    getLayerWidthTypeuid(typeuid) {
+        for (var i = 0; i &lt; this.assets.length; i++) {
+            if (this.assets[i] &amp;&amp; this.assets[i].typeuid == typeuid) {
+                return this.assets[i];
+            }
+        }
+    }
+    getByLayer(layer) {
+        let assetArray = [];
+        for (var i = 0; i &lt; this.assets.length; i++) {
+            if (this.assets[i] &amp;&amp; this.assets[i].layer == layer) {
+                assetArray.push(this.assets[i]);
+            }
+        }
+        return assetArray;
+    }
+    get(id) {
+        return this.assets[id];
+    }
+    count() {
+        return this.assets.length;
+    }
+    setRequirements() {
+        for (var i = 0; i &lt; this.assets.length; i++) {
+            if (!this.assets[i]) {
+                continue;
+            }
+            if (this.assets[i].req !== null &amp;&amp; this.assets[i].req != 'null' &amp;&amp; this.assets[i].req.length !== 0) {
+                this.assets[i].setRequirements();
+            } else {
+                this.assets[i].req = [];
+            }
+        }
+    }
+    /************************
+     ****** Add Asset ********
+     ************************/
+    add(result) {
+        return new Asset(this.parent, result);
+    }
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AbstractCharacter.html">AbstractCharacter</a></li><li><a href="Action.html">Action</a></li><li><a href="Assets.html">Assets</a></li><li><a href="Game.html">Game</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Sun Mar 14 2021 18:14:56 GMT+0000 (Coordinated Universal Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

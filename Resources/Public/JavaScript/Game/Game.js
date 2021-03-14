@@ -7,35 +7,35 @@ class Game {
     constructor() {
         /** set _ctxWorld and _ctxUi dimensions */
         this.setCanvasSize();
-        /** @type {MouseHandler} */
+        /** @property {MouseHandler} */
         this.mousehandler = new MouseHandler(this);
         this.mousehandler.add('.fullscreen', 'click', 'doFullscreen');
-        /** @type {KeyboardHandler} */
+        /** @property {KeyboardHandler} */
         this.keyboardHandler = new KeyboardHandler(this);
         this.keyboardHandler.setDefault();
         this.keyboardHandler.add(document, 'keydown', 'doFullscreen', [70, 13]);
-        /** @type {Joystick} */
+        /** @property {Joystick} */
         this.joystickHandler = new Joystick();
-        /** @type {Fullscreen} */
+        /** @property {Fullscreen} */
         this.fullscreenHandler = new Fullscreen();
-        /** @type {Loader} */
+        /** @property {Loader} */
         this.loader = new Loader(this);
-        /**@type {Assets} */
+        /**@property {Assets} */
         this._assets = new Assets(this);
-        /** @type {Floors} */
+        /** @property {Floors} */
         this._floors = new Floors(this);
-        /** @type {Skills} */
+        /** @property {Skills} */
         this._skills = new Skills();
-        /** @type {Player} */
+        /** @property {Player} */
         this._player = new Player();
 
-        /** @type {boolean} stopGame  - stop the rendering loop */
+        /** @property {boolean} stopGame  - stop the rendering loop */
         this.stopGame = false;
         // rendering loop
         this.raF = 0;
-        /** @type {number} delta - rendering loop delta */
+        /** @property {number} delta - rendering loop delta */
         this.delta = 0;
-        /** @type {number} lastTimestamp - rendering loop timestamp */
+        /** @property {number} lastTimestamp - rendering loop timestamp */
         this.lastTimestamp = 0;
     }
     /** first function called > get from DB */

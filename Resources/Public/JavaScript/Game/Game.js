@@ -5,8 +5,19 @@
 class Game {
     /**
      * @constructor
-     * @property {MouseHandler} for Click Events
-     * @property {KeyboardHandler} for Keyboard Events
+     * @property {MouseHandler} mousehandler - for Click Events
+     * @property {KeyboardHandler} keyboardHandler - for Keyboard Events
+     * @property {Joystick} joystickHandler - Generate Joystick for mouse/touch controlls
+     * @property {Fullscreen} fullscreenHandler - Init Fullscreen option
+     * @property {Loader} loader - Init Ajax Loader
+     * @property {Assets} _assets - Assets Container
+     * @property {Floors} _floors - Floor Container
+     * @property {Skills} _skills - Skill Container
+     * @property {Player} _player - Player Container
+     * @property {boolean} stopGame - stop the rendering loop
+     * @property {mixed} raF - requestAnimationFrame
+     * @property {number} delta - rendering loop delta
+     * @property {number} lastTimestamp - rendering loop timestamp
     */
     constructor() {
         /** set _ctxWorld and _ctxUi dimensions */
@@ -16,28 +27,17 @@ class Game {
         this.keyboardHandler = new KeyboardHandler(this);
         this.keyboardHandler.setDefault();
         this.keyboardHandler.add(document, 'keydown', 'doFullscreen', [70, 13]);
-        /** @property {Joystick} */
         this.joystickHandler = new Joystick();
-        /** @property {Fullscreen} */
         this.fullscreenHandler = new Fullscreen();
-        /** @property {Loader} */
         this.loader = new Loader(this);
-        /**@property {Assets} */
         this._assets = new Assets(this);
-        /** @property {Floors} */
         this._floors = new Floors(this);
-        /** @property {Skills} */
         this._skills = new Skills();
-        /** @property {Player} */
         this._player = new Player();
 
-        /** @property {boolean} stopGame  - stop the rendering loop */
         this.stopGame = false;
-        // rendering loop
         this.raF = 0;
-        /** @property {number} delta - rendering loop delta */
         this.delta = 0;
-        /** @property {number} lastTimestamp - rendering loop timestamp */
         this.lastTimestamp = 0;
     }
     /** first function called > get from DB */

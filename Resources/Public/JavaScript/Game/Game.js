@@ -3,14 +3,16 @@
  * @class
  */
 class Game {
-    /** @constructor */
+    /**
+     * @constructor
+     * @property {MouseHandler} for Click Events
+     * @property {KeyboardHandler} for Keyboard Events
+    */
     constructor() {
         /** set _ctxWorld and _ctxUi dimensions */
         this.setCanvasSize();
-        /** @property {MouseHandler} */
         this.mousehandler = new MouseHandler(this);
         this.mousehandler.add('.fullscreen', 'click', 'doFullscreen');
-        /** @property {KeyboardHandler} */
         this.keyboardHandler = new KeyboardHandler(this);
         this.keyboardHandler.setDefault();
         this.keyboardHandler.add(document, 'keydown', 'doFullscreen', [70, 13]);
@@ -77,10 +79,6 @@ class Game {
                 if (result[i].name == "floors") {
                     this._floors.init(result[i].result);
                 }
-                /** returned player after saving it */
-                // if (result[i].name == "player") {
-                //     this._player.init(result[i].result);
-                // }
                 /** returned player after saving it */
                 if (result[i].name == "playerUid") {
                     this._player.setUid(result[i].result);

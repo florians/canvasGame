@@ -9,13 +9,15 @@ class AjaxHandler {
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             xhr.onreadystatechange = function() {
                 if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-                    let result = JSON.parse(this.response);
-                    if (result.state == 'success') {
-                        result.name = name;
-                        //
-                        resolve(result);
-                    } else {
-                        reject(result.msg);
+                    if(this.response){
+                        let result = JSON.parse(this.response);
+                        if (result.state == 'success') {
+                            result.name = name;
+                            //
+                            resolve(result);
+                        } else {
+                            reject(result.msg);
+                        }
                     }
                 }
             }

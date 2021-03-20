@@ -3,6 +3,10 @@
  * @class
  */
 class Assets {
+    /**
+     * @param {object} parent - parent class
+     * @constructor
+     */
     constructor(parent) {
         this.parent = parent;
         this.assets = [];

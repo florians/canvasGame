@@ -106,6 +106,7 @@ function savePlayer($raw = false)
         ]);
         $result = $GLOBALS['db']->select('player', 'uid', ['AND' => ['deleted' => 0, 'name' => $name]]);
         $msg = 'Player: ' . $name . ' added!';
+        returnJson($msg, $result[0]);
     }
     if ($skillArray) {
         for ($i = 0; $i < count($skillArray); $i++) {
@@ -132,5 +133,4 @@ function savePlayer($raw = false)
             }
         }
     }
-    returnJson($msg, $result[0]);
 }
